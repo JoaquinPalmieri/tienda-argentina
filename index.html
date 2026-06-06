@@ -1,324 +1,678 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Recetario</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  <!-- SEO Primario -->
-  <title>Productos Argentinos Online | Yerba Mate, Alfajores, Dulce de Leche y más</title>
-  <meta name="description" content="Tienda online de productos argentinos auténticos. Yerba mate, alfajores Havanna, dulce de leche, vinos Malbec, mates y accesorios. Envíos a Europa. Consulta por WhatsApp." />
-  <meta name="keywords" content="productos argentinos, yerba mate, alfajores, dulce de leche, mate, bombilla, vino malbec, fernet, golosinas argentinas, tienda argentina europa" />
-  <meta name="robots" content="index, follow" />
-  <meta name="author" content="Mi Tienda Argentina" />
-  <link rel="canonical" href="https://mitiendaargentina.com/" />
-
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://mitiendaargentina.com/" />
-  <meta property="og:title" content="Productos Argentinos Online | Yerba Mate, Alfajores y más" />
-  <meta property="og:description" content="Tienda online de productos argentinos auténticos. Yerba mate, alfajores Havanna, dulce de leche, vinos Malbec. Envíos a Europa." />
-  <meta property="og:image" content="https://www.pampadrugstore.net/img/pampa-drugstorenet-logo-1677146065.jpg" />
-  <meta property="og:locale" content="es_ES" />
-  <meta property="og:site_name" content="Mi Tienda Argentina" />
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Productos Argentinos Online" />
-  <meta name="twitter:description" content="Yerba mate, alfajores, dulce de leche y más. Envíos a Europa." />
-  <meta name="twitter:image" content="https://www.pampadrugstore.net/img/pampa-drugstorenet-logo-1677146065.jpg" />
-
-  <!-- Schema.org – Organization -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Store",
-    "name": "Mi Tienda Argentina",
-    "description": "Tienda online de productos argentinos auténticos para Europa",
-    "url": "https://mitiendaargentina.com",
-    "telephone": "+34600000000",
-    "address": {
-      "@type": "PostalAddress",
-      "addressCountry": "ES"
-    },
-    "sameAs": ["https://wa.me/34600000000"],
-    "currenciesAccepted": "EUR",
-    "paymentAccepted": "Contacto por WhatsApp",
-    "openingHours": "Mo-Su 09:00-21:00"
+  :root {
+    --cream: #f5f0e8;
+    --parchment: #ede6d6;
+    --warm-white: #faf8f4;
+    --ink: #1a1612;
+    --ink-light: #4a4240;
+    --rust: #b85c38;
+    --rust-light: #d4784f;
+    --sage: #7a8c6e;
+    --gold: #c9a84c;
+    --shadow: rgba(26, 22, 18, 0.12);
+    --shadow-deep: rgba(26, 22, 18, 0.25);
   }
-  </script>
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
 
-  <link rel="stylesheet" href="css/style.css" />
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(201,168,76,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(122,140,110,0.08) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  header { position: relative; z-index: 10; padding: 3.5rem 2rem 2rem; text-align: center; }
+  .header-label { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase; color: var(--rust); margin-bottom: 0.75rem; }
+  h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.8rem, 6vw, 4.5rem); font-weight: 400; color: var(--ink); line-height: 1.1; letter-spacing: -0.02em; }
+  h1 em { font-style: italic; color: var(--rust); }
+  .header-line { width: 60px; height: 1.5px; background: var(--gold); margin: 1.5rem auto; }
+  .header-sub { font-size: 0.9rem; color: var(--ink-light); font-weight: 300; letter-spacing: 0.03em; }
+
+  .btn-add {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    margin-top: 2rem; padding: 0.75rem 1.75rem;
+    background: var(--rust); color: white; border: none; border-radius: 2px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 2px 12px rgba(184,92,56,0.25);
+  }
+  .btn-add:hover { background: var(--rust-light); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(184,92,56,0.35); }
+  .btn-add svg { width: 16px; height: 16px; }
+
+  main { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 1rem 2rem 6rem; }
+  .empty-state { text-align: center; padding: 5rem 2rem; opacity: 0.45; }
+  .empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .empty-state p { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.1rem; color: var(--ink-light); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 2rem; }
+
+  /* ── Book ── */
+  .book-wrapper { perspective: 1200px; cursor: pointer; animation: fadeUp 0.5s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+  .book { position: relative; width: 100%; padding-top: 140%; transform-style: preserve-3d; transition: transform 0.7s cubic-bezier(0.4,0,0.2,1); }
+  .book-wrapper:hover .book { transform: rotateY(-8deg) rotateX(2deg) translateY(-6px); }
+
+  .book-front, .book-back {
+    position: absolute; inset: 0;
+    backface-visibility: hidden;
+    border-radius: 2px 8px 8px 2px; overflow: hidden;
+  }
+
+  .book-front {
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 1.5rem 1.25rem;
+    box-shadow: -4px 0 0 rgba(0,0,0,0.15), 4px 8px 24px var(--shadow-deep), inset -3px 0 8px rgba(0,0,0,0.08);
+  }
+
+  /* Photo cover layer */
+  .cover-img {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    z-index: 0;
+  }
+  .cover-img::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(8,4,2,0.85) 0%, rgba(8,4,2,0.35) 55%, rgba(8,4,2,0.1) 100%);
+  }
+  .cover-img.loading {
+    background: linear-gradient(90deg, #e8e0cc 25%, #f0e8d8 50%, #e8e0cc 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+  /* Glass sheen */
+  .book-front::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 55%);
+    pointer-events: none; z-index: 2;
+  }
+  /* Spine */
+  .book-front::after {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 14px; height: 100%;
+    background: rgba(0,0,0,0.2);
+    box-shadow: inset -3px 0 6px rgba(0,0,0,0.18); z-index: 3;
+  }
+
+  .cover-category { position: relative; z-index: 4; font-size: 0.62rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.75); margin-bottom: 0.5rem; }
+  .cover-title { position: relative; z-index: 4; font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 600; color: white; line-height: 1.25; text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
+  .cover-meta { position: relative; z-index: 4; margin-top: 0.75rem; font-size: 0.72rem; color: rgba(255,255,255,0.65); display: flex; gap: 0.75rem; }
+  .cover-meta span { display: flex; align-items: center; gap: 0.25rem; }
+
+  /* Fallback color gradients */
+  .color-0 { background: linear-gradient(150deg, #b85c38 0%, #8b3a22 100%); }
+  .color-1 { background: linear-gradient(150deg, #7a8c6e 0%, #4e6040 100%); }
+  .color-2 { background: linear-gradient(150deg, #c9a84c 0%, #9a7830 100%); }
+  .color-3 { background: linear-gradient(150deg, #5c7a8c 0%, #2e4f63 100%); }
+  .color-4 { background: linear-gradient(150deg, #8c6e7a 0%, #5e3d51 100%); }
+  .color-5 { background: linear-gradient(150deg, #4a6e5c 0%, #2b4a38 100%); }
+
+  /* Back side */
+  .book-back {
+    transform: rotateY(180deg);
+    background: var(--warm-white);
+    box-shadow: 4px 8px 24px var(--shadow-deep);
+    display: flex; flex-direction: column;
+    padding: 1.5rem 1.25rem;
+    border-left: 3px solid var(--parchment);
+  }
+  .back-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; line-height: 1.2; }
+  .back-line { width: 30px; height: 1.5px; background: var(--rust); margin-bottom: 0.9rem; }
+  .back-section-label { font-size: 0.6rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sage); margin-bottom: 0.4rem; }
+  .back-ingredients { font-size: 0.75rem; color: var(--ink-light); line-height: 1.7; flex: 1; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%); }
+  .close-hint { text-align: center; font-size: 0.65rem; color: var(--rust); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.5rem; opacity: 0.7; }
+
+  /* Card action buttons */
+  .book-actions {
+    position: absolute; top: 0.55rem; right: 0.55rem;
+    z-index: 5; display: flex; gap: 0.3rem;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .book-wrapper:hover .book-actions { opacity: 1; }
+  .book-action-btn {
+    background: rgba(20,10,5,0.35); border: none;
+    color: rgba(255,255,255,0.9);
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 0.72rem;
+    transition: background 0.2s; backdrop-filter: blur(4px);
+  }
+  .book-action-btn:hover { background: rgba(255,255,255,0.3); }
+  .book-action-btn.del:hover { background: rgba(200,40,20,0.6); }
+
+  /* ── Recipe modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(26,22,18,0.65); backdrop-filter: blur(6px);
+    z-index: 100; display: flex; align-items: center; justify-content: center;
+    padding: 1.5rem; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .modal-overlay.visible { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--warm-white); max-width: 560px; width: 100%;
+    max-height: 85vh; overflow-y: auto; border-radius: 4px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.35s cubic-bezier(0.34,1.2,0.64,1); position: relative;
+  }
+  .modal-overlay.visible .modal { transform: translateY(0) scale(1); }
+
+  .modal-cover {
+    height: 200px; display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 1.5rem 2rem; position: relative; overflow: hidden;
+  }
+  .modal-cover-bg {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+  }
+  .modal-cover-bg::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(8,4,2,0.82) 0%, rgba(8,4,2,0.2) 70%);
+  }
+  .modal-cover-cat { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.7); position: relative; z-index: 1; margin-bottom: 0.35rem; }
+  .modal-cover-title { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: white; font-weight: 600; position: relative; z-index: 1; line-height: 1.15; }
+
+  .modal-body { padding: 2rem; }
+  .modal-meta { display: flex; gap: 1.5rem; margin-bottom: 1.75rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--parchment); }
+  .modal-meta-item { text-align: center; }
+  .modal-meta-val { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--rust); line-height: 1; }
+  .modal-meta-key { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-light); margin-top: 0.2rem; }
+
+  .modal-section { margin-bottom: 1.5rem; }
+  .modal-section h3 { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sage); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+  .modal-section h3::after { content: ''; flex: 1; height: 1px; background: var(--parchment); }
+  .ingredient-list { list-style: none; }
+  .ingredient-list li { font-size: 0.88rem; color: var(--ink); padding: 0.4rem 0; border-bottom: 1px solid rgba(237,230,214,0.6); display: flex; align-items: baseline; gap: 0.5rem; }
+  .ingredient-list li::before { content: '—'; color: var(--rust); font-size: 0.7rem; flex-shrink: 0; }
+  .steps-list { list-style: none; counter-reset: steps; }
+  .steps-list li { font-size: 0.88rem; color: var(--ink); line-height: 1.6; padding: 0.75rem 0 0.75rem 2.5rem; border-bottom: 1px solid rgba(237,230,214,0.6); position: relative; counter-increment: steps; }
+  .steps-list li::before { content: counter(steps); position: absolute; left: 0; top: 0.7rem; font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--rust); font-style: italic; line-height: 1; width: 1.75rem; text-align: center; }
+  .modal-notes { font-size: 0.83rem; color: var(--ink-light); font-style: italic; background: var(--parchment); padding: 1rem 1.25rem; border-left: 3px solid var(--gold); border-radius: 0 2px 2px 0; line-height: 1.6; }
+
+  .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.25); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; z-index: 10; transition: background 0.2s; backdrop-filter: blur(4px); }
+  .modal-close:hover { background: rgba(0,0,0,0.45); }
+
+  .modal-edit-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    margin-top: 1.5rem; padding: 0.6rem 1.4rem;
+    background: transparent; border: 1.5px solid var(--rust); color: var(--rust);
+    font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase; border-radius: 2px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .modal-edit-btn:hover { background: var(--rust); color: white; }
+
+  /* ── Form ── */
+  .form-overlay {
+    position: fixed; inset: 0;
+    background: rgba(26,22,18,0.65); backdrop-filter: blur(6px);
+    z-index: 200; display: flex; align-items: center; justify-content: center;
+    padding: 1.5rem; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .form-overlay.visible { opacity: 1; pointer-events: all; }
+  .form-modal {
+    background: var(--warm-white); max-width: 520px; width: 100%;
+    max-height: 90vh; overflow-y: auto; border-radius: 4px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+    transform: translateY(20px); transition: transform 0.35s cubic-bezier(0.34,1.2,0.64,1);
+  }
+  .form-overlay.visible .form-modal { transform: translateY(0); }
+  .form-header { padding: 2rem 2rem 1.25rem; border-bottom: 1px solid var(--parchment); }
+  .form-header h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--ink); font-weight: 400; }
+  .form-header p { font-size: 0.8rem; color: var(--ink-light); margin-top: 0.25rem; }
+  .form-body { padding: 1.5rem 2rem 2rem; }
+  .form-row { margin-bottom: 1.25rem; }
+  .form-row label { display: block; font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sage); margin-bottom: 0.4rem; }
+  .form-row input, .form-row textarea, .form-row select {
+    width: 100%; padding: 0.65rem 0.85rem;
+    border: 1.5px solid var(--parchment); border-radius: 2px;
+    background: white; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+  }
+  .form-row input:focus, .form-row textarea:focus, .form-row select:focus {
+    border-color: var(--rust); box-shadow: 0 0 0 3px rgba(184,92,56,0.1);
+  }
+  .form-row textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+  .form-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+  .form-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--parchment); }
+  .btn-cancel { padding: 0.65rem 1.4rem; background: transparent; border: 1.5px solid var(--parchment); color: var(--ink-light); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; border-radius: 2px; cursor: pointer; transition: all 0.2s; }
+  .btn-cancel:hover { border-color: var(--ink-light); }
+  .btn-save { padding: 0.65rem 1.75rem; background: var(--rust); border: none; color: white; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 2px; cursor: pointer; transition: background 0.2s, transform 0.15s; }
+  .btn-save:hover { background: var(--rust-light); transform: translateY(-1px); }
+  .btn-save:disabled { opacity: 0.6; transform: none; cursor: default; }
+
+  /* Cover preview in form */
+  .img-preview-wrap { margin-top: 0.6rem; display: none; }
+  .img-preview-wrap .preview-label { font-size: 0.62rem; color: var(--ink-light); font-style: italic; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem; }
+  .img-preview-wrap .spinner { width: 10px; height: 10px; border: 2px solid var(--parchment); border-top-color: var(--rust); border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .img-preview-box { height: 88px; border-radius: 2px; overflow: hidden; background: var(--parchment); }
+  .img-preview-box img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.4s; }
+  .img-preview-box img.loaded { opacity: 1; }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--parchment); }
+  ::-webkit-scrollbar-thumb { background: var(--rust); border-radius: 4px; }
+
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    .form-cols { grid-template-columns: 1fr; }
+    h1 { font-size: 2.2rem; }
+  }
+</style>
 </head>
 <body>
 
-  <!-- ===================== HEADER ===================== -->
-  <header class="header" id="header">
-    <div class="header__inner">
-      <div class="header__logo">
-        <span class="logo-flag">🇦🇷</span>
-        <div class="logo-text">
-          <strong>Mi Tienda</strong>
-          <span>Argentina</span>
-        </div>
-      </div>
+<header>
+  <div class="header-label">Colección personal</div>
+  <h1>Mi <em>Recetario</em></h1>
+  <div class="header-line"></div>
+  <p class="header-sub">Cada receta, una historia. Toca un libro para leerla.</p>
+  <button class="btn-add" onclick="openForm(null)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+    Nueva receta
+  </button>
+</header>
 
-      <div class="header__search">
-        <div class="search-box">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input
-            type="text"
-            id="searchInput"
-            class="search-input"
-            placeholder="Buscar productos..."
-            aria-label="Buscar productos"
-          />
-          <button class="search-clear" id="searchClear" aria-label="Limpiar búsqueda">✕</button>
-        </div>
-      </div>
+<main>
+  <div id="emptyState" class="empty-state">
+    <div class="empty-icon">📖</div>
+    <p>Tu recetario está vacío.<br>¡Añade tu primera receta!</p>
+  </div>
+  <div id="grid" class="grid"></div>
+</main>
 
-      <div class="header__actions">
-        <a href="https://wa.me/34600000000?text=Hola%2C%20me%20interesa%20conocer%20el%20cat%C3%A1logo%20de%20productos%20argentinos"
-           class="btn btn--whatsapp"
-           target="_blank" rel="noopener" aria-label="Contactar por WhatsApp">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.122 1.533 5.857L0 24l6.335-1.518A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.003-1.364l-.358-.213-3.762.9.966-3.666-.234-.376A9.818 9.818 0 1112 21.818z"/>
-          </svg>
-          <span>WhatsApp</span>
-        </a>
-        <button class="hamburger" id="hamburger" aria-label="Menú">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
+<!-- Full recipe modal -->
+<div class="modal-overlay" id="recipeModal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeRecipeModal()">✕</button>
+    <div class="modal-cover" id="modalCover">
+      <div class="modal-cover-bg" id="modalCoverBg"></div>
+      <div class="modal-cover-cat" id="modalCat"></div>
+      <div class="modal-cover-title" id="modalTitle"></div>
     </div>
-  </header>
-
-  <!-- ===================== HERO ===================== -->
-  <section class="hero">
-    <div class="hero__content">
-      <div class="hero__badge">🌿 Auténtico &amp; Directo de Argentina</div>
-      <h1 class="hero__title">
-        El sabor que<br />
-        <em>extrañabas</em><br />
-        está aquí
-      </h1>
-      <p class="hero__subtitle">
-        Yerba mate, alfajores, dulce de leche, vinos Malbec y más.
-        Consultá por WhatsApp — enviamos a toda Europa.
-      </p>
-      <div class="hero__ctas">
-        <a href="#catalogo" class="btn btn--primary">Ver catálogo</a>
-        <a href="#contacto" class="btn btn--outline">Consultar envío</a>
+    <div class="modal-body">
+      <div class="modal-meta" id="modalMeta"></div>
+      <div class="modal-section">
+        <h3>Ingredientes</h3>
+        <ul class="ingredient-list" id="modalIngredients"></ul>
       </div>
-      <div class="hero__stats">
-        <div class="stat"><strong>+500</strong><span>productos</span></div>
-        <div class="stat"><strong>24/48h</strong><span>envío</span></div>
-        <div class="stat"><strong>🇦🇷</strong><span>100% original</span></div>
+      <div class="modal-section">
+        <h3>Preparación</h3>
+        <ol class="steps-list" id="modalSteps"></ol>
       </div>
+      <div id="modalNotesWrap" class="modal-section" style="display:none">
+        <h3>Notas</h3>
+        <div class="modal-notes" id="modalNotes"></div>
+      </div>
+      <button class="modal-edit-btn" onclick="editFromModal()">✏️ Editar receta</button>
     </div>
-    <div class="hero__visual" aria-hidden="true">
-      <div class="hero__circles">
-        <div class="circle circle--1"></div>
-        <div class="circle circle--2"></div>
-        <div class="circle circle--3"></div>
-      </div>
-      <div class="hero__emoji-grid">
-        <span>🧉</span><span>☕</span><span>🍫</span>
-        <span>🍷</span><span>🧁</span><span>🌿</span>
-        <span>🏔️</span><span>🫙</span><span>🎁</span>
-      </div>
+  </div>
+</div>
+
+<!-- Add / Edit form -->
+<div class="form-overlay" id="formOverlay" onclick="closeFormOverlay(event)">
+  <div class="form-modal" onclick="event.stopPropagation()">
+    <div class="form-header">
+      <h2 id="formTitle">Nueva receta</h2>
+      <p id="formSubtitle">Completa los campos para añadir una receta a tu colección</p>
     </div>
-  </section>
-
-  <!-- ===================== CATÁLOGO ===================== -->
-  <section class="catalogo" id="catalogo">
-    <div class="catalogo__container">
-
-      <!-- Controles: categorías + orden -->
-      <div class="catalogo__controls">
-        <div class="categorias" id="categorias" role="group" aria-label="Filtrar por categoría">
-          <button class="cat-pill active" data-cat="Todos">Todos</button>
-          <!-- Se generan dinámicamente -->
-        </div>
-        <div class="catalogo__meta">
-          <span id="countText" class="count-text">Cargando...</span>
-          <select id="sortSelect" class="sort-select" aria-label="Ordenar por">
-            <option value="default">Ordenar por</option>
-            <option value="precio_asc">Precio ↑</option>
-            <option value="precio_desc">Precio ↓</option>
-            <option value="nombre_asc">A → Z</option>
-            <option value="margen_desc">Mayor margen</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Grid de productos -->
-      <div class="productos-grid" id="productosGrid" role="list">
-        <!-- Se genera dinámicamente -->
-      </div>
-
-      <!-- Paginación -->
-      <div class="pagination" id="pagination" role="navigation" aria-label="Paginación">
-        <!-- Se genera dinámicamente -->
-      </div>
-
-      <!-- Estado vacío -->
-      <div class="empty-state" id="emptyState" style="display:none;">
-        <div class="empty-icon">🔍</div>
-        <h3>Sin resultados</h3>
-        <p>No encontramos productos para "<span id="emptyQuery"></span>"</p>
-        <button class="btn btn--outline" onclick="resetFiltros()">Ver todos</button>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ===================== CARACTERÍSTICAS ===================== -->
-  <section class="features">
-    <div class="features__inner">
-      <div class="feature-card">
-        <div class="feature-icon">🚚</div>
-        <h3>Envío a Europa</h3>
-        <p>España, Portugal, Italia, Alemania, Francia y muchos más destinos.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🇦🇷</div>
-        <h3>100% Originales</h3>
-        <p>Productos directamente importados desde Argentina. Sin imitaciones.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">💬</div>
-        <h3>Atención Personalizada</h3>
-        <p>Resolvemos todas tus dudas por WhatsApp de forma rápida y directa.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📦</div>
-        <h3>Sin Stock Mínimo</h3>
-        <p>Pedís lo que necesitás. Sin compromisos ni cantidades mínimas.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== CONTACTO ===================== -->
-  <section class="contacto" id="contacto">
-    <div class="contacto__inner">
-      <div class="contacto__info">
-        <h2 class="section-title">¿Querés hacer un pedido?</h2>
-        <p class="contacto__subtitle">
-          Completá el formulario o escribinos directo por WhatsApp.
-          Te respondemos en menos de 24 horas.
-        </p>
-        <div class="contacto__highlights">
-          <div class="highlight">✅ Sin pago online — acordamos por WhatsApp</div>
-          <div class="highlight">✅ Precios y disponibilidad actualizados</div>
-          <div class="highlight">✅ Cotización sin compromiso</div>
-        </div>
-        <a href="https://wa.me/34600000000?text=Hola%2C%20quiero%20consultar%20sobre%20productos%20argentinos"
-           class="btn btn--whatsapp btn--large"
-           target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.122 1.533 5.857L0 24l6.335-1.518A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.003-1.364l-.358-.213-3.762.9.966-3.666-.234-.376A9.818 9.818 0 1112 21.818z"/>
-          </svg>
-          Escribir por WhatsApp
-        </a>
-      </div>
-
-      <div class="contacto__form">
-        <form id="contactForm" class="form" novalidate>
-          <div class="form-group">
-            <label for="nombre">Tu nombre</label>
-            <input type="text" id="nombre" name="nombre" placeholder="Ej. María García" required />
+    <div class="form-body">
+      <div class="form-row">
+        <label>Nombre del plato *</label>
+        <input type="text" id="fName" placeholder="Ej: Lasaña de verduras" oninput="scheduleImageFetch()">
+        <div class="img-preview-wrap" id="imgPreviewWrap">
+          <div class="preview-label">
+            <div class="spinner" id="previewSpinner"></div>
+            Vista previa de la portada
           </div>
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" placeholder="tu@email.com" required />
+          <div class="img-preview-box">
+            <img id="imgPreviewImg" alt="portada">
           </div>
-          <div class="form-group">
-            <label for="pais">País de entrega</label>
-            <select id="pais" name="pais">
-              <option value="">Seleccioná tu país</option>
-              <option>España</option>
-              <option>Portugal</option>
-              <option>Italia</option>
-              <option>Alemania</option>
-              <option>Francia</option>
-              <option>Países Bajos</option>
-              <option>Bélgica</option>
-              <option>Suiza</option>
-              <option>Otro</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="mensaje">Tu consulta o lista de productos</label>
-            <textarea id="mensaje" name="mensaje" rows="4" placeholder="Ej. Quiero 2kg Taragüi, 1 caja alfajores Havanna y consultar envío a Madrid..." required></textarea>
-          </div>
-          <button type="submit" class="btn btn--primary btn--full">
-            Enviar consulta por WhatsApp
-          </button>
-          <p class="form-note">* Al enviar serás redirigido a WhatsApp con tu consulta lista.</p>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== FOOTER ===================== -->
-  <footer class="footer">
-    <div class="footer__inner">
-      <div class="footer__brand">
-        <div class="footer__logo">
-          <span>🇦🇷</span>
-          <strong>Mi Tienda Argentina</strong>
         </div>
-        <p>Productos argentinos auténticos, enviados a toda Europa con cariño y rapidez.</p>
       </div>
-      <div class="footer__cats">
-        <h4>Categorías</h4>
-        <ul id="footerCats">
-          <li><a href="#catalogo">Yerba Mate</a></li>
-          <li><a href="#catalogo">Mates y Accesorios</a></li>
-          <li><a href="#catalogo">Alfajores</a></li>
-          <li><a href="#catalogo">Dulces</a></li>
-          <li><a href="#catalogo">Vinos</a></li>
-          <li><a href="#catalogo">Almacén</a></li>
-        </ul>
+      <div class="form-row">
+        <label>Categoría</label>
+        <select id="fCategory">
+          <option value="Budines">Budines</option>
+          <option value="Carnes blancas">Carnes blancas</option>
+          <option value="Carnes rojas">Carnes rojas</option>
+          <option value="Pastas">Pastas</option>
+          <option value="Tortas">Tortas</option>
+          <option value="Verduras">Verduras</option>
+        </select>
       </div>
-      <div class="footer__contact">
-        <h4>Contacto</h4>
-        <p>
-          <a href="https://wa.me/34600000000" target="_blank" rel="noopener">
-            💬 WhatsApp
-          </a>
-        </p>
-        <p>📦 Envíos a España, Portugal, Italia y más</p>
-        <p>🕘 Lu–Do: 9:00–21:00</p>
+      <div class="form-cols">
+        <div class="form-row">
+          <label>Porciones</label>
+          <input type="number" id="fServings" placeholder="4" min="1">
+        </div>
+        <div class="form-row">
+          <label>Prep (min)</label>
+          <input type="number" id="fPrep" placeholder="15" min="0">
+        </div>
+        <div class="form-row">
+          <label>Cocción (min)</label>
+          <input type="number" id="fCook" placeholder="30" min="0">
+        </div>
       </div>
-    </div>
-    <div class="footer__bottom">
-      <p>© 2025 Mi Tienda Argentina · Todos los derechos reservados · Precios orientativos sujetos a disponibilidad</p>
-      <p class="footer__disclaimer">Catálogo basado en productos de <a href="https://www.pampadrugstore.net/es/" target="_blank" rel="noopener nofollow">Pampa Drugstore</a>. Sitio de catálogo, sin carrito de compras.</p>
-    </div>
-  </footer>
-
-  <!-- ===================== MODAL PRODUCTO ===================== -->
-  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle" style="display:none;">
-    <div class="modal">
-      <button class="modal__close" id="modalClose" aria-label="Cerrar">✕</button>
-      <div class="modal__content" id="modalContent">
-        <!-- Se llena dinámicamente -->
+      <div class="form-row">
+        <label>Ingredientes * (uno por línea)</label>
+        <textarea id="fIngredients" placeholder="2 huevos&#10;1 cebolla mediana&#10;Sal al gusto"></textarea>
+      </div>
+      <div class="form-row">
+        <label>Pasos de preparación * (uno por línea)</label>
+        <textarea id="fSteps" placeholder="Pelar y picar la cebolla&#10;Calentar aceite en sartén&#10;..."></textarea>
+      </div>
+      <div class="form-row">
+        <label>Notas o consejos (opcional)</label>
+        <textarea id="fNotes" placeholder="Truco del chef, variaciones, maridaje..."></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn-cancel" onclick="closeForm()">Cancelar</button>
+        <button class="btn-save" id="btnSave" onclick="saveRecipe()">Guardar receta</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ===================== TOAST ===================== -->
-  <div class="toast" id="toast"></div>
+<script>
+  const COLORS = ['color-0','color-1','color-2','color-3','color-4','color-5'];
+  let recipes = JSON.parse(localStorage.getItem('recetario_v1') || '[]');
+  let currentModal = null;
+  let editingIndex = null;
+  let pendingCoverUrl = null;
+  let nameTimer = null;
 
-  <script src="js/app.js"></script>
+  function save() { localStorage.setItem('recetario_v1', JSON.stringify(recipes)); }
+
+  /* ── Stable image URL: Unsplash Source (no API key) ── */
+  function coverUrlForName(name) {
+    // Derive a stable numeric seed from the recipe name so the same
+    // recipe always gets the same image.
+    const seed = [...name.toLowerCase()].reduce((a, c) => (a * 31 + c.charCodeAt(0)) & 0xfffff, 0);
+    const q = encodeURIComponent(name + ' food');
+    return `https://source.unsplash.com/400x560/?${q}&sig=${seed}`;
+  }
+
+  /* ── Render ── */
+  function render() {
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('emptyState');
+    grid.innerHTML = '';
+    if (!recipes.length) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+
+    recipes.forEach((r, i) => {
+      const fallback = COLORS[i % COLORS.length];
+      const ingPreview = r.ingredients.split('\n').filter(Boolean).slice(0, 6).join('\n');
+
+      const w = document.createElement('div');
+      w.className = 'book-wrapper';
+      w.style.animationDelay = (i * 0.07) + 's';
+
+      w.innerHTML = `
+        <div class="book">
+          <div class="book-front ${r.coverUrl ? '' : fallback}" id="front-${i}">
+            <div class="cover-img" id="covImg-${i}" style="display:none"></div>
+            <div class="book-actions">
+              <button class="book-action-btn" title="Editar" onclick="editCard(event,${i})">✏️</button>
+              <button class="book-action-btn del" title="Eliminar" onclick="deleteRecipe(event,${i})">✕</button>
+            </div>
+            <div class="cover-category">${r.category}</div>
+            <div class="cover-title">${r.name}</div>
+            <div class="cover-meta">
+              ${r.servings ? `<span>🍽 ${r.servings} pax</span>` : ''}
+              ${(r.prep||r.cook) ? `<span>⏱ ${(+r.prep||0)+(+r.cook||0)} min</span>` : ''}
+            </div>
+          </div>
+          <div class="book-back">
+            <div class="back-title">${r.name}</div>
+            <div class="back-line"></div>
+            <div class="back-section-label">Ingredientes</div>
+            <div class="back-ingredients">${ingPreview}</div>
+            <div class="close-hint">Toca para ver todo</div>
+          </div>
+        </div>`;
+
+      // Load cover image
+      if (r.coverUrl) {
+        const imgDiv = w.querySelector(`#covImg-${i}`);
+        const front  = w.querySelector(`#front-${i}`);
+        imgDiv.classList.add('loading');
+        imgDiv.style.display = 'block';
+        const tmp = new Image();
+        tmp.onload = () => {
+          imgDiv.style.backgroundImage = `url(${r.coverUrl})`;
+          imgDiv.classList.remove('loading');
+        };
+        tmp.onerror = () => {
+          imgDiv.style.display = 'none';
+          front.classList.add(fallback);
+        };
+        tmp.src = r.coverUrl;
+      }
+
+      w.addEventListener('click', e => {
+        if (e.target.closest('.book-actions')) return;
+        openRecipeModal(i);
+      });
+      grid.appendChild(w);
+    });
+  }
+
+  /* ── Delete ── */
+  function deleteRecipe(e, i) {
+    e.stopPropagation();
+    if (!confirm(`¿Eliminar "${recipes[i].name}"?`)) return;
+    recipes.splice(i, 1);
+    save(); render();
+  }
+
+  /* ── Edit from card ── */
+  function editCard(e, i) {
+    e.stopPropagation();
+    openForm(i);
+  }
+
+  /* ── Edit from recipe modal ── */
+  function editFromModal() {
+    const idx = currentModal;
+    closeRecipeModal();
+    setTimeout(() => openForm(idx), 200);
+  }
+
+  /* ── Recipe modal ── */
+  function openRecipeModal(i) {
+    const r = recipes[i];
+    currentModal = i;
+
+    // Cover background
+    const bg = document.getElementById('modalCoverBg');
+    const cover = document.getElementById('modalCover');
+    if (r.coverUrl) {
+      bg.style.backgroundImage = `url(${r.coverUrl})`;
+      // remove any leftover color class
+      cover.className = 'modal-cover';
+    } else {
+      bg.style.backgroundImage = '';
+      cover.className = 'modal-cover ' + COLORS[i % COLORS.length];
+    }
+
+    document.getElementById('modalCat').textContent   = r.category;
+    document.getElementById('modalTitle').textContent = r.name;
+
+    let metaHTML = '';
+    if (r.servings) metaHTML += `<div class="modal-meta-item"><div class="modal-meta-val">${r.servings}</div><div class="modal-meta-key">Porciones</div></div>`;
+    if (r.prep)     metaHTML += `<div class="modal-meta-item"><div class="modal-meta-val">${r.prep}'</div><div class="modal-meta-key">Preparación</div></div>`;
+    if (r.cook)     metaHTML += `<div class="modal-meta-item"><div class="modal-meta-val">${r.cook}'</div><div class="modal-meta-key">Cocción</div></div>`;
+    document.getElementById('modalMeta').innerHTML = metaHTML;
+
+    document.getElementById('modalIngredients').innerHTML =
+      r.ingredients.split('\n').filter(Boolean).map(l => `<li>${l.trim()}</li>`).join('');
+    document.getElementById('modalSteps').innerHTML =
+      r.steps.split('\n').filter(Boolean).map(s => `<li>${s.trim()}</li>`).join('');
+
+    if (r.notes && r.notes.trim()) {
+      document.getElementById('modalNotes').textContent = r.notes;
+      document.getElementById('modalNotesWrap').style.display = 'block';
+    } else {
+      document.getElementById('modalNotesWrap').style.display = 'none';
+    }
+
+    document.getElementById('recipeModal').classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeRecipeModal() {
+    document.getElementById('recipeModal').classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('recipeModal')) closeRecipeModal();
+  }
+
+  /* ── Form open ── */
+  function openForm(index) {
+    editingIndex = index;
+    pendingCoverUrl = null;
+    clearTimeout(nameTimer);
+
+    const isEdit = index !== null;
+    document.getElementById('formTitle').textContent    = isEdit ? 'Editar receta'  : 'Nueva receta';
+    document.getElementById('formSubtitle').textContent = isEdit ? 'Modificá los campos y guardá los cambios' : 'Completá los campos para añadir una receta a tu colección';
+    document.getElementById('btnSave').textContent      = isEdit ? 'Guardar cambios' : 'Guardar receta';
+
+    if (isEdit) {
+      const r = recipes[index];
+      document.getElementById('fName').value        = r.name;
+      document.getElementById('fCategory').value    = r.category;
+      document.getElementById('fServings').value    = r.servings || '';
+      document.getElementById('fPrep').value        = r.prep || '';
+      document.getElementById('fCook').value        = r.cook || '';
+      document.getElementById('fIngredients').value = r.ingredients;
+      document.getElementById('fSteps').value       = r.steps;
+      document.getElementById('fNotes').value       = r.notes || '';
+      if (r.coverUrl) {
+        pendingCoverUrl = r.coverUrl;
+        showPreview(r.coverUrl);
+      } else {
+        hidePreview();
+      }
+    } else {
+      ['fName','fIngredients','fSteps','fNotes'].forEach(id => document.getElementById(id).value = '');
+      ['fServings','fPrep','fCook'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('fCategory').value = 'Budines';
+      hidePreview();
+    }
+
+    document.getElementById('formOverlay').classList.add('visible');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('fName').focus(), 350);
+  }
+
+  function closeForm() {
+    document.getElementById('formOverlay').classList.remove('visible');
+    document.body.style.overflow = '';
+    clearTimeout(nameTimer);
+    editingIndex = null;
+    pendingCoverUrl = null;
+  }
+  function closeFormOverlay(e) {
+    if (e.target === document.getElementById('formOverlay')) closeForm();
+  }
+
+  /* ── Live preview while typing ── */
+  function scheduleImageFetch() {
+    clearTimeout(nameTimer);
+    const name = document.getElementById('fName').value.trim();
+    if (!name || name.length < 3) { hidePreview(); pendingCoverUrl = null; return; }
+
+    // Show spinner immediately
+    document.getElementById('imgPreviewWrap').style.display = 'block';
+    document.getElementById('previewSpinner').style.display = 'inline-block';
+
+    nameTimer = setTimeout(() => {
+      const url = coverUrlForName(name);
+      pendingCoverUrl = url;
+      showPreview(url);
+    }, 700);
+  }
+
+  function showPreview(url) {
+    const wrap = document.getElementById('imgPreviewWrap');
+    const img  = document.getElementById('imgPreviewImg');
+    const spin = document.getElementById('previewSpinner');
+    wrap.style.display = 'block';
+    img.classList.remove('loaded');
+    img.src = url;
+    img.onload  = () => { img.classList.add('loaded'); spin.style.display = 'none'; };
+    img.onerror = () => { hidePreview(); };
+  }
+  function hidePreview() {
+    document.getElementById('imgPreviewWrap').style.display = 'none';
+    document.getElementById('previewSpinner').style.display = 'none';
+  }
+
+  /* ── Save / Update ── */
+  async function saveRecipe() {
+    const name        = document.getElementById('fName').value.trim();
+    const ingredients = document.getElementById('fIngredients').value.trim();
+    const steps       = document.getElementById('fSteps').value.trim();
+    if (!name || !ingredients || !steps) {
+      alert('Por favor completá el nombre, ingredientes y pasos de preparación.');
+      return;
+    }
+
+    const btn = document.getElementById('btnSave');
+    btn.textContent = 'Guardando…';
+    btn.disabled = true;
+
+    // Use already-fetched image or build URL now
+    const coverUrl = pendingCoverUrl || coverUrlForName(name);
+
+    const data = {
+      name, coverUrl,
+      category:    document.getElementById('fCategory').value,
+      servings:    document.getElementById('fServings').value,
+      prep:        document.getElementById('fPrep').value,
+      cook:        document.getElementById('fCook').value,
+      ingredients, steps,
+      notes:       document.getElementById('fNotes').value.trim()
+    };
+
+    if (editingIndex !== null) {
+      recipes[editingIndex] = data;
+    } else {
+      recipes.unshift(data);
+    }
+
+    save();
+    closeForm();
+    render();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeRecipeModal(); closeForm(); }
+  });
+
+  render();
+</script>
 </body>
 </html>
