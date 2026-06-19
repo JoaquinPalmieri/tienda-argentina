@@ -36,183 +36,106 @@
       padding: 1.2rem 1.5rem;
       text-align: center;
     }
-
-    .header-inner {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .header-top {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      margin-bottom: 0.3rem;
-    }
-
+    .header-inner { max-width: 900px; margin: 0 auto; }
+    .header-top { display: flex; align-items: center; justify-content: center; gap: 0.6rem; margin-bottom: 0.3rem; }
     .header-flag { font-size: 1.8rem; }
-
-    .header-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(1.4rem, 4vw, 2rem);
-      font-weight: 700;
-    }
-
-    .header-sub {
-      font-size: 0.88rem;
-      color: rgba(255,255,255,0.65);
-      margin-bottom: 1rem;
-    }
-
+    .header-title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; }
+    .header-sub { font-size: 0.88rem; color: rgba(255,255,255,0.65); margin-bottom: 1rem; }
     .wa-header {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: var(--wa);
-      color: white;
-      padding: 0.55rem 1.4rem;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: 0.88rem;
-      text-decoration: none;
-      transition: background 0.2s, transform 0.2s;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--wa); color: white; padding: 0.55rem 1.4rem;
+      border-radius: 999px; font-weight: 700; font-size: 0.88rem;
+      text-decoration: none; transition: background 0.2s, transform 0.2s;
     }
     .wa-header:hover { background: var(--wa-dark); transform: scale(1.03); }
 
-    /* ── HERO STRIP ── */
+    /* ── STRIP ── */
     .strip {
-      background: var(--celeste);
-      color: white;
-      text-align: center;
-      padding: 0.6rem 1rem;
-      font-size: 0.82rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
+      background: var(--celeste); color: white; text-align: center;
+      padding: 0.6rem 1rem; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em;
     }
 
     /* ── GRID ── */
-    main {
-      max-width: 960px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-
-    .section-label {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-      color: var(--azul);
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.2rem;
-    }
+    main { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+    .section-label { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--azul); margin-bottom: 1.5rem; text-align: center; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
 
     /* ── CARD ── */
     .card {
-      background: white;
-      border-radius: 16px;
-      border: 1.5px solid var(--borde);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.25s, box-shadow 0.25s;
+      background: white; border-radius: 16px; border: 1.5px solid var(--borde);
+      overflow: hidden; display: flex; flex-direction: column;
+      transition: transform 0.25s, box-shadow 0.25s; position: relative;
     }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(26,39,68,0.14); }
+    .card.out-of-stock { opacity: 0.75; }
 
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 16px 40px rgba(26,39,68,0.14);
-    }
-
-    .card-img-wrap {
-      width: 100%;
-      height: 190px;
-      overflow: hidden;
-      background: #f5f0e8;
-    }
-
-    .card-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.4s;
-    }
-    .card:hover .card-img { transform: scale(1.06); }
-
-    .card-body {
-      padding: 1rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .card-name {
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: var(--azul);
-      line-height: 1.3;
-    }
-
-    .card-desc {
-      font-size: 0.78rem;
-      color: var(--suave);
-      line-height: 1.45;
-      flex: 1;
-    }
-
-    .card-footer {
-      padding: 0.8rem 1rem 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-      border-top: 1px solid var(--borde);
-    }
-
-    .price {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--azul);
-    }
-
-    .price-unit {
-      font-size: 0.7rem;
-      color: var(--suave);
-      margin-top: 1px;
-    }
-
-    .btn-wa {
+    /* ── STOCK BADGE ── */
+    .stock-badge {
+      position: absolute;
+      top: 0.6rem;
+      left: 0.6rem;
+      z-index: 2;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      background: var(--wa);
-      color: white;
-      border: none;
+      gap: 4px;
+      padding: 3px 9px;
       border-radius: 999px;
-      padding: 0.5rem 0.9rem;
-      font-size: 0.8rem;
+      font-size: 0.68rem;
       font-weight: 700;
-      text-decoration: none;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
-      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .stock-badge::before {
+      content: '';
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .stock-badge.in  { background: #e8f5e9; color: #2e7d32; }
+    .stock-badge.in::before  { background: #2e7d32; }
+    .stock-badge.out { background: #fce4e4; color: #c62828; }
+    .stock-badge.out::before { background: #c62828; }
+
+    /* ── CARD IMAGEN ── */
+    .card-img-wrap { width: 100%; height: 190px; overflow: hidden; background: #f5f0e8; }
+    .card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+    .card:hover .card-img { transform: scale(1.06); }
+
+    /* ── CARD BODY ── */
+    .card-body { padding: 1rem; flex: 1; display: flex; flex-direction: column; gap: 0.4rem; }
+    .card-name { font-weight: 700; font-size: 0.95rem; color: var(--azul); line-height: 1.3; }
+    .card-desc { font-size: 0.78rem; color: var(--suave); line-height: 1.45; flex: 1; }
+
+    /* ── CARD FOOTER ── */
+    .card-footer {
+      padding: 0.8rem 1rem 1rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.5rem; border-top: 1px solid var(--borde);
+    }
+    .price { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; color: var(--azul); }
+    .price-unit { font-size: 0.7rem; color: var(--suave); margin-top: 1px; }
+
+    /* ── BOTONES ── */
+    .btn-wa {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--wa); color: white; border: none; border-radius: 999px;
+      padding: 0.5rem 0.9rem; font-size: 0.8rem; font-weight: 700;
+      text-decoration: none; cursor: pointer;
+      transition: background 0.2s, transform 0.15s; white-space: nowrap;
     }
     .btn-wa:hover { background: var(--wa-dark); transform: scale(1.04); }
 
-    /* ── FOOTER ── */
-    footer {
-      background: var(--azul);
-      color: rgba(255,255,255,0.55);
-      text-align: center;
-      padding: 1.5rem 1rem;
-      font-size: 0.78rem;
-      margin-top: 3rem;
+    .btn-consultar {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--azul); color: white; border: none; border-radius: 999px;
+      padding: 0.5rem 0.9rem; font-size: 0.75rem; font-weight: 700;
+      text-decoration: none; cursor: pointer;
+      transition: background 0.2s, transform 0.15s; white-space: nowrap;
     }
+    .btn-consultar:hover { background: #2c4a7c; transform: scale(1.04); }
+
+    /* ── FOOTER ── */
+    footer { background: var(--azul); color: rgba(255,255,255,0.55); text-align: center; padding: 1.5rem 1rem; font-size: 0.78rem; margin-top: 3rem; }
     footer strong { color: white; }
 
     /* ── RESPONSIVE ── */
@@ -220,14 +143,13 @@
       .grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
       .card-img-wrap { height: 150px; }
     }
-
     @media (max-width: 420px) {
       .grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
       .card-img-wrap { height: 120px; }
       .card-body { padding: 0.7rem; }
       .card-name { font-size: 0.82rem; }
       .price { font-size: 1.1rem; }
-      .btn-wa { font-size: 0.72rem; padding: 0.4rem 0.65rem; }
+      .btn-wa, .btn-consultar { font-size: 0.7rem; padding: 0.4rem 0.65rem; }
       .card-footer { padding: 0.6rem 0.7rem 0.75rem; }
     }
   </style>
@@ -265,89 +187,90 @@
 
   <footer>
     <p><strong>Productos Argentinos 🇦🇷</strong></p>
-    <p style="margin-top:0.4rem">📍 Dubrovnik, Croacia · Precios orientativos · Envío a coordinar con el comprador</p>
+    <p style="margin-top:0.4rem">📍 Dubrovnik, Croacia · Precios orientativos · Entrega a coordinar con el comprador</p>
   </footer>
 
   <script>
-    // ── CONFIGURACIÓN ───────────────────────
-    const WA = '5491130810702'; // ← Cambiá por tu número (sin + ni espacios)
+    const WA = '5491130810702';
 
-    // ── PRODUCTOS ───────────────────────────
+    // ── PRODUCTOS ──────────────────────────────────────────────────────
+    // stock: true  → En stock  (botón verde "Consultar disponibilidad")
+    // stock: false → Sin stock (botón gris, deshabilitado)
+    // ──────────────────────────────────────────────────────────────────
     const productos = [
       {
-        nombre:  'Yerba Mate Playadito 1 kg',
-        precio:  10.00,
-        desc:    'Yerba suave elaborada con palo. Cultivada desde 1926 en Colonia Liebig, Corrientes. Apta para celíacos.',
-        img:     'img/playadito.webp',
-        emoji:   '🧉',
+        nombre: 'Yerba Mate Playadito 1 kg',
+        precio: 10.00,
+        desc:   'Yerba suave elaborada con palo. Cultivada desde 1926 en Colonia Liebig, Corrientes. Apta para celíacos.',
+        img:    'img/playadito.webp',
+        emoji:  '🧉',
+        stock:  true,
       },
       {
-        nombre:  'Surtido Alfajores',
-        precio:  4.00,
-        desc:    'Alfajores surtidos rellenos con dulce de leche, cubiertos con merengue y chocolate. Unidad.',
-        img:     'img/alfajores.webp',
-        emoji:   '🍫',
+        nombre: 'Surtido Alfajores',
+        precio: 4.00,
+        desc:   'Alfajores surtidos rellenos con dulce de leche, cubiertos con merengue y chocolate. Unidad.',
+        img:    'img/alfajores.webp',
+        emoji:  '🍫',
+        stock:  true,
       },
       {
-        nombre:  'Yerba Mate Amanda 1 kg',
-        precio:  11.00,
-        desc:    'Yerba suave y equilibrada, elaborada en Misiones. Sin palo, de corte fino. Una de las más populares de Argentina.',
-        img:     'img/amanda.webp',
-        emoji:   '🧉',
+        nombre: 'Yerba Mate Amanda 1 kg',
+        precio: 11.00,
+        desc:   'Yerba suave y equilibrada, elaborada en Misiones. Sin palo, de corte fino. Una de las más populares de Argentina.',
+        img:    'img/amanda.webp',
+        emoji:  '🧉',
+        stock:  true,
       },
       {
-        nombre:  'Fernet Branca Italiano 70 cl',
-        precio:  30.00,
-        desc:    'El Fernet-Branca original, creado en 1845 por Bernardino Branca. Receta italiana guardada como tesoro familiar. Ideal con Coca-Cola: el clásico "Fernet con Cola".',
-        img:     'img/fernet.webp',
-        emoji:   '🥃',
+        nombre: 'Fernet Branca Italiano 70 cl',
+        precio: 30.00,
+        desc:   'El Fernet-Branca original, creado en 1845 por Bernardino Branca. Receta italiana guardada como tesoro familiar. Ideal con Coca-Cola: el clásico "Fernet con Cola".',
+        img:    'img/fernet.webp',
+        emoji:  '🥃',
+        stock:  true,
       },
       {
-        nombre:  'Yerba Mate Rosamonte Tradicional 1 kg',
-        precio:  12.00,
-        desc:    'Estacionada 18 meses. Sabor intenso y puro, cultivada en Misiones. Sin gluten. Una de las más reconocidas de Argentina.',
-        img:     'img/rosamonte.webp',
-        emoji:   '🧉',
+        nombre: 'Yerba Mate Rosamonte Tradicional 1 kg',
+        precio: 12.00,
+        desc:   'Estacionada 18 meses. Sabor intenso y puro, cultivada en Misiones. Sin gluten. Una de las más reconocidas de Argentina.',
+        img:    'img/rosamonte.webp',
+        emoji:  '🧉',
+        stock:  true,
       },
       {
-        nombre:  'Chocolinas 150 g',
-        precio:  3.00,
-        desc:    'Las galletitas de chocolate indispensables para hacer la Chocotorta. Un clásico argentino de Bagley.',
-        img:     'img/chocolinas.webp',
-        emoji:   '🍪',
+        nombre: 'Chocolinas 150 g',
+        precio: 3.00,
+        desc:   'Las galletitas de chocolate indispensables para hacer la Chocotorta. Un clásico argentino de Bagley.',
+        img:    'img/chocolinas.webp',
+        emoji:  '🍪',
+        stock:  true,
       },
     ];
 
-    // ── RENDER ──────────────────────────────
     function imgError(el) {
       var wrap = el.parentElement;
-      wrap.style.display        = 'flex';
-      wrap.style.alignItems     = 'center';
-      wrap.style.justifyContent = 'center';
-      wrap.style.fontSize       = '3.5rem';
-      wrap.style.background     = '#f0ebe0';
+      wrap.style.display = 'flex'; wrap.style.alignItems = 'center';
+      wrap.style.justifyContent = 'center'; wrap.style.fontSize = '3.5rem';
+      wrap.style.background = '#f0ebe0';
       var emoji = el.getAttribute('data-emoji') || '🧉';
-      el.remove();
-      wrap.textContent = emoji;
+      el.remove(); wrap.textContent = emoji;
     }
 
     function waMsg(p) {
-      return `Hola! 👋 Quiero pedir:\n\n🛒 *${p.nombre}*\n💰 Precio: ${p.precio.toFixed(2).replace('.',',')} €\n\n¿Podés confirmarme disponibilidad y coordinar la entrega? ¡Gracias!`;
+      return `Hola! 👋 Quiero consultar disponibilidad:\n\n🛒 *${p.nombre}*\n💰 Precio: ${p.precio.toFixed(2).replace('.',',')} €\n\n¿Está disponible? ¡Gracias!`;
     }
 
     const waIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.122 1.533 5.857L0 24l6.335-1.518A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.003-1.364l-.358-.213-3.762.9.966-3.666-.234-.376A9.818 9.818 0 1112 21.818z"/></svg>`;
 
     document.getElementById('grid').innerHTML = productos.map(p => `
-      <div class="card">
+      <div class="card${p.stock ? '' : ' out-of-stock'}">
+        <span class="stock-badge ${p.stock ? 'in' : 'out'}">
+          ${p.stock ? 'Disponible' : 'Sin stock'}
+        </span>
         <div class="card-img-wrap">
-          <img
-            class="card-img"
-            src="${p.img}"
-            alt="${p.nombre}"
-            loading="lazy"
-            data-emoji="${p.emoji}"
-            onerror="imgError(this)"
-          />
+          <img class="card-img" src="${p.img}" alt="${p.nombre}" loading="lazy"
+            data-emoji="${p.emoji}" onerror="imgError(this)" />
         </div>
         <div class="card-body">
           <div class="card-name">${p.nombre}</div>
@@ -358,14 +281,10 @@
             <div class="price">${p.precio.toFixed(2).replace('.',',')} €</div>
             <div class="price-unit">por unidad</div>
           </div>
-          <a
-            class="btn-wa"
-            href="https://wa.me/${WA}?text=${encodeURIComponent(waMsg(p))}"
-            target="_blank"
-            rel="noopener"
-          >
-            ${waIcon} Pedir
-          </a>
+          ${p.stock
+            ? `<a class="btn-wa" href="https://wa.me/${WA}?text=${encodeURIComponent(waMsg(p))}" target="_blank" rel="noopener">${waIcon} Consultar</a>`
+            : `<span class="btn-consultar" style="opacity:0.5;cursor:not-allowed">Sin stock</span>`
+          }
         </div>
       </div>
     `).join('');
