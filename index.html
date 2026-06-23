@@ -152,6 +152,34 @@
       .btn-wa, .btn-consultar { font-size: 0.7rem; padding: 0.4rem 0.65rem; }
       .card-footer { padding: 0.6rem 0.7rem 0.75rem; }
     }
+        /* ── MUNDIAL ── */
+    .mundial-banner {
+      background: linear-gradient(135deg, #74ACDF 0%, #fff 50%, #74ACDF 100%);
+      color: var(--azul);
+      text-align: center;
+      padding: 0.8rem 1rem;
+      font-weight: 700;
+      font-size: 0.88rem;
+      border-bottom: 3px solid var(--azul);
+    }
+    .mundial-banner .trofeo { font-size: 1.4rem; vertical-align: middle; }
+    .mundial-countdown {
+      display: inline-flex;
+      gap: 0.8rem;
+      margin-top: 0.4rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .countdown-item {
+      background: var(--azul);
+      color: white;
+      border-radius: 8px;
+      padding: 0.3rem 0.7rem;
+      min-width: 52px;
+      text-align: center;
+    }
+    .countdown-item span { display: block; font-size: 1.2rem; font-weight: 700; line-height: 1.1; }
+    .countdown-item small { font-size: 0.62rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.05em; }
   </style>
 </head>
 <body>
@@ -179,7 +207,15 @@
   <div class="strip">
     📍 Dubrovnik, Croacia · Entrega a coordinar con el comprador · Consultá por WhatsApp
   </div>
-
+  <div class="mundial-banner">
+    <div><span class="trofeo">🏆</span> <strong>¡Vamos Argentina!</strong> · Próximo partido: Domingo 28 · 4:00 AM 🇭🇷</div>
+    <div class="mundial-countdown" id="countdown">
+      <div class="countdown-item"><span id="cd-d">--</span><small>días</small></div>
+      <div class="countdown-item"><span id="cd-h">--</span><small>horas</small></div>
+      <div class="countdown-item"><span id="cd-m">--</span><small>min</small></div>
+      <div class="countdown-item"><span id="cd-s">--</span><small>seg</small></div>
+    </div>
+  </div>
   <main>
     <h2 class="section-label">Nuestros productos 🧉</h2>
     <div class="grid" id="grid"></div>
@@ -306,6 +342,28 @@
         </div>
       </div>
     `).join('');
+      // ── CUENTA REGRESIVA MUNDIAL ──
+  (function() {
+    var partido = new Date('2026-06-28T04:00:00+02:00');
+    function actualizar() {
+      var ahora = new Date();
+      var diff  = partido - ahora;
+      if (diff <= 0) {
+        document.getElementById('countdown').innerHTML = '<strong>⚽ ¡Partido en juego! ¡Vamos Argentina! 🇦🇷</strong>';
+        return;
+      }
+      var d = Math.floor(diff / 86400000);
+      var h = Math.floor((diff % 86400000) / 3600000);
+      var m = Math.floor((diff % 3600000) / 60000);
+      var s = Math.floor((diff % 60000) / 1000);
+      document.getElementById('cd-d').textContent = String(d).padStart(2,'0');
+      document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
+      document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
+      document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+    }
+    actualizar();
+    setInterval(actualizar, 1000);
+  })();
   </script>
 </body>
 </html>
