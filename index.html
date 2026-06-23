@@ -161,20 +161,6 @@
       font-weight: 700;
       font-size: 0.88rem;
       border-bottom: 3px solid var(--azul);
-      position: relative;
-      overflow: visible;
-    }
-    
-    .mundial-banner::before {
-      content: '\2600';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 8rem;
-     opacity: 0.15;
-      pointer-events: none;
-      line-height: 1;
     }
     }
     .mundial-banner .trofeo { font-size: 1.4rem; vertical-align: middle; }
@@ -195,6 +181,32 @@
     }
     .countdown-item span { display: block; font-size: 1.2rem; font-weight: 700; line-height: 1.1; }
     .countdown-item small { font-size: 0.62rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.05em; }
+    /* ── MUNDIAL CARDS ── */
+    .card {
+      border: 2px solid #74ACDF !important;
+    }
+    .card:hover {
+      border-color: var(--azul) !important;
+      box-shadow: 0 16px 40px rgba(116,172,223,0.35);
+    }
+    
+    /* ── CONFETTI ── */
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 16px;
+      top: -20px;
+      opacity: 0;
+      animation: confetti-fall linear forwards;
+      pointer-events: none;
+      z-index: 9999;
+      border-radius: 2px;
+    }
+    
+    @keyframes confetti-fall {
+      0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+    }
   </style>
 </head>
 <body>
@@ -378,6 +390,35 @@
     }
     actualizar();
     setInterval(actualizar, 1000);
+  })();
+      // ── CONFETTI MUNDIALISTA ──
+  (function() {
+    var colores = ['#74ACDF','#ffffff','#F6B40E','#1a2744','#25d366'];
+    var total   = 80;
+  
+    function lanzar() {
+      for (var i = 0; i < total; i++) {
+        (function(i) {
+          setTimeout(function() {
+            var el = document.createElement('div');
+            el.className = 'confetti-piece';
+            el.style.left            = Math.random() * 100 + 'vw';
+            el.style.background      = colores[Math.floor(Math.random() * colores.length)];
+            el.style.width           = (Math.random() * 8 + 6) + 'px';
+            el.style.height          = (Math.random() * 10 + 8) + 'px';
+            el.style.animationDelay  = '0s';
+            el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            document.body.appendChild(el);
+            setTimeout(function() { el.remove(); }, 4500);
+          }, i * 40);
+        })(i);
+      }
+    }
+  
+    // Lanzar al cargar
+    window.addEventListener('load', function() {
+      setTimeout(lanzar, 500);
+    });
   })();
   </script>
 </body>
