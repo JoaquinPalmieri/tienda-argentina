@@ -207,6 +207,34 @@
       0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
       100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
     }
+    /* ── RESEÑAS ── */
+    .resenas {
+      background: var(--crema);
+      padding: 3rem 1rem 2rem;
+      border-top: 3px solid var(--celeste);
+    }
+    .resenas-inner { max-width: 960px; margin: 0 auto; }
+    .resenas-titulo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--azul);
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    .resenas-sub {
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--suave);
+      margin-bottom: 2rem;
+    }
+    .resenas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+    }
+    .resena-card {
+      background: white;
   </style>
 </head>
 <body>
@@ -247,7 +275,20 @@
     <h2 class="section-label">Nuestros productos 🧉</h2>
     <div class="grid" id="grid"></div>
   </main>
-
+  <section class="resenas">
+  <div class="resenas-inner">
+    <h2 class="resenas-titulo">Lo que dicen nuestros clientes ⭐</h2>
+    <p class="resenas-sub">Opiniones reales de quienes ya compraron</p>
+    <div class="resenas-grid" id="resenasGrid">
+      <p class="resenas-empty">Cargando reseñas...</p>
+    </div>
+    <div class="resenas-cta">
+      <a class="btn-resena" href="https://forms.gle/8iSjsxVwNAx2Try98" target="_blank" rel="noopener">
+        ✍️ Dejar mi reseña
+      </a>
+    </div>
+  </div>
+</section>
   <footer>
     <p><strong>Productos Argentinos 🇦🇷</strong></p>
     <p style="margin-top:0.4rem">📍 Dubrovnik, Croacia · Precios orientativos · Entrega a coordinar con el comprador</p>
@@ -419,6 +460,63 @@
     window.addEventListener('load', function() {
       setTimeout(lanzar, 500);
     });
+  })();
+    // ── RESEÑAS DESDE GOOGLE SHEETS ──
+  (function() {
+    var CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvY_mbUrYJH7FMb3f_EdBgdGYuoXuPwLOQEcUIPmz-uBQGFqCDBKk57xq6YQztL7OOH21PF3RVdIEc/pub?gid=1234445483&single=true&output=csv';
+  
+    function estrellas(n) {
+      var num = parseInt(n) || 0;
+      return '⭐'.repeat(Math.min(Math.max(num, 1), 5));
+    }
+  
+    function parseCSV(text) {
+      var lines = text.trim().split('\n');
+      var headers = lines[0].split(',');
+      return lines.slice(1).map(function(line) {
+        var cols = line.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
+        var obj = {};
+        headers.forEach(function(h, i) {
+          obj[h.trim()] = (cols[i] || '').replace(/^"|"$/g, '').trim();
+        });
+        return obj;
+      });
+    }
+  
+    fetch(CSV_URL)
+      .then(function(r) { return r.text(); })
+      .then(function(text) {
+        var datos = parseCSV(text);
+        var grid  = document.getElementById('resenasGrid');
+  
+        if (!datos.length) {
+          grid.innerHTML = '<p class="resenas-empty">Aún no hay reseñas. ¡Sé el primero! 🌟</p>';
+          return;
+        }
+  
+        // Mostrar las últimas 6 reseñas
+        var recientes = datos.slice(-6).reverse();
+  
+        grid.innerHTML = recientes.map(function(r) {
+          var nombre   = r['Tu nombre']                  || 'Cliente';
+          var producto = r['¿Qué producto compraste?']   || '';
+          var comentario = r['Tu comentario']            || '';
+          var puntuacion = r['Puntuación (1 al 5)']      || '5';
+  
+          return `
+            <div class="resena-card">
+              <div class="resena-estrellas">${estrellas(puntuacion)}</div>
+              <div class="resena-comentario">"${comentario}"</div>
+              <div class="resena-autor">— ${nombre}</div>
+              ${producto ? `<div class="resena-producto">📦 ${producto}</div>` : ''}
+            </div>
+          `;
+        }).join('');
+      })
+      .catch(function() {
+        document.getElementById('resenasGrid').innerHTML =
+          '<p class="resenas-empty">No se pudieron cargar las reseñas.</p>';
+      });
   })();
   </script>
 </body>
