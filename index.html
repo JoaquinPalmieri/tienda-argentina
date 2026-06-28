@@ -22,20 +22,10 @@
       --suave:    #6b7280;
     }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--crema);
-      color: var(--texto);
-      min-height: 100vh;
-    }
+    body { font-family: 'Inter', sans-serif; background: var(--crema); color: var(--texto); min-height: 100vh; }
 
     /* ── HEADER ── */
-    header {
-      background: var(--azul);
-      color: white;
-      padding: 1.2rem 1.5rem;
-      text-align: center;
-    }
+    header { background: var(--azul); color: white; padding: 1.2rem 1.5rem; text-align: center; }
     .header-inner { max-width: 900px; margin: 0 auto; }
     .header-top { display: flex; align-items: center; justify-content: center; gap: 0.6rem; margin-bottom: 0.3rem; }
     .header-flag { font-size: 1.8rem; }
@@ -50,10 +40,19 @@
     .wa-header:hover { background: var(--wa-dark); transform: scale(1.03); }
 
     /* ── STRIP ── */
-    .strip {
-      background: var(--celeste); color: white; text-align: center;
-      padding: 0.6rem 1rem; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em;
+    .strip { background: var(--celeste); color: white; text-align: center; padding: 0.6rem 1rem; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em; }
+
+    /* ── MUNDIAL BANNER ── */
+    .mundial-banner {
+      background: linear-gradient(135deg, #74ACDF 0%, #fff 50%, #74ACDF 100%);
+      color: var(--azul); text-align: center; padding: 0.8rem 1rem;
+      font-weight: 700; font-size: 0.88rem; border-bottom: 3px solid var(--azul);
     }
+    .mundial-banner .trofeo { font-size: 1.4rem; vertical-align: middle; }
+    .mundial-countdown { display: inline-flex; gap: 0.8rem; margin-top: 0.4rem; justify-content: center; flex-wrap: wrap; }
+    .countdown-item { background: var(--azul); color: white; border-radius: 8px; padding: 0.3rem 0.7rem; min-width: 52px; text-align: center; }
+    .countdown-item span { display: block; font-size: 1.2rem; font-weight: 700; line-height: 1.1; }
+    .countdown-item small { font-size: 0.62rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.05em; }
 
     /* ── GRID ── */
     main { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
@@ -62,35 +61,21 @@
 
     /* ── CARD ── */
     .card {
-      background: white; border-radius: 16px; border: 1.5px solid var(--borde);
+      background: white; border-radius: 16px; border: 2px solid #74ACDF !important;
       overflow: hidden; display: flex; flex-direction: column;
       transition: transform 0.25s, box-shadow 0.25s; position: relative;
     }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(26,39,68,0.14); }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(116,172,223,0.35); border-color: var(--azul) !important; }
     .card.out-of-stock { opacity: 0.75; }
 
     /* ── STOCK BADGE ── */
     .stock-badge {
-      position: absolute;
-      top: 0.6rem;
-      left: 0.6rem;
-      z-index: 2;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 3px 9px;
-      border-radius: 999px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      position: absolute; top: 0.6rem; left: 0.6rem; z-index: 2;
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 9px; border-radius: 999px; font-size: 0.68rem;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
     }
-    .stock-badge::before {
-      content: '';
-      display: inline-block;
-      width: 6px; height: 6px;
-      border-radius: 50%;
-    }
+    .stock-badge::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
     .stock-badge.in  { background: #e8f5e9; color: #2e7d32; }
     .stock-badge.in::before  { background: #2e7d32; }
     .stock-badge.out { background: #fce4e4; color: #c62828; }
@@ -107,11 +92,7 @@
     .card-desc { font-size: 0.78rem; color: var(--suave); line-height: 1.45; flex: 1; }
 
     /* ── CARD FOOTER ── */
-    .card-footer {
-      padding: 0.8rem 1rem 1rem;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 0.5rem; border-top: 1px solid var(--borde);
-    }
+    .card-footer { padding: 0.8rem 1rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; border-top: 1px solid var(--borde); }
     .price { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; color: var(--azul); }
     .price-unit { font-size: 0.7rem; color: var(--suave); margin-top: 1px; }
 
@@ -120,28 +101,80 @@
       display: inline-flex; align-items: center; gap: 5px;
       background: var(--wa); color: white; border: none; border-radius: 999px;
       padding: 0.5rem 0.9rem; font-size: 0.8rem; font-weight: 700;
-      text-decoration: none; cursor: pointer;
-      transition: background 0.2s, transform 0.15s; white-space: nowrap;
+      text-decoration: none; cursor: pointer; transition: background 0.2s, transform 0.15s; white-space: nowrap;
     }
     .btn-wa:hover { background: var(--wa-dark); transform: scale(1.04); }
-
     .btn-consultar {
       display: inline-flex; align-items: center; gap: 5px;
       background: var(--azul); color: white; border: none; border-radius: 999px;
       padding: 0.5rem 0.9rem; font-size: 0.75rem; font-weight: 700;
-      text-decoration: none; cursor: pointer;
-      transition: background 0.2s, transform 0.15s; white-space: nowrap;
+      text-decoration: none; cursor: pointer; transition: background 0.2s, transform 0.15s; white-space: nowrap;
     }
     .btn-consultar:hover { background: #2c4a7c; transform: scale(1.04); }
 
+    /* ── CONFETTI ── */
+    .confetti-piece {
+      position: fixed; width: 10px; height: 16px; top: -20px; opacity: 0;
+      animation: confetti-fall linear forwards; pointer-events: none; z-index: 9999; border-radius: 2px;
+    }
+    @keyframes confetti-fall {
+      0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+    }
+
+    /* ── RESEÑAS ── */
+    .resenas { background: white; padding: 3rem 1rem 2.5rem; border-top: 3px solid var(--celeste); }
+    .resenas-inner { max-width: 960px; margin: 0 auto; }
+    .resenas-header { text-align: center; margin-bottom: 0.5rem; }
+    .resenas-titulo { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--azul); }
+    .resenas-promedio {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--crema); border: 1.5px solid var(--borde);
+      border-radius: 999px; padding: 0.4rem 1rem;
+      font-size: 0.85rem; font-weight: 700; color: var(--azul);
+      margin: 0.8rem auto 2rem; display: flex; justify-content: center; width: fit-content;
+    }
+    .resenas-promedio .stars-big { color: #F6B40E; font-size: 1rem; letter-spacing: 1px; }
+    .resenas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; margin-bottom: 2rem; }
+
+    /* Card reseña estilo Google */
+    .resena-card {
+      background: var(--crema); border: 1.5px solid var(--borde);
+      border-radius: 16px; padding: 1.4rem;
+      display: flex; flex-direction: column; gap: 0.8rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .resena-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(26,39,68,0.1); }
+    .resena-top { display: flex; align-items: center; gap: 0.8rem; }
+    .resena-avatar {
+      width: 46px; height: 46px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; font-weight: 700; color: white; flex-shrink: 0;
+    }
+    .resena-info { flex: 1; }
+    .resena-nombre { font-weight: 700; font-size: 0.92rem; color: var(--azul); }
+    .resena-producto { font-size: 0.72rem; color: var(--suave); margin-top: 2px; }
+    .resena-stars { color: #F6B40E; font-size: 1.1rem; letter-spacing: 1px; }
+    .resena-comentario { font-size: 0.84rem; color: var(--texto); line-height: 1.6; font-style: italic; }
+    .resenas-cta { text-align: center; }
+    .btn-resena {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--azul); color: white; padding: 0.65rem 1.6rem;
+      border-radius: 999px; font-size: 0.88rem; font-weight: 700;
+      text-decoration: none; transition: background 0.2s, transform 0.2s;
+    }
+    .btn-resena:hover { background: #2c4a7c; transform: scale(1.03); }
+    .resenas-empty { text-align: center; color: var(--suave); font-size: 0.88rem; padding: 2rem; }
+
     /* ── FOOTER ── */
-    footer { background: var(--azul); color: rgba(255,255,255,0.55); text-align: center; padding: 1.5rem 1rem; font-size: 0.78rem; margin-top: 3rem; }
+    footer { background: var(--azul); color: rgba(255,255,255,0.55); text-align: center; padding: 1.5rem 1rem; font-size: 0.78rem; margin-top: 0; }
     footer strong { color: white; }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 720px) {
       .grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
       .card-img-wrap { height: 150px; }
+      .resenas-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 420px) {
       .grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
@@ -152,89 +185,6 @@
       .btn-wa, .btn-consultar { font-size: 0.7rem; padding: 0.4rem 0.65rem; }
       .card-footer { padding: 0.6rem 0.7rem 0.75rem; }
     }
-        /* ── MUNDIAL ── */
-    .mundial-banner {
-      background: linear-gradient(135deg, #74ACDF 0%, #fff 50%, #74ACDF 100%);
-      color: var(--azul);
-      text-align: center;
-      padding: 0.8rem 1rem;
-      font-weight: 700;
-      font-size: 0.88rem;
-      border-bottom: 3px solid var(--azul);
-    }
-    }
-    .mundial-banner .trofeo { font-size: 1.4rem; vertical-align: middle; }
-    .mundial-countdown {
-      display: inline-flex;
-      gap: 0.8rem;
-      margin-top: 0.4rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .countdown-item {
-      background: var(--azul);
-      color: white;
-      border-radius: 8px;
-      padding: 0.3rem 0.7rem;
-      min-width: 52px;
-      text-align: center;
-    }
-    .countdown-item span { display: block; font-size: 1.2rem; font-weight: 700; line-height: 1.1; }
-    .countdown-item small { font-size: 0.62rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.05em; }
-    /* ── MUNDIAL CARDS ── */
-    .card {
-      border: 2px solid #74ACDF !important;
-    }
-    .card:hover {
-      border-color: var(--azul) !important;
-      box-shadow: 0 16px 40px rgba(116,172,223,0.35);
-    }
-    
-    /* ── CONFETTI ── */
-    .confetti-piece {
-      position: fixed;
-      width: 10px;
-      height: 16px;
-      top: -20px;
-      opacity: 0;
-      animation: confetti-fall linear forwards;
-      pointer-events: none;
-      z-index: 9999;
-      border-radius: 2px;
-    }
-    
-    @keyframes confetti-fall {
-      0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
-      100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
-    }
-    /* ── RESEÑAS ── */
-    .resenas {
-      background: var(--crema);
-      padding: 3rem 1rem 2rem;
-      border-top: 3px solid var(--celeste);
-    }
-    .resenas-inner { max-width: 960px; margin: 0 auto; }
-    .resenas-titulo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-      color: var(--azul);
-      text-align: center;
-      margin-bottom: 0.5rem;
-    }
-    .resenas-sub {
-      text-align: center;
-      font-size: 0.82rem;
-      color: var(--suave);
-      margin-bottom: 2rem;
-    }
-    .resenas-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1.2rem;
-      margin-bottom: 2rem;
-    }
-    .resena-card {
-      background: white;
   </style>
 </head>
 <body>
@@ -246,14 +196,8 @@
         <h1 class="header-title">Productos Argentinos</h1>
       </div>
       <p class="header-sub">Auténticos · Dubrovnik, Croacia 🇭🇷</p>
-      <a
-        class="wa-header"
-        href="https://wa.me/5491130810702?text=Hola!%20Quiero%20consultar%20sobre%20los%20productos%20argentinos%20%F0%9F%87%A6%F0%9F%87%B7"
-        target="_blank" rel="noopener"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.122 1.533 5.857L0 24l6.335-1.518A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.003-1.364l-.358-.213-3.762.9.966-3.666-.234-.376A9.818 9.818 0 1112 21.818z"/>
-        </svg>
+      <a class="wa-header" href="https://wa.me/5491130810702?text=Hola!%20Quiero%20consultar%20sobre%20los%20productos%20argentinos%20%F0%9F%87%A6%F0%9F%87%B7" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.122 1.533 5.857L0 24l6.335-1.518A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.003-1.364l-.358-.213-3.762.9.966-3.666-.234-.376A9.818 9.818 0 1112 21.818z"/></svg>
         Consultar por WhatsApp
       </a>
     </div>
@@ -262,6 +206,7 @@
   <div class="strip">
     📍 Dubrovnik, Croacia · Entrega a coordinar con el comprador · Consultá por WhatsApp
   </div>
+
   <div class="mundial-banner">
     <div><span class="trofeo">🏆</span> <strong>¡Vamos Argentina!</strong> · Próximo partido: Domingo 5 · 00:00 AM 🇭🇷</div>
     <div class="mundial-countdown" id="countdown">
@@ -271,24 +216,32 @@
       <div class="countdown-item"><span id="cd-s">--</span><small>seg</small></div>
     </div>
   </div>
+
   <main>
     <h2 class="section-label">Nuestros productos 🧉</h2>
     <div class="grid" id="grid"></div>
   </main>
+
   <section class="resenas">
-  <div class="resenas-inner">
-    <h2 class="resenas-titulo">Lo que dicen nuestros clientes ⭐</h2>
-    <p class="resenas-sub">Opiniones reales de quienes ya compraron</p>
-    <div class="resenas-grid" id="resenasGrid">
-      <p class="resenas-empty">Cargando reseñas...</p>
+    <div class="resenas-inner">
+      <div class="resenas-header">
+        <h2 class="resenas-titulo">Lo que dicen nuestros clientes ⭐</h2>
+      </div>
+      <div class="resenas-promedio" id="resenaPromedio" style="display:none">
+        <span class="stars-big">★★★★★</span>
+        <span id="promedioTexto"></span>
+      </div>
+      <div class="resenas-grid" id="resenasGrid">
+        <p class="resenas-empty">Cargando reseñas...</p>
+      </div>
+      <div class="resenas-cta">
+        <a class="btn-resena" href="https://forms.gle/TULINK" target="_blank" rel="noopener">
+          ✍️ Dejar mi reseña
+        </a>
+      </div>
     </div>
-    <div class="resenas-cta">
-      <a class="btn-resena" href="https://forms.gle/8iSjsxVwNAx2Try98" target="_blank" rel="noopener">
-        ✍️ Dejar mi reseña
-      </a>
-    </div>
-  </div>
-</section>
+  </section>
+
   <footer>
     <p><strong>Productos Argentinos 🇦🇷</strong></p>
     <p style="margin-top:0.4rem">📍 Dubrovnik, Croacia · Precios orientativos · Entrega a coordinar con el comprador</p>
@@ -297,75 +250,15 @@
   <script>
     const WA = '5491130810702';
 
-    // ── PRODUCTOS ──────────────────────────────────────────────────────
-    // stock: true  → En stock  (botón verde "Consultar disponibilidad")
-    // stock: false → Sin stock (botón gris, deshabilitado)
-    // ──────────────────────────────────────────────────────────────────
     const productos = [
-      {
-        nombre: 'Yerba Mate Playadito 1 kg',
-        precio: 10.00,
-        desc:   'Yerba suave elaborada con palo. Cultivada desde 1926 en Colonia Liebig, Corrientes. Apta para celíacos.',
-        img:    'img/playadito.webp',
-        emoji:  '🧉',
-        stock:  true,
-      },
-      {
-        nombre: 'Surtido Alfajores',
-        precio: 4.00,
-        desc:   'Alfajores surtidos rellenos con dulce de leche, cubiertos con merengue y chocolate. Unidad.',
-        img:    'img/alfajores.webp',
-        emoji:  '🍫',
-        stock:  true,
-      },
-      {
-        nombre: 'Yerba Mate Amanda 1 kg',
-        precio: 11.00,
-        desc:   'Yerba suave y equilibrada, elaborada en Misiones. Sin palo, de corte fino. Una de las más populares de Argentina.',
-        img:    'img/amanda.webp',
-        emoji:  '🧉',
-        stock:  true,
-      },
-      {
-        nombre: 'Yerba Mate Aguamate Organic 500 g',
-        precio: 11.00,
-        desc:   'Yerba orgánica argentina de Misiones. Secada sin humo, sin pesticidas ni fertilizantes artificiales. Sabor limpio, suave y equilibrado. Certificada orgánica y Fair Trade.',
-        img:    'img/aguamate.webp',
-        emoji:  '🧉',
-        stock:  false,
-      },
-      {
-        nombre: 'Fernet Branca Italiano 70 cl',
-        precio: 30.00,
-        desc:   'El Fernet-Branca original, creado en 1845 por Bernardino Branca. Receta italiana guardada como tesoro familiar. Ideal con Coca-Cola: el clásico "Fernet con Cola".',
-        img:    'img/fernet.webp',
-        emoji:  '🥃',
-        stock:  true,
-      },
-      {
-        nombre: 'Yerba Mate Rosamonte Tradicional 1 kg',
-        precio: 12.00,
-        desc:   'Estacionada 18 meses. Sabor intenso y puro, cultivada en Misiones. Sin gluten. Una de las más reconocidas de Argentina.',
-        img:    'img/rosamonte.webp',
-        emoji:  '🧉',
-        stock:  true,
-      },
-      {
-        nombre: 'Chocolinas 150 g',
-        precio: 3.00,
-        desc:   'Las galletitas de chocolate indispensables para hacer la Chocotorta. Un clásico argentino de Bagley.',
-        img:    'img/chocolinas.webp',
-        emoji:  '🍪',
-        stock:  true,
-      },
-      {
-        nombre: 'Bizcochitos Agridulces Don Satur 200 g',
-        precio: 5.00,
-        desc:   'Desde 1967, Don Saturnino elabora estos clásicos bizcochitos agridulces en su panadería artesanal. Crujientes, con el sabor característico que los hace únicos.',
-        img:    'img/bizcochitos.webp',
-        emoji:  '🥐',
-        stock:  true,
-      },
+      { nombre: 'Yerba Mate Playadito 1 kg', precio: 10.00, desc: 'Yerba suave elaborada con palo. Cultivada desde 1926 en Colonia Liebig, Corrientes. Apta para celíacos.', img: 'img/playadito.webp', emoji: '🧉', stock: true },
+      { nombre: 'Surtido Alfajores', precio: 4.00, desc: 'Alfajores surtidos rellenos con dulce de leche, cubiertos con merengue y chocolate. Unidad.', img: 'img/alfajores.webp', emoji: '🍫', stock: true },
+      { nombre: 'Yerba Mate Amanda 1 kg', precio: 11.00, desc: 'Yerba suave y equilibrada, elaborada en Misiones. Sin palo, de corte fino. Una de las más populares de Argentina.', img: 'img/amanda.webp', emoji: '🧉', stock: true },
+      { nombre: 'Yerba Mate Aguamate Organic 500 g', precio: 11.00, desc: 'Yerba orgánica argentina de Misiones. Secada sin humo, sin pesticidas ni fertilizantes artificiales. Sabor limpio, suave y equilibrado. Certificada orgánica y Fair Trade.', img: 'img/aguamate.webp', emoji: '🧉', stock: false },
+      { nombre: 'Fernet Branca Italiano 70 cl', precio: 30.00, desc: 'El Fernet-Branca original, creado en 1845 por Bernardino Branca. Receta italiana guardada como tesoro familiar. Ideal con Coca-Cola: el clásico "Fernet con Cola".', img: 'img/fernet.webp', emoji: '🥃', stock: true },
+      { nombre: 'Yerba Mate Rosamonte Tradicional 1 kg', precio: 12.00, desc: 'Estacionada 18 meses. Sabor intenso y puro, cultivada en Misiones. Sin gluten. Una de las más reconocidas de Argentina.', img: 'img/rosamonte.webp', emoji: '🧉', stock: true },
+      { nombre: 'Chocolinas 150 g', precio: 3.00, desc: 'Las galletitas de chocolate indispensables para hacer la Chocotorta. Un clásico argentino de Bagley.', img: 'img/chocolinas.webp', emoji: '🍪', stock: true },
+      { nombre: 'Bizcochitos Agridulces Don Satur 200 g', precio: 5.00, desc: 'Desde 1967, Don Saturnino elabora estos clásicos bizcochitos agridulces en su panadería artesanal. Crujientes, con el sabor característico que los hace únicos.', img: 'img/bizcochitos.webp', emoji: '🥐', stock: true },
     ];
 
     function imgError(el) {
@@ -385,14 +278,12 @@
 
     productos.sort((a, b) => a.nombre.localeCompare(b.nombre));
     productos.sort((a, b) => b.stock - a.stock);
+
     document.getElementById('grid').innerHTML = productos.map(p => `
       <div class="card${p.stock ? '' : ' out-of-stock'}">
-        <span class="stock-badge ${p.stock ? 'in' : 'out'}">
-          ${p.stock ? 'Disponible' : 'Sin stock'}
-        </span>
+        <span class="stock-badge ${p.stock ? 'in' : 'out'}">${p.stock ? 'Disponible' : 'Sin stock'}</span>
         <div class="card-img-wrap">
-          <img class="card-img" src="${p.img}" alt="${p.nombre}" loading="lazy"
-            data-emoji="${p.emoji}" onerror="imgError(this)" />
+          <img class="card-img" src="${p.img}" alt="${p.nombre}" loading="lazy" data-emoji="${p.emoji}" onerror="imgError(this)" />
         </div>
         <div class="card-body">
           <div class="card-name">${p.nombre}</div>
@@ -410,114 +301,133 @@
         </div>
       </div>
     `).join('');
-      // ── CUENTA REGRESIVA MUNDIAL ──
-  (function() {
-    var partido = new Date('2026-07-05T00:00:00+02:00');
-    function actualizar() {
-      var ahora = new Date();
-      var diff  = partido - ahora;
-      if (diff <= 0) {
-        document.getElementById('countdown').innerHTML = '<strong>⚽ ¡Partido en juego! ¡Vamos Argentina! 🇦🇷</strong>';
-        return;
-      }
-      var d = Math.floor(diff / 86400000);
-      var h = Math.floor((diff % 86400000) / 3600000);
-      var m = Math.floor((diff % 3600000) / 60000);
-      var s = Math.floor((diff % 60000) / 1000);
-      document.getElementById('cd-d').textContent = String(d).padStart(2,'0');
-      document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
-      document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
-      document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
-    }
-    actualizar();
-    setInterval(actualizar, 1000);
-  })();
-      // ── CONFETTI MUNDIALISTA ──
-  (function() {
-    var colores = ['#74ACDF','#ffffff','#F6B40E','#1a2744','#25d366'];
-    var total   = 80;
-  
-    function lanzar() {
-      for (var i = 0; i < total; i++) {
-        (function(i) {
-          setTimeout(function() {
-            var el = document.createElement('div');
-            el.className = 'confetti-piece';
-            el.style.left            = Math.random() * 100 + 'vw';
-            el.style.background      = colores[Math.floor(Math.random() * colores.length)];
-            el.style.width           = (Math.random() * 8 + 6) + 'px';
-            el.style.height          = (Math.random() * 10 + 8) + 'px';
-            el.style.animationDelay  = '0s';
-            el.style.animationDuration = (Math.random() * 2 + 2) + 's';
-            document.body.appendChild(el);
-            setTimeout(function() { el.remove(); }, 4500);
-          }, i * 40);
-        })(i);
-      }
-    }
-  
-    // Lanzar al cargar
-    window.addEventListener('load', function() {
-      setTimeout(lanzar, 500);
-    });
-  })();
-    // ── RESEÑAS DESDE GOOGLE SHEETS ──
-  (function() {
-    var CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvY_mbUrYJH7FMb3f_EdBgdGYuoXuPwLOQEcUIPmz-uBQGFqCDBKk57xq6YQztL7OOH21PF3RVdIEc/pub?gid=1234445483&single=true&output=csv';
-  
-    function estrellas(n) {
-      var num = parseInt(n) || 0;
-      return '⭐'.repeat(Math.min(Math.max(num, 1), 5));
-    }
-  
-    function parseCSV(text) {
-      var lines = text.trim().split('\n');
-      var headers = lines[0].split(',');
-      return lines.slice(1).map(function(line) {
-        var cols = line.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
-        var obj = {};
-        headers.forEach(function(h, i) {
-          obj[h.trim()] = (cols[i] || '').replace(/^"|"$/g, '').trim();
-        });
-        return obj;
-      });
-    }
-  
-    fetch(CSV_URL)
-      .then(function(r) { return r.text(); })
-      .then(function(text) {
-        var datos = parseCSV(text);
-        var grid  = document.getElementById('resenasGrid');
-  
-        if (!datos.length) {
-          grid.innerHTML = '<p class="resenas-empty">Aún no hay reseñas. ¡Sé el primero! 🌟</p>';
+
+    // ── CUENTA REGRESIVA ──
+    (function() {
+      var partido = new Date('2026-07-05T00:00:00+02:00');
+      function actualizar() {
+        var diff = partido - new Date();
+        if (diff <= 0) {
+          document.getElementById('countdown').innerHTML = '<strong>⚽ ¡Partido en juego! ¡Vamos Argentina! 🇦🇷</strong>';
           return;
         }
-  
-        // Mostrar las últimas 6 reseñas
-        var recientes = datos.slice(-6).reverse();
-  
-        grid.innerHTML = recientes.map(function(r) {
-          var nombre   = r['Tu nombre']                  || 'Cliente';
-          var producto = r['¿Qué producto compraste?']   || '';
-          var comentario = r['Tu comentario']            || '';
-          var puntuacion = r['Puntuación (1 al 5)']      || '5';
-  
-          return `
-            <div class="resena-card">
-              <div class="resena-estrellas">${estrellas(puntuacion)}</div>
-              <div class="resena-comentario">"${comentario}"</div>
-              <div class="resena-autor">— ${nombre}</div>
-              ${producto ? `<div class="resena-producto">📦 ${producto}</div>` : ''}
-            </div>
-          `;
-        }).join('');
-      })
-      .catch(function() {
-        document.getElementById('resenasGrid').innerHTML =
-          '<p class="resenas-empty">No se pudieron cargar las reseñas.</p>';
-      });
-  })();
+        document.getElementById('cd-d').textContent = String(Math.floor(diff/86400000)).padStart(2,'0');
+        document.getElementById('cd-h').textContent = String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
+        document.getElementById('cd-m').textContent = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+        document.getElementById('cd-s').textContent = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+      }
+      actualizar();
+      setInterval(actualizar, 1000);
+    })();
+
+    // ── CONFETTI ──
+    (function() {
+      var colores = ['#74ACDF','#ffffff','#F6B40E','#1a2744','#25d366'];
+      function lanzar() {
+        for (var i = 0; i < 80; i++) {
+          (function(i) {
+            setTimeout(function() {
+              var el = document.createElement('div');
+              el.className = 'confetti-piece';
+              el.style.left = Math.random() * 100 + 'vw';
+              el.style.background = colores[Math.floor(Math.random() * colores.length)];
+              el.style.width  = (Math.random() * 8 + 6) + 'px';
+              el.style.height = (Math.random() * 10 + 8) + 'px';
+              el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+              document.body.appendChild(el);
+              setTimeout(function() { el.remove(); }, 4500);
+            }, i * 40);
+          })(i);
+        }
+      }
+      window.addEventListener('load', function() { setTimeout(lanzar, 500); });
+    })();
+
+    // ── RESEÑAS ──
+    (function() {
+      var CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvY_mbUrYJH7FMb3f_EdBgdGYuoXuPwLOQEcUIPmz-uBQGFqCDBKk57xq6YQztL7OOH21PF3RVdIEc/pub?gid=1234445483&single=true&output=csv';
+
+      var avatarColors = ['#1a2744','#74ACDF','#c0392b','#27ae60','#8e44ad','#e67e22','#2980b9','#c8a84b'];
+
+      function getColor(nombre) {
+        var sum = 0;
+        for (var i = 0; i < nombre.length; i++) sum += nombre.charCodeAt(i);
+        return avatarColors[sum % avatarColors.length];
+      }
+
+      function getInitials(nombre) {
+        var parts = nombre.trim().split(' ');
+        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+        return nombre.substring(0, 2).toUpperCase();
+      }
+
+      function renderStars(n) {
+        var num = Math.min(Math.max(parseInt(n) || 5, 1), 5);
+        return '★'.repeat(num) + '☆'.repeat(5 - num);
+      }
+
+      function parseCSV(text) {
+        var lines = text.trim().split('\n');
+        var headers = lines[0].split(',');
+        return lines.slice(1).map(function(line) {
+          var cols = line.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
+          var obj = {};
+          headers.forEach(function(h, i) {
+            obj[h.trim()] = (cols[i] || '').replace(/^"|"$/g, '').trim();
+          });
+          return obj;
+        });
+      }
+
+      fetch(CSV_URL)
+        .then(function(r) { return r.text(); })
+        .then(function(text) {
+          var datos = parseCSV(text);
+          var grid  = document.getElementById('resenasGrid');
+
+          if (!datos.length) {
+            grid.innerHTML = '<p class="resenas-empty">Aún no hay reseñas. ¡Sé el primero! 🌟</p>';
+            return;
+          }
+
+          // Promedio
+          var suma = datos.reduce(function(acc, r) {
+            return acc + (parseInt(r['Puntuación (1 al 5)']) || 5);
+          }, 0);
+          var prom = (suma / datos.length).toFixed(1);
+          document.getElementById('promedioTexto').textContent = prom + ' · ' + datos.length + ' reseña' + (datos.length !== 1 ? 's' : '');
+          document.getElementById('resenaPromedio').style.display = 'flex';
+
+          var recientes = datos.slice(-6).reverse();
+
+          grid.innerHTML = recientes.map(function(r) {
+            var nombre     = r['Tu nombre']                || 'Cliente';
+            var producto   = r['¿Qué producto compraste?'] || '';
+            var comentario = r['Tu comentario']            || '';
+            var puntuacion = r['Puntuación (1 al 5)']      || '5';
+            var color      = getColor(nombre);
+            var iniciales  = getInitials(nombre);
+
+            return `
+              <div class="resena-card">
+                <div class="resena-top">
+                  <div class="resena-avatar" style="background:${color}">${iniciales}</div>
+                  <div class="resena-info">
+                    <div class="resena-nombre">${nombre}</div>
+                    ${producto ? `<div class="resena-producto">📦 ${producto}</div>` : ''}
+                  </div>
+                </div>
+                <div class="resena-stars">${renderStars(puntuacion)}</div>
+                <div class="resena-comentario">"${comentario}"</div>
+              </div>
+            `;
+          }).join('');
+        })
+        .catch(function() {
+          document.getElementById('resenasGrid').innerHTML =
+            '<p class="resenas-empty">No se pudieron cargar las reseñas.</p>';
+        });
+    })();
   </script>
 </body>
 </html>
