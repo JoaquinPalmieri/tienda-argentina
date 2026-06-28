@@ -115,7 +115,7 @@
     .price { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; color: var(--azul); }
     .price-unit { font-size: 0.7rem; color: var(--suave); margin-top: 1px; }
 
-    /* ── BOTONES ── */
+    /* ── BUTTONS ── */
     .btn-wa {
       display: inline-flex; align-items: center; gap: 5px;
       background: var(--wa); color: white; border: none; border-radius: 999px;
@@ -235,7 +235,7 @@
     📍 Dubrovnik, Croacia · Entrega a coordinar con el comprador · Consultá por WhatsApp
   </div>
   <div class="mundial-banner">
-    <div><span class="trofeo">🏆</span> <strong>¡Vamos Argentina!</strong> · Próximo partido: Domingo 28 · 4:00 AM 🇭🇷</div>
+    <div><span class="trofeo">🏆</span> <strong>¡Vamos Argentina!</strong> · Próximo partido: Domingo 5 · 00:00 AM 🇭🇷</div>
     <div class="mundial-countdown" id="countdown">
       <div class="countdown-item"><span id="cd-d">--</span><small>días</small></div>
       <div class="countdown-item"><span id="cd-h">--</span><small>horas</small></div>
@@ -371,7 +371,7 @@
     `).join('');
       // ── CUENTA REGRESIVA MUNDIAL ──
   (function() {
-    var partido = new Date('2026-06-28T04:00:00+02:00');
+    var partido = new Date('2026-07-05T00:00:00+02:00');
     function actualizar() {
       var ahora = new Date();
       var diff  = partido - ahora;
