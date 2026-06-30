@@ -185,6 +185,33 @@
       .btn-wa, .btn-consultar { font-size: 0.7rem; padding: 0.4rem 0.65rem; }
       .card-footer { padding: 0.6rem 0.7rem 0.75rem; }
     }
+    .badge-nuevo {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    z-index: 2;
+    background: #e74c3c;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 8px rgba(231,76,60,0.4);
+  }
+  
+  .badge-rapido {
+    display: inline-block;
+    background: #fff3e0;
+    color: #e65100;
+    border: 1px solid #ffb74d;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-top: 4px;
+  }
   </style>
 </head>
 <body>
@@ -260,9 +287,9 @@
       { nombre: 'Yerba Mate Rosamonte Tradicional 1 kg', precio: 12.00, desc: 'Estacionada 18 meses. Sabor intenso y puro, cultivada en Misiones. Sin gluten. Una de las más reconocidas de Argentina.', img: 'img/rosamonte.webp', emoji: '🧉', stock: true },
       { nombre: 'Chocolinas 150 g', precio: 3.00, desc: 'Las galletitas de chocolate indispensables para hacer la Chocotorta. Un clásico argentino de Bagley.', img: 'img/chocolinas.webp', emoji: '🍪', stock: true },
       { nombre: 'Bizcochitos Agridulces Don Satur 200 g', precio: 5.00, desc: 'Desde 1967, Don Saturnino elabora estos clásicos bizcochitos agridulces en su panadería artesanal. Crujientes, con el sabor característico que los hace únicos.', img: 'img/bizcochitos.webp', emoji: '🥐', stock: true },
-      { nombre: 'Palitos Salados de Queso 140 g', precio: 4.50, desc: 'Exquisitos palitos salados con sabor a queso. Crujientes, de textura perfecta y sabor equilibrado. El snack ideal para acompañar el mate o el aperitivo.', img: 'img/palitos-salados-queso.webp', emoji: '🧀', stock: false },
-      { nombre: 'Caramelos Fizz x 5', precio: 2.00, desc: 'Tira de 5 caramelos Fizz, el clásico caramelo ácido efervescente argentino. Sabores frutales intensos que explotan en la boca. Un clásico de la infancia.', img: 'img/caramelos-fizz.webp', emoji: '🍬', stock: false },
-      { nombre: 'Havannets Chocolate', precio: 4.00, desc: 'Bizcocho de dulce de leche bañado en chocolate semiamargo. El bocadito más famoso de Havanna — pequeño, irresistible y 100% argentino.', img: 'img/havannets.webp', emoji: '🍫', stock: false },
+      { nombre: 'Palitos Salados de Queso 140 g', precio: 4.50, desc: 'Exquisitos palitos salados con sabor a queso. Crujientes, de textura perfecta y sabor equilibrado. El snack ideal para acompañar el mate o el aperitivo.', img: 'img/palitos-salados-queso.webp', emoji: '🧀', stock: false, nuevo: true },
+      { nombre: 'Caramelos Fizz x 5', precio: 2.00, desc: 'Tira de 5 caramelos Fizz, el clásico caramelo ácido efervescente argentino. Sabores frutales intensos que explotan en la boca. Un clásico de la infancia.', img: 'img/caramelos-fizz.webp', emoji: '🍬', stock: false, nuevo: true },
+      { nombre: 'Havannets Chocolate', precio: 4.00, desc: 'Bizcocho de dulce de leche bañado en chocolate semiamargo. El bocadito más famoso de Havanna — pequeño, irresistible y 100% argentino.', img: 'img/havannets.webp', emoji: '🍫', stock: false, nuevo: true },
     ];
 
     function imgError(el) {
