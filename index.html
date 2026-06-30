@@ -212,6 +212,17 @@
     font-weight: 700;
     margin-top: 4px;
   }
+  .badge-stock-bajo {
+    display: inline-block;
+    background: #fff0f0;
+    color: #c0392b;
+    border: 1px solid #e74c3c;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-top: 4px;
+  }
   </style>
 </head>
 <body>
@@ -321,6 +332,7 @@
           <div class="card-name">${p.nombre}</div>
           <div class="card-desc">${p.desc}</div>
           ${p.stock && p.rapido ? '<span class="badge-rapido">🔥 Se agota rápido</span>' : ''}
+          ${p.stock && p.unidades && p.unidades <= 5 ? `<span class="badge-stock-bajo">⚠️ ¡Últimas ${p.unidades} unidad${p.unidades > 1 ? 'es' : ''}!</span>` : ''}
         </div>
         <div class="card-footer">
           <div>
