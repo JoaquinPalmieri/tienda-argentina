@@ -313,12 +313,14 @@
     document.getElementById('grid').innerHTML = productos.map(p => `
       <div class="card${p.stock ? '' : ' out-of-stock'}">
         <span class="stock-badge ${p.stock ? 'in' : 'out'}">${p.stock ? 'Disponible' : 'Sin stock'}</span>
+        ${p.nuevo ? '<span class="badge-nuevo">Nuevo</span>' : ''}
         <div class="card-img-wrap">
           <img class="card-img" src="${p.img}" alt="${p.nombre}" loading="lazy" data-emoji="${p.emoji}" onerror="imgError(this)" />
         </div>
         <div class="card-body">
           <div class="card-name">${p.nombre}</div>
           <div class="card-desc">${p.desc}</div>
+          ${p.stock && p.rapido ? '<span class="badge-rapido">🔥 Se agota rápido</span>' : ''}
         </div>
         <div class="card-footer">
           <div>
