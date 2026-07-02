@@ -419,9 +419,12 @@
           }
 
           // Promedio
-          var suma = todosLosDatos.reduce(function(acc,r) { return acc+(parseInt(r['Puntuación (1 al 5)'])||5); }, 0);
-          var prom = (suma/todosLosDatos.length).toFixed(1);
-          document.getElementById('promedioTexto').textContent = prom + ' · ' + todosLosDatos.length + ' reseña' + (todosLosDatos.length!==1?'s':'');
+          var datosValidos = todosLosDatos.filter(function(r) {
+            return r['Tu nombre'] && r['Tu nombre'].trim() !== '' && isNaN(r['Tu nombre']);
+          });
+          var suma = datosValidos.reduce(function(acc,r) { return acc+(parseInt(r['Puntuación (1 al 5)'])||5); }, 0);
+          var prom = (suma/datosValidos.length).toFixed(1);
+          document.getElementById('promedioTexto').textContent = prom + ' · ' + datosValidos.length + ' reseña' + (datosValidos.length!==1?'s':'');
           document.getElementById('resenaPromedio').style.display = 'flex';
           document.getElementById('resenasFiltros').style.display = 'flex';
 
