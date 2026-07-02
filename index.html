@@ -358,6 +358,7 @@
       var CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvY_mbUrYJH7FMb3f_EdBgdGYuoXuPwLOQEcUIPmz-uBQGFqCDBKk57xq6YQztL7OOH21PF3RVdIEc/pub?gid=1234445483&single=true&output=csv&cachebust=1';
       var avatarColors = ['#1a2744','#74ACDF','#c0392b','#27ae60','#8e44ad','#e67e22','#2980b9','#c8a84b'];
       var todosLosDatos = [];
+      var datosValidos = [];
       var ordenActual = 'nuevas';
 
       function getColor(n) { var s=0; for(var i=0;i<n.length;i++) s+=n.charCodeAt(i); return avatarColors[s%avatarColors.length]; }
@@ -418,7 +419,7 @@
           }
 
           // Promedio
-          var datosValidos = todosLosDatos.filter(function(r) {
+          datosValidos = todosLosDatos.filter(function(r) {
             return r['Tu nombre'] && r['Tu nombre'].trim() !== '' && isNaN(r['Tu nombre']);
           });
           var suma = datosValidos.reduce(function(acc,r) { return acc+(parseInt(r['Puntuación (1 al 5)'])||5); }, 0);
