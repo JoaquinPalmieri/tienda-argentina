@@ -10,18 +10,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --celeste:  #74ACDF;
-      --azul:     #1a2744;
-      --crema:    #fdf8f0;
-      --wa:       #25d366;
-      --wa-dark:  #128c5a;
-      --borde:    #e5e0d8;
-      --texto:    #1c1c1e;
-      --suave:    #6b7280;
+      --celeste: #74ACDF; --azul: #1a2744; --crema: #fdf8f0;
+      --wa: #25d366; --wa-dark: #128c5a; --borde: #e5e0d8;
+      --texto: #1c1c1e; --suave: #6b7280;
     }
-
     body { font-family: 'Inter', sans-serif; background: var(--crema); color: var(--texto); min-height: 100vh; }
 
     /* ── HEADER ── */
@@ -31,143 +24,102 @@
     .header-flag { font-size: 1.8rem; }
     .header-title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; }
     .header-sub { font-size: 0.88rem; color: rgba(255,255,255,0.65); margin-bottom: 1rem; }
-    .wa-header {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: var(--wa); color: white; padding: 0.55rem 1.4rem;
-      border-radius: 999px; font-weight: 700; font-size: 0.88rem;
-      text-decoration: none; transition: background 0.2s, transform 0.2s;
-    }
+    .wa-header { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--wa); color: white; padding: 0.55rem 1.4rem; border-radius: 999px; font-weight: 700; font-size: 0.88rem; text-decoration: none; transition: background 0.2s, transform 0.2s; }
     .wa-header:hover { background: var(--wa-dark); transform: scale(1.03); }
 
     /* ── STRIP ── */
     .strip { background: var(--celeste); color: white; text-align: center; padding: 0.6rem 1rem; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em; }
 
     /* ── MUNDIAL BANNER ── */
-    .mundial-banner {
-      background: linear-gradient(135deg, #74ACDF 0%, #fff 50%, #74ACDF 100%);
-      color: var(--azul); text-align: center; padding: 0.8rem 1rem;
-      font-weight: 700; font-size: 0.88rem; border-bottom: 3px solid var(--azul);
-    }
+    .mundial-banner { background: linear-gradient(135deg, #74ACDF 0%, #fff 50%, #74ACDF 100%); color: var(--azul); text-align: center; padding: 0.8rem 1rem; font-weight: 700; font-size: 0.88rem; border-bottom: 3px solid var(--azul); }
     .mundial-banner .trofeo { font-size: 1.4rem; vertical-align: middle; }
     .mundial-countdown { display: inline-flex; gap: 0.8rem; margin-top: 0.4rem; justify-content: center; flex-wrap: wrap; }
     .countdown-item { background: var(--azul); color: white; border-radius: 8px; padding: 0.3rem 0.7rem; min-width: 52px; text-align: center; }
     .countdown-item span { display: block; font-size: 1.2rem; font-weight: 700; line-height: 1.1; }
     .countdown-item small { font-size: 0.62rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.05em; }
 
+    /* ── FILTROS ── */
+    .filtros-wrap { max-width: 960px; margin: 1.8rem auto 0; padding: 0 1rem; }
+    .filtros-label { font-size: 0.75rem; font-weight: 700; color: var(--suave); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.6rem; }
+    .filtros { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .filtro-btn {
+      padding: 0.4rem 1rem; border-radius: 999px; border: 1.5px solid var(--borde);
+      background: white; color: var(--suave); font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.18s;
+    }
+    .filtro-btn:hover { border-color: var(--celeste); color: var(--azul); background: #edf5fc; }
+    .filtro-btn.active { background: var(--azul); color: white; border-color: var(--azul); }
+    .filtro-btn.nuevo-btn.active { background: #e74c3c; border-color: #e74c3c; }
+    .filtro-btn.rapido-btn.active { background: #e67e22; border-color: #e67e22; }
+    .filtros-count { font-size: 0.78rem; color: var(--suave); margin-top: 0.6rem; }
+    .no-resultados { text-align: center; padding: 3rem 1rem; color: var(--suave); font-size: 0.9rem; }
+
     /* ── GRID ── */
-    main { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+    main { max-width: 960px; margin: 1.2rem auto 2rem; padding: 0 1rem; }
     .section-label { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--azul); margin-bottom: 1.5rem; text-align: center; }
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
 
     /* ── CARD ── */
-    .card {
-      background: white; border-radius: 16px; border: 2px solid #74ACDF !important;
-      overflow: hidden; display: flex; flex-direction: column;
-      transition: transform 0.25s, box-shadow 0.25s; position: relative;
-    }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(116,172,223,0.35); border-color: var(--azul) !important; }
+    .card { background: white; border-radius: 16px; border: 2px solid #74ACDF; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.25s, box-shadow 0.25s; position: relative; }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(116,172,223,0.35); border-color: var(--azul); }
     .card.out-of-stock { opacity: 0.75; }
-
-    /* ── STOCK BADGE ── */
-    .stock-badge {
-      position: absolute; top: 0.6rem; left: 0.6rem; z-index: 2;
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 3px 9px; border-radius: 999px; font-size: 0.68rem;
-      font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
-    }
+    .stock-badge { position: absolute; top: 0.6rem; left: 0.6rem; z-index: 2; display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
     .stock-badge::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
     .stock-badge.in  { background: #e8f5e9; color: #2e7d32; }
     .stock-badge.in::before  { background: #2e7d32; }
     .stock-badge.out { background: #fce4e4; color: #c62828; }
     .stock-badge.out::before { background: #c62828; }
-
-    /* ── CARD IMAGEN ── */
+    .badge-nuevo { position: absolute; top: 0.6rem; right: 0.6rem; z-index: 2; background: #e74c3c; color: white; padding: 3px 10px; border-radius: 999px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 0 2px 8px rgba(231,76,60,0.4); }
+    .badge-rapido { display: inline-block; background: #fff3e0; color: #e65100; border: 1px solid #ffb74d; padding: 2px 8px; border-radius: 999px; font-size: 0.65rem; font-weight: 700; margin-top: 4px; }
+    .badge-stock-bajo { display: inline-block; background: #fff0f0; color: #c0392b; border: 1px solid #e74c3c; padding: 2px 8px; border-radius: 999px; font-size: 0.65rem; font-weight: 700; margin-top: 4px; }
     .card-img-wrap { width: 100%; height: 190px; overflow: hidden; background: #f5f0e8; }
     .card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
     .card:hover .card-img { transform: scale(1.06); }
-
-    /* ── CARD BODY ── */
     .card-body { padding: 1rem; flex: 1; display: flex; flex-direction: column; gap: 0.4rem; }
     .card-name { font-weight: 700; font-size: 0.95rem; color: var(--azul); line-height: 1.3; }
     .card-desc { font-size: 0.78rem; color: var(--suave); line-height: 1.45; flex: 1; }
-
-    /* ── CARD FOOTER ── */
     .card-footer { padding: 0.8rem 1rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; border-top: 1px solid var(--borde); }
     .price { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; color: var(--azul); }
     .price-unit { font-size: 0.7rem; color: var(--suave); margin-top: 1px; }
-
-    /* ── BUTTONS ── */
-    .btn-wa {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: var(--wa); color: white; border: none; border-radius: 999px;
-      padding: 0.5rem 0.9rem; font-size: 0.8rem; font-weight: 700;
-      text-decoration: none; cursor: pointer; transition: background 0.2s, transform 0.15s; white-space: nowrap;
-    }
+    .btn-wa { display: inline-flex; align-items: center; gap: 5px; background: var(--wa); color: white; border: none; border-radius: 999px; padding: 0.5rem 0.9rem; font-size: 0.8rem; font-weight: 700; text-decoration: none; cursor: pointer; transition: background 0.2s, transform 0.15s; white-space: nowrap; }
     .btn-wa:hover { background: var(--wa-dark); transform: scale(1.04); }
-    .btn-consultar {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: var(--azul); color: white; border: none; border-radius: 999px;
-      padding: 0.5rem 0.9rem; font-size: 0.75rem; font-weight: 700;
-      text-decoration: none; cursor: pointer; transition: background 0.2s, transform 0.15s; white-space: nowrap;
-    }
-    .btn-consultar:hover { background: #2c4a7c; transform: scale(1.04); }
+    .btn-consultar { display: inline-flex; align-items: center; gap: 5px; background: var(--azul); color: white; border: none; border-radius: 999px; padding: 0.5rem 0.9rem; font-size: 0.75rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
 
     /* ── CONFETTI ── */
-    .confetti-piece {
-      position: fixed; width: 10px; height: 16px; top: -20px; opacity: 0;
-      animation: confetti-fall linear forwards; pointer-events: none; z-index: 9999; border-radius: 2px;
-    }
-    @keyframes confetti-fall {
-      0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
-      100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
-    }
+    .confetti-piece { position: fixed; width: 10px; height: 16px; top: -20px; opacity: 0; animation: confetti-fall linear forwards; pointer-events: none; z-index: 9999; border-radius: 2px; }
+    @keyframes confetti-fall { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(100vh) rotate(720deg); } }
 
     /* ── RESEÑAS ── */
     .resenas { background: white; padding: 3rem 1rem 2.5rem; border-top: 3px solid var(--celeste); }
     .resenas-inner { max-width: 960px; margin: 0 auto; }
     .resenas-header { text-align: center; margin-bottom: 0.5rem; }
     .resenas-titulo { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--azul); }
-    .resenas-promedio {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: var(--crema); border: 1.5px solid var(--borde);
-      border-radius: 999px; padding: 0.4rem 1rem;
-      font-size: 0.85rem; font-weight: 700; color: var(--azul);
-      margin: 0.8rem auto 2rem; display: flex; justify-content: center; width: fit-content;
-    }
+    .resenas-promedio { display: flex; align-items: center; gap: 0.5rem; background: var(--crema); border: 1.5px solid var(--borde); border-radius: 999px; padding: 0.4rem 1rem; font-size: 0.85rem; font-weight: 700; color: var(--azul); margin: 0.8rem auto 1.2rem; width: fit-content; }
     .resenas-promedio .stars-big { color: #F6B40E; font-size: 1rem; letter-spacing: 1px; }
-    .resenas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; margin-bottom: 2rem; }
 
-    /* Card reseña estilo Google */
-    .resena-card {
-      background: var(--crema); border: 1.5px solid var(--borde);
-      border-radius: 16px; padding: 1.4rem;
-      display: flex; flex-direction: column; gap: 0.8rem;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
+    /* Filtros reseñas */
+    .resenas-filtros { display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.8rem; }
+    .resena-filtro-btn { padding: 0.35rem 0.9rem; border-radius: 999px; border: 1.5px solid var(--borde); background: white; color: var(--suave); font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.18s; }
+    .resena-filtro-btn:hover { border-color: var(--celeste); color: var(--azul); }
+    .resena-filtro-btn.active { background: var(--azul); color: white; border-color: var(--azul); }
+
+    .resenas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; margin-bottom: 2rem; }
+    .resena-card { background: var(--crema); border: 1.5px solid var(--borde); border-radius: 16px; padding: 1.4rem; display: flex; flex-direction: column; gap: 0.8rem; transition: transform 0.2s, box-shadow 0.2s; }
     .resena-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(26,39,68,0.1); }
     .resena-top { display: flex; align-items: center; gap: 0.8rem; }
-    .resena-avatar {
-      width: 46px; height: 46px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; font-weight: 700; color: white; flex-shrink: 0;
-    }
+    .resena-avatar { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; color: white; flex-shrink: 0; }
     .resena-info { flex: 1; }
     .resena-nombre { font-weight: 700; font-size: 0.92rem; color: var(--azul); }
     .resena-producto { font-size: 0.72rem; color: var(--suave); margin-top: 2px; }
     .resena-stars { color: #F6B40E; font-size: 1.1rem; letter-spacing: 1px; }
     .resena-comentario { font-size: 0.84rem; color: var(--texto); line-height: 1.6; font-style: italic; }
     .resenas-cta { text-align: center; }
-    .btn-resena {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: var(--azul); color: white; padding: 0.65rem 1.6rem;
-      border-radius: 999px; font-size: 0.88rem; font-weight: 700;
-      text-decoration: none; transition: background 0.2s, transform 0.2s;
-    }
+    .btn-resena { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--azul); color: white; padding: 0.65rem 1.6rem; border-radius: 999px; font-size: 0.88rem; font-weight: 700; text-decoration: none; transition: background 0.2s, transform 0.2s; }
     .btn-resena:hover { background: #2c4a7c; transform: scale(1.03); }
     .resenas-empty { text-align: center; color: var(--suave); font-size: 0.88rem; padding: 2rem; }
 
     /* ── FOOTER ── */
-    footer { background: var(--azul); color: rgba(255,255,255,0.55); text-align: center; padding: 1.5rem 1rem; font-size: 0.78rem; margin-top: 0; }
+    footer { background: var(--azul); color: rgba(255,255,255,0.55); text-align: center; padding: 1.5rem 1rem; font-size: 0.78rem; }
     footer strong { color: white; }
 
     /* ── RESPONSIVE ── */
@@ -185,44 +137,6 @@
       .btn-wa, .btn-consultar { font-size: 0.7rem; padding: 0.4rem 0.65rem; }
       .card-footer { padding: 0.6rem 0.7rem 0.75rem; }
     }
-  .badge-nuevo {
-    position: absolute;
-    top: 0.6rem;
-    right: 0.6rem;
-    z-index: 2;
-    background: #e74c3c;
-    color: white;
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-size: 0.65rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    box-shadow: 0 2px 8px rgba(231,76,60,0.4);
-  }
-  
-  .badge-rapido {
-    display: inline-block;
-    background: #fff3e0;
-    color: #e65100;
-    border: 1px solid #ffb74d;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    margin-top: 4px;
-  }
-  .badge-stock-bajo {
-    display: inline-block;
-    background: #fff0f0;
-    color: #c0392b;
-    border: 1px solid #e74c3c;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    margin-top: 4px;
-  }
   </style>
 </head>
 <body>
@@ -255,11 +169,26 @@
     </div>
   </div>
 
+  <!-- ── FILTROS PRODUCTOS ── -->
+  <div class="filtros-wrap">
+    <div class="filtros-label">Filtrar por</div>
+    <div class="filtros" id="filtros">
+      <button class="filtro-btn active" data-filtro="todos">Todos</button>
+      <button class="filtro-btn" data-filtro="yerba">🧉 Yerba</button>
+      <button class="filtro-btn" data-filtro="alfajores">🍫 Alfajores</button>
+      <button class="filtro-btn" data-filtro="bebidas">🥃 Bebidas</button>
+      <button class="filtro-btn" data-filtro="galletitas">🍪 Galletitas</button>
+      <button class="filtro-btn nuevo-btn" data-filtro="nuevo">🆕 Nuevo</button>
+      <button class="filtro-btn rapido-btn" data-filtro="rapido">🔥 Se agota rápido</button>
+    </div>
+    <div class="filtros-count" id="filtrosCount"></div>
+  </div>
+
   <main>
-    <h2 class="section-label">Nuestros productos 🧉</h2>
     <div class="grid" id="grid"></div>
   </main>
 
+  <!-- ── RESEÑAS ── -->
   <section class="resenas">
     <div class="resenas-inner">
       <div class="resenas-header">
@@ -268,6 +197,12 @@
       <div class="resenas-promedio" id="resenaPromedio" style="display:none">
         <span class="stars-big">★★★★★</span>
         <span id="promedioTexto"></span>
+      </div>
+      <!-- Filtros reseñas -->
+      <div class="resenas-filtros" id="resenasFiltros" style="display:none">
+        <button class="resena-filtro-btn active" data-orden="nuevas">Más nuevas</button>
+        <button class="resena-filtro-btn" data-orden="mejor">Mejor valoradas</button>
+        <button class="resena-filtro-btn" data-orden="peor">Peor valoradas</button>
       </div>
       <div class="resenas-grid" id="resenasGrid">
         <p class="resenas-empty">Cargando reseñas...</p>
@@ -288,19 +223,20 @@
   <script>
     const WA = '5491130810702';
 
+    // ── PRODUCTOS ── (cat: yerba | alfajores | bebidas | galletitas)
     const productos = [
-      { nombre: 'Yerba Mate Playadito 1 kg', precio: 10.00, desc: 'Yerba suave elaborada con palo. Cultivada desde 1926 en Colonia Liebig, Corrientes. Apta para celíacos.', img: 'img/playadito.webp', emoji: '🧉', stock: true, rapido: true },
-      { nombre: 'Alfajor Havanna Blanco', precio: 4.00, desc: 'Delicado bocadito de dulce de leche cubierto con el más suave chocolate blanco. El clásico Havanna en su versión más cremosa.', img: 'img/alfajor-havanna-blancos.webp', emoji: '🍬', stock: true },
-      { nombre: 'Alfajor Havanna Negro', precio: 4.00, desc: 'Delicado bocadito de dulce de leche cubierto con el más suave chocolate semiamargo. El alfajor más icónico de Argentina.', img: 'img/alfajor-havanna-negros.webp', emoji: '🍫', stock: true, rapido: true },
-      { nombre: 'Yerba Mate Amanda 1 kg', precio: 11.00, desc: 'Yerba suave y equilibrada, elaborada en Misiones. Sin palo, de corte fino. Una de las más populares de Argentina.', img: 'img/amanda.webp', emoji: '🧉', stock: true },
-      { nombre: 'Yerba Mate Aguamate Organic 500 g', precio: 11.00, desc: 'Yerba orgánica argentina de Misiones. Secada sin humo, sin pesticidas ni fertilizantes artificiales. Sabor limpio, suave y equilibrado. Certificada orgánica y Fair Trade.', img: 'img/aguamate.webp', emoji: '🧉', stock: false },
-      { nombre: 'Fernet Branca Italiano 70 cl', precio: 30.00, desc: 'El Fernet-Branca original, creado en 1845 por Bernardino Branca. Receta italiana guardada como tesoro familiar. Ideal con Coca-Cola: el clásico "Fernet con Cola".', img: 'img/fernet.webp', emoji: '🥃', stock: true, rapido: true },
-      { nombre: 'Yerba Mate Rosamonte Tradicional 1 kg', precio: 12.00, desc: 'Estacionada 18 meses. Sabor intenso y puro, cultivada en Misiones. Sin gluten. Una de las más reconocidas de Argentina.', img: 'img/rosamonte.webp', emoji: '🧉', stock: true },
-      { nombre: 'Chocolinas 150 g', precio: 3.00, desc: 'Las galletitas de chocolate indispensables para hacer la Chocotorta. Un clásico argentino de Bagley.', img: 'img/chocolinas.webp', emoji: '🍪', stock: true },
-      { nombre: 'Bizcochitos Agridulces Don Satur 200 g', precio: 5.00, desc: 'Desde 1967, Don Saturnino elabora estos clásicos bizcochitos agridulces en su panadería artesanal. Crujientes, con el sabor característico que los hace únicos.', img: 'img/bizcochitos.webp', emoji: '🥐', stock: true },
-      { nombre: 'Palitos Salados de Queso 140 g', precio: 4.50, desc: 'Exquisitos palitos salados con sabor a queso. Crujientes, de textura perfecta y sabor equilibrado. El snack ideal para acompañar el mate o el aperitivo.', img: 'img/palitos-salados-queso.webp', emoji: '🧀', stock: false, nuevo: true },
-      { nombre: 'Caramelos Fizz x 5', precio: 2.00, desc: 'Tira de 5 caramelos Fizz, el clásico caramelo ácido efervescente argentino. Sabores frutales intensos que explotan en la boca. Un clásico de la infancia.', img: 'img/caramelos-fizz.webp', emoji: '🍬', stock: false, nuevo: true },
-      { nombre: 'Havannets Chocolate', precio: 4.00, desc: 'Bizcocho de dulce de leche bañado en chocolate semiamargo. El bocadito más famoso de Havanna — pequeño, irresistible y 100% argentino.', img: 'img/havannets.webp', emoji: '🍫', stock: false, nuevo: true },
+      { nombre: 'Yerba Mate Playadito 1 kg',          precio: 10.00, cat: 'yerba',     desc: 'Yerba suave elaborada con palo. Cultivada desde 1926 en Colonia Liebig, Corrientes. Apta para celíacos.',                                                                                                                          img: 'img/playadito.webp',           emoji: '🧉', stock: true,  rapido: true  },
+      { nombre: 'Alfajor Havanna Blanco',              precio:  4.00, cat: 'alfajores', desc: 'Delicado bocadito de dulce de leche cubierto con el más suave chocolate blanco. El clásico Havanna en su versión más cremosa.',                                                                                                        img: 'img/alfajor-havanna-blancos.webp', emoji: '🍬', stock: true  },
+      { nombre: 'Alfajor Havanna Negro',               precio:  4.00, cat: 'alfajores', desc: 'Delicado bocadito de dulce de leche cubierto con el más suave chocolate semiamargo. El alfajor más icónico de Argentina.',                                                                                                             img: 'img/alfajor-havanna-negros.webp',  emoji: '🍫', stock: true,  rapido: true  },
+      { nombre: 'Yerba Mate Amanda 1 kg',              precio: 11.00, cat: 'yerba',     desc: 'Yerba suave y equilibrada, elaborada en Misiones. Sin palo, de corte fino. Una de las más populares de Argentina.',                                                                                                                   img: 'img/amanda.webp',              emoji: '🧉', stock: true  },
+      { nombre: 'Yerba Mate Aguamate Organic 500 g',   precio: 11.00, cat: 'yerba',     desc: 'Yerba orgánica argentina de Misiones. Secada sin humo, sin pesticidas ni fertilizantes artificiales. Sabor limpio, suave y equilibrado. Certificada orgánica y Fair Trade.',                                                          img: 'img/aguamate.webp',            emoji: '🧉', stock: false, nuevo: true   },
+      { nombre: 'Fernet Branca Italiano 70 cl',        precio: 30.00, cat: 'bebidas',   desc: 'El Fernet-Branca original, creado en 1845 por Bernardino Branca. Receta italiana guardada como tesoro familiar. Ideal con Coca-Cola: el clásico "Fernet con Cola".',                                                                  img: 'img/fernet.webp',              emoji: '🥃', stock: true,  rapido: true  },
+      { nombre: 'Yerba Mate Rosamonte Tradicional 1 kg', precio: 12.00, cat: 'yerba',   desc: 'Estacionada 18 meses. Sabor intenso y puro, cultivada en Misiones. Sin gluten. Una de las más reconocidas de Argentina.',                                                                                                             img: 'img/rosamonte.webp',           emoji: '🧉', stock: true  },
+      { nombre: 'Chocolinas 150 g',                    precio:  3.00, cat: 'galletitas', desc: 'Las galletitas de chocolate indispensables para hacer la Chocotorta. Un clásico argentino de Bagley.',                                                                                                                               img: 'img/chocolinas.webp',          emoji: '🍪', stock: true  },
+      { nombre: 'Bizcochitos Agridulces Don Satur 200 g', precio: 5.00, cat: 'galletitas', desc: 'Desde 1967, Don Saturnino elabora estos clásicos bizcochitos agridulces en su panadería artesanal. Crujientes, con el sabor característico que los hace únicos.',                                                                  img: 'img/bizcochitos.webp',         emoji: '🥐', stock: true  },
+      { nombre: 'Palitos Salados de Queso 140 g',      precio:  4.50, cat: 'galletitas', desc: 'Exquisitos palitos salados con sabor a queso. Crujientes, de textura perfecta y sabor equilibrado. El snack ideal para acompañar el mate o el aperitivo.',                                                                           img: 'img/palitos-salados-queso.webp', emoji: '🧀', stock: false, nuevo: true   },
+      { nombre: 'Caramelos Fizz x 5',                  precio:  2.00, cat: 'galletitas', desc: 'Tira de 5 caramelos Fizz, el clásico caramelo ácido efervescente argentino. Sabores frutales intensos que explotan en la boca. Un clásico de la infancia.',                                                                         img: 'img/caramelos-fizz.webp',      emoji: '🍬', stock: false, nuevo: true   },
+      { nombre: 'Havannets Chocolate',                  precio:  4.00, cat: 'alfajores', desc: 'Bizcocho de dulce de leche bañado en chocolate semiamargo. El bocadito más famoso de Havanna — pequeño, irresistible y 100% argentino.',                                                                                             img: 'img/havannets.webp',           emoji: '🍫', stock: false, nuevo: true   },
     ];
 
     function imgError(el) {
@@ -308,8 +244,7 @@
       wrap.style.display = 'flex'; wrap.style.alignItems = 'center';
       wrap.style.justifyContent = 'center'; wrap.style.fontSize = '3.5rem';
       wrap.style.background = '#f0ebe0';
-      var emoji = el.getAttribute('data-emoji') || '🧉';
-      el.remove(); wrap.textContent = emoji;
+      el.remove(); wrap.textContent = el.getAttribute('data-emoji') || '🧉';
     }
 
     function waMsg(p) {
@@ -318,51 +253,81 @@
 
     const waIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.122 1.533 5.857L0 24l6.335-1.518A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.003-1.364l-.358-.213-3.762.9.966-3.666-.234-.376A9.818 9.818 0 1112 21.818z"/></svg>`;
 
-    productos.sort((a, b) => a.nombre.localeCompare(b.nombre));
-    productos.sort((a, b) => b.stock - a.stock);
+    // ── RENDER PRODUCTOS ──
+    function renderProductos(filtro) {
+      var lista = productos.slice();
 
-    document.getElementById('grid').innerHTML = productos.map(p => `
-      <div class="card${p.stock ? '' : ' out-of-stock'}">
-        <span class="stock-badge ${p.stock ? 'in' : 'out'}">${p.stock ? 'Disponible' : 'Sin stock'}</span>
-        ${p.nuevo ? '<span class="badge-nuevo">Nuevo</span>' : ''}
-        <div class="card-img-wrap">
-          <img class="card-img" src="${p.img}" alt="${p.nombre}" loading="lazy" data-emoji="${p.emoji}" onerror="imgError(this)" />
-        </div>
-        <div class="card-body">
-          <div class="card-name">${p.nombre}</div>
-          <div class="card-desc">${p.desc}</div>
-          ${p.stock && p.rapido ? '<span class="badge-rapido">🔥 Se agota rápido</span>' : ''}
-          ${p.stock && p.unidades && p.unidades <= 5 ? `<span class="badge-stock-bajo">⚠️ ¡Últimas ${p.unidades} unidad${p.unidades > 1 ? 'es' : ''}!</span>` : ''}
-        </div>
-        <div class="card-footer">
-          <div>
-            <div class="price">${p.precio.toFixed(2).replace('.',',')} €</div>
-            <div class="price-unit">por unidad</div>
+      // Aplicar filtro
+      if (filtro === 'nuevo')   lista = lista.filter(function(p) { return p.nuevo; });
+      else if (filtro === 'rapido') lista = lista.filter(function(p) { return p.rapido; });
+      else if (filtro !== 'todos')  lista = lista.filter(function(p) { return p.cat === filtro; });
+
+      // Ordenar: disponibles primero, luego alfabético
+      lista.sort(function(a, b) { return a.nombre.localeCompare(b.nombre); });
+      lista.sort(function(a, b) { return b.stock - a.stock; });
+
+      var grid = document.getElementById('grid');
+      var count = document.getElementById('filtrosCount');
+
+      if (!lista.length) {
+        grid.innerHTML = '<div class="no-resultados">No hay productos en esta categoría por el momento.</div>';
+        count.textContent = '';
+        return;
+      }
+
+      count.textContent = lista.length + ' producto' + (lista.length !== 1 ? 's' : '');
+
+      grid.innerHTML = lista.map(function(p) { return `
+        <div class="card${p.stock ? '' : ' out-of-stock'}">
+          <span class="stock-badge ${p.stock ? 'in' : 'out'}">${p.stock ? 'Disponible' : 'Sin stock'}</span>
+          ${p.nuevo ? '<span class="badge-nuevo">Nuevo</span>' : ''}
+          <div class="card-img-wrap">
+            <img class="card-img" src="${p.img}" alt="${p.nombre}" loading="lazy" data-emoji="${p.emoji}" onerror="imgError(this)" />
           </div>
-          ${p.stock
-            ? `<a class="btn-wa" href="https://wa.me/${WA}?text=${encodeURIComponent(waMsg(p))}" target="_blank" rel="noopener">${waIcon} Consultar</a>`
-            : `<span class="btn-consultar" style="opacity:0.5;cursor:not-allowed">Sin stock</span>`
-          }
+          <div class="card-body">
+            <div class="card-name">${p.nombre}</div>
+            <div class="card-desc">${p.desc}</div>
+            ${p.stock && p.rapido ? '<span class="badge-rapido">🔥 Se agota rápido</span>' : ''}
+            ${p.stock && p.unidades && p.unidades <= 5 ? `<span class="badge-stock-bajo">⚠️ ¡Últimas ${p.unidades} unidad${p.unidades > 1 ? 'es' : ''}!</span>` : ''}
+          </div>
+          <div class="card-footer">
+            <div>
+              <div class="price">${p.precio.toFixed(2).replace('.',',')} €</div>
+              <div class="price-unit">por unidad</div>
+            </div>
+            ${p.stock
+              ? `<a class="btn-wa" href="https://wa.me/${WA}?text=${encodeURIComponent(waMsg(p))}" target="_blank" rel="noopener">${waIcon} Consultar</a>`
+              : `<span class="btn-consultar" style="opacity:0.5;cursor:not-allowed">Sin stock</span>`
+            }
+          </div>
         </div>
-      </div>
-    `).join('');
+      `; }).join('');
+    }
+
+    // Inicializar con "Todos"
+    renderProductos('todos');
+
+    // Eventos filtros
+    document.getElementById('filtros').addEventListener('click', function(e) {
+      var btn = e.target.closest('.filtro-btn');
+      if (!btn) return;
+      document.querySelectorAll('.filtro-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      renderProductos(btn.dataset.filtro);
+    });
 
     // ── CUENTA REGRESIVA ──
     (function() {
       var partido = new Date('2026-07-04T00:00:00+02:00');
       function actualizar() {
         var diff = partido - new Date();
-        if (diff <= 0) {
-          document.getElementById('countdown').innerHTML = '<strong>⚽ ¡Partido en juego! ¡Vamos Argentina! 🇦🇷</strong>';
-          return;
-        }
+        if (diff <= 0) { document.getElementById('countdown').innerHTML = '<strong>⚽ ¡Partido en juego! ¡Vamos Argentina! 🇦🇷</strong>'; return; }
         document.getElementById('cd-d').textContent = String(Math.floor(diff/86400000)).padStart(2,'0');
         document.getElementById('cd-h').textContent = String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
         document.getElementById('cd-m').textContent = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
         document.getElementById('cd-s').textContent = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
       }
-      actualizar();
-      setInterval(actualizar, 1000);
+      actualizar(); setInterval(actualizar, 1000);
     })();
 
     // ── CONFETTI ──
@@ -391,25 +356,13 @@
     // ── RESEÑAS ──
     (function() {
       var CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvY_mbUrYJH7FMb3f_EdBgdGYuoXuPwLOQEcUIPmz-uBQGFqCDBKk57xq6YQztL7OOH21PF3RVdIEc/pub?gid=1234445483&single=true&output=csv';
-
       var avatarColors = ['#1a2744','#74ACDF','#c0392b','#27ae60','#8e44ad','#e67e22','#2980b9','#c8a84b'];
+      var todosLosDatos = [];
+      var ordenActual = 'nuevas';
 
-      function getColor(nombre) {
-        var sum = 0;
-        for (var i = 0; i < nombre.length; i++) sum += nombre.charCodeAt(i);
-        return avatarColors[sum % avatarColors.length];
-      }
-
-      function getInitials(nombre) {
-        var parts = nombre.trim().split(' ');
-        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-        return nombre.substring(0, 2).toUpperCase();
-      }
-
-      function renderStars(n) {
-        var num = Math.min(Math.max(parseInt(n) || 5, 1), 5);
-        return '★'.repeat(num) + '☆'.repeat(5 - num);
-      }
+      function getColor(n) { var s=0; for(var i=0;i<n.length;i++) s+=n.charCodeAt(i); return avatarColors[s%avatarColors.length]; }
+      function getInitials(n) { var p=n.trim().split(' '); return p.length>=2?(p[0][0]+p[1][0]).toUpperCase():n.substring(0,2).toUpperCase(); }
+      function renderStars(n) { var x=Math.min(Math.max(parseInt(n)||5,1),5); return '★'.repeat(x)+'☆'.repeat(5-x); }
 
       function parseCSV(text) {
         var lines = text.trim().split('\n');
@@ -417,60 +370,71 @@
         return lines.slice(1).map(function(line) {
           var cols = line.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
           var obj = {};
-          headers.forEach(function(h, i) {
-            obj[h.trim()] = (cols[i] || '').replace(/^"|"$/g, '').trim();
-          });
+          headers.forEach(function(h,i) { obj[h.trim()]=(cols[i]||'').replace(/^"|"$/g,'').trim(); });
           return obj;
         });
+      }
+
+      function renderResenas(datos, orden) {
+        var lista = datos.slice();
+        if (orden === 'mejor') lista.sort(function(a,b) { return (parseInt(b['Puntuación (1 al 5)'])||5)-(parseInt(a['Puntuación (1 al 5)'])||5); });
+        else if (orden === 'peor') lista.sort(function(a,b) { return (parseInt(a['Puntuación (1 al 5)'])||5)-(parseInt(b['Puntuación (1 al 5)'])||5); });
+        else lista = lista.reverse(); // más nuevas
+
+        var recientes = lista.slice(0, 6);
+        document.getElementById('resenasGrid').innerHTML = recientes.map(function(r) {
+          var nombre = r['Tu nombre'] || 'Cliente';
+          var producto = r['¿Qué producto compraste?'] || '';
+          var comentario = r['Tu comentario'] || '';
+          var puntuacion = r['Puntuación (1 al 5)'] || '5';
+          return `
+            <div class="resena-card">
+              <div class="resena-top">
+                <div class="resena-avatar" style="background:${getColor(nombre)}">${getInitials(nombre)}</div>
+                <div class="resena-info">
+                  <div class="resena-nombre">${nombre}</div>
+                  ${producto ? `<div class="resena-producto">📦 ${producto}</div>` : ''}
+                </div>
+              </div>
+              <div class="resena-stars">${renderStars(puntuacion)}</div>
+              <div class="resena-comentario">"${comentario}"</div>
+            </div>
+          `;
+        }).join('');
       }
 
       fetch(CSV_URL)
         .then(function(r) { return r.text(); })
         .then(function(text) {
-          var datos = parseCSV(text);
-          var grid  = document.getElementById('resenasGrid');
+          todosLosDatos = parseCSV(text);
+          var grid = document.getElementById('resenasGrid');
 
-          if (!datos.length) {
+          if (!todosLosDatos.length) {
             grid.innerHTML = '<p class="resenas-empty">Aún no hay reseñas. ¡Sé el primero! 🌟</p>';
             return;
           }
 
           // Promedio
-          var suma = datos.reduce(function(acc, r) {
-            return acc + (parseInt(r['Puntuación (1 al 5)']) || 5);
-          }, 0);
-          var prom = (suma / datos.length).toFixed(1);
-          document.getElementById('promedioTexto').textContent = prom + ' · ' + datos.length + ' reseña' + (datos.length !== 1 ? 's' : '');
+          var suma = todosLosDatos.reduce(function(acc,r) { return acc+(parseInt(r['Puntuación (1 al 5)'])||5); }, 0);
+          var prom = (suma/todosLosDatos.length).toFixed(1);
+          document.getElementById('promedioTexto').textContent = prom + ' · ' + todosLosDatos.length + ' reseña' + (todosLosDatos.length!==1?'s':'');
           document.getElementById('resenaPromedio').style.display = 'flex';
+          document.getElementById('resenasFiltros').style.display = 'flex';
 
-          var recientes = datos.slice(-6).reverse();
+          renderResenas(todosLosDatos, ordenActual);
 
-          grid.innerHTML = recientes.map(function(r) {
-            var nombre     = r['Tu nombre']                || 'Cliente';
-            var producto   = r['¿Qué producto compraste?'] || '';
-            var comentario = r['Tu comentario']            || '';
-            var puntuacion = r['Puntuación (1 al 5)']      || '5';
-            var color      = getColor(nombre);
-            var iniciales  = getInitials(nombre);
-
-            return `
-              <div class="resena-card">
-                <div class="resena-top">
-                  <div class="resena-avatar" style="background:${color}">${iniciales}</div>
-                  <div class="resena-info">
-                    <div class="resena-nombre">${nombre}</div>
-                    ${producto ? `<div class="resena-producto">📦 ${producto}</div>` : ''}
-                  </div>
-                </div>
-                <div class="resena-stars">${renderStars(puntuacion)}</div>
-                <div class="resena-comentario">"${comentario}"</div>
-              </div>
-            `;
-          }).join('');
+          // Eventos filtros reseñas
+          document.getElementById('resenasFiltros').addEventListener('click', function(e) {
+            var btn = e.target.closest('.resena-filtro-btn');
+            if (!btn) return;
+            document.querySelectorAll('.resena-filtro-btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            ordenActual = btn.dataset.orden;
+            renderResenas(todosLosDatos, ordenActual);
+          });
         })
         .catch(function() {
-          document.getElementById('resenasGrid').innerHTML =
-            '<p class="resenas-empty">No se pudieron cargar las reseñas.</p>';
+          document.getElementById('resenasGrid').innerHTML = '<p class="resenas-empty">No se pudieron cargar las reseñas.</p>';
         });
     })();
   </script>
