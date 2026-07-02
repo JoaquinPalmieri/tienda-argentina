@@ -428,7 +428,7 @@
           document.getElementById('resenaPromedio').style.display = 'flex';
           document.getElementById('resenasFiltros').style.display = 'flex';
 
-          renderResenas(todosLosDatos, ordenActual);
+          renderResenas(datosValidos, ordenActual);
 
           // Eventos filtros reseñas
           document.getElementById('resenasFiltros').addEventListener('click', function(e) {
@@ -437,7 +437,7 @@
             document.querySelectorAll('.resena-filtro-btn').forEach(function(b) { b.classList.remove('active'); });
             btn.classList.add('active');
             ordenActual = btn.dataset.orden;
-            renderResenas(todosLosDatos, ordenActual);
+            renderResenas(datosValidos, ordenActual);
           });
         })
         .catch(function() {
