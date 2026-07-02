@@ -379,7 +379,7 @@
         var lista = datos.slice();
         if (orden === 'mejor') lista.sort(function(a,b) { return (parseInt(b['Puntuación (1 al 5)'])||5)-(parseInt(a['Puntuación (1 al 5)'])||5); });
         else if (orden === 'peor') lista.sort(function(a,b) { return (parseInt(a['Puntuación (1 al 5)'])||5)-(parseInt(b['Puntuación (1 al 5)'])||5); });
-        else lista = lista.reverse(); // más nuevas
+        else lista = lista.slice().reverse(); // más nuevas
 
         var lista = datos.filter(function(r) {
         return r['Tu nombre'] && r['Tu nombre'].trim() !== '' && isNaN(r['Tu nombre']);
