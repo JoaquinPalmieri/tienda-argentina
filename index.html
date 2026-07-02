@@ -381,7 +381,11 @@
         else if (orden === 'peor') lista.sort(function(a,b) { return (parseInt(a['Puntuación (1 al 5)'])||5)-(parseInt(b['Puntuación (1 al 5)'])||5); });
         else lista = lista.reverse(); // más nuevas
 
+        var lista = datos.filter(function(r) {
+        return r['Tu nombre'] && r['Tu nombre'].trim() !== '' && isNaN(r['Tu nombre']);
+        });
         var recientes = lista.slice(0, 6);
+
         document.getElementById('resenasGrid').innerHTML = recientes.map(function(r) {
           var nombre = r['Tu nombre'] || 'Cliente';
           var producto = r['¿Qué producto compraste?'] || '';
