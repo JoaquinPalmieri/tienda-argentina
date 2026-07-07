@@ -187,6 +187,28 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 28px rgba(26,39,68,0.45);
   }
+
+    /* ── LANGUAGE SWITCHER ── */
+    .lang-switcher {
+      display: flex;
+      gap: 3px;
+      margin-left: auto;
+    }
+    .lang-btn {
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1.5px solid rgba(255,255,255,0.25);
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.18s;
+      letter-spacing: .03em;
+    }
+    .lang-btn:hover { background: rgba(255,255,255,0.12); color: white; }
+    .lang-btn.active { background: var(--celeste); color: white; border-color: var(--celeste); }
   </style>
 </head>
 <body>
@@ -202,6 +224,11 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.122 1.533 5.857L0 24l6.335-1.518A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.003-1.364l-.358-.213-3.762.9.966-3.666-.234-.376A9.818 9.818 0 1112 21.818z"/></svg>
         Consultar por WhatsApp
       </a>
+      <div class="lang-switcher" id="langSwitcher">
+        <button class="lang-btn active" data-lang="es">ES</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="hr">HR</button>
+      </div>
     </div>
   </header>
 
@@ -272,22 +299,149 @@
   </footer>
 
   <script>
+
+    // ── I18N ──────────────────────────────────────────────────────────
+    const TRANSLATIONS = {
+      es: {
+        'header.sub': 'Auténticos · Dubrovnik, Croacia 🇭🇷',
+        'header.wa': 'Consultar por WhatsApp',
+        'strip': '📍 Dubrovnik, Croacia · Entrega a coordinar con el comprador · Consultá por WhatsApp',
+        'filtros.label': 'Filtrar por',
+        'filtro.todos': 'Todos', 'filtro.bebidas': '🥃 Bebidas',
+        'filtro.galletitas': '🍪 Galletitas', 'filtro.golosinas': '🍬 Golosinas',
+        'filtro.nuevo': '🆕 Nuevo', 'filtro.rapido': '🔥 Se agota rápido',
+        'card.disponible': 'Disponible', 'card.sinstock': 'Sin stock',
+        'card.consultar': 'Consultar', 'card.porunidad': 'por unidad',
+        'card.nuevo': 'Nuevo', 'card.rapido': '🔥 Se agota rápido',
+        'card.ultima': '⚠️ ¡Última unidad!', 'card.ultimas': '⚠️ ¡Últimas {n} unidades!',
+        'products.title': 'Nuestros productos 🧉',
+        'reviews.title': 'Lo que dicen nuestros clientes ⭐',
+        'reviews.latest': 'Más nuevas', 'reviews.best': 'Mejor valoradas', 'reviews.worst': 'Peor valoradas',
+        'reviews.cta': '✍️ Dejar mi reseña', 'reviews.loading': 'Cargando reseñas...',
+        'reviews.empty': 'Aún no hay reseñas. ¡Sé el primero! 🌟',
+        'reviews.singular': 'reseña', 'reviews.plural': 'reseñas',
+        'footer.sub': '📍 Dubrovnik, Croacia · Precios orientativos · Entrega a coordinar con el comprador',
+        'chat.btn': '🤖 Hacer pedido con IA',
+        'wa.msg': 'Hola! 👋 Quiero consultar disponibilidad:\n\n🛒 *{n}*\n💰 Precio: {p} €\n\n¿Está disponible? ¡Gracias!',
+      },
+      en: {
+        'header.sub': 'Authentic · Dubrovnik, Croatia 🇭🇷',
+        'header.wa': 'Contact on WhatsApp',
+        'strip': '📍 Dubrovnik, Croatia · Delivery coordinated with buyer · Contact us on WhatsApp',
+        'filtros.label': 'Filter by',
+        'filtro.todos': 'All', 'filtro.bebidas': '🥃 Drinks',
+        'filtro.galletitas': '🍪 Biscuits', 'filtro.golosinas': '🍬 Sweets',
+        'filtro.nuevo': '🆕 New', 'filtro.rapido': '🔥 Selling fast',
+        'card.disponible': 'Available', 'card.sinstock': 'Out of stock',
+        'card.consultar': 'Order', 'card.porunidad': 'per unit',
+        'card.nuevo': 'New', 'card.rapido': '🔥 Selling fast',
+        'card.ultima': '⚠️ Last unit!', 'card.ultimas': '⚠️ Last {n} units!',
+        'products.title': 'Our products 🧉',
+        'reviews.title': 'What our customers say ⭐',
+        'reviews.latest': 'Latest', 'reviews.best': 'Best rated', 'reviews.worst': 'Worst rated',
+        'reviews.cta': '✍️ Leave a review', 'reviews.loading': 'Loading reviews...',
+        'reviews.empty': 'No reviews yet. Be the first! 🌟',
+        'reviews.singular': 'review', 'reviews.plural': 'reviews',
+        'footer.sub': '📍 Dubrovnik, Croatia · Indicative prices · Delivery coordinated with buyer',
+        'chat.btn': '🤖 Order with AI',
+        'wa.msg': 'Hello! 👋 I want to check availability:\n\n🛒 *{n}*\n💰 Price: {p} €\n\nIs it available? Thanks!',
+      },
+      hr: {
+        'header.sub': 'Autentično · Dubrovnik, Hrvatska 🇭🇷',
+        'header.wa': 'Kontakt na WhatsApp',
+        'strip': '📍 Dubrovnik, Hrvatska · Dostava dogovorena s kupcem · Kontaktirajte nas na WhatsApp',
+        'filtros.label': 'Filtriraj po',
+        'filtro.todos': 'Svi', 'filtro.bebidas': '🥃 Pića',
+        'filtro.galletitas': '🍪 Keksi', 'filtro.golosinas': '🍬 Slatkiši',
+        'filtro.nuevo': '🆕 Novo', 'filtro.rapido': '🔥 Rasprodaje se brzo',
+        'card.disponible': 'Dostupno', 'card.sinstock': 'Nije dostupno',
+        'card.consultar': 'Naruči', 'card.porunidad': 'po komadu',
+        'card.nuevo': 'Novo', 'card.rapido': '🔥 Rasprodaje se brzo',
+        'card.ultima': '⚠️ Zadnja jedinica!', 'card.ultimas': '⚠️ Zadnje {n} jedinice!',
+        'products.title': 'Naši proizvodi 🧉',
+        'reviews.title': 'Što kažu naši kupci ⭐',
+        'reviews.latest': 'Najnovije', 'reviews.best': 'Najbolje ocijenjeno', 'reviews.worst': 'Najlošije ocijenjeno',
+        'reviews.cta': '✍️ Ostavi recenziju', 'reviews.loading': 'Učitavanje recenzija...',
+        'reviews.empty': 'Još nema recenzija. Budite prvi! 🌟',
+        'reviews.singular': 'recenzija', 'reviews.plural': 'recenzija',
+        'footer.sub': '📍 Dubrovnik, Hrvatska · Indikativne cijene · Dostava dogovorena s kupcem',
+        'chat.btn': '🤖 Naruči uz AI',
+        'wa.msg': 'Zdravo! 👋 Želim provjeriti dostupnost:\n\n🛒 *{n}*\n💰 Cijena: {p} €\n\nJe li dostupno? Hvala!',
+      }
+    };
+
+    var langActual = localStorage.getItem('lang') || 'es';
+
+    function T(key) { return (TRANSLATIONS[langActual] || TRANSLATIONS.es)[key] || key; }
+
+    function setLanguage(lang) {
+      langActual = lang;
+      localStorage.setItem('lang', lang);
+      // Update switcher buttons
+      document.querySelectorAll('.lang-btn').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.lang === lang);
+      });
+      // Static text
+      document.querySelector('.header-sub').textContent = T('header.sub');
+      document.querySelector('.wa-header span, .wa-header').childNodes.forEach && null;
+      var waHeaderText = document.querySelector('.wa-header');
+      if (waHeaderText) {
+        var lastChild = waHeaderText.lastChild;
+        if (lastChild && lastChild.nodeType === 3) lastChild.textContent = ' ' + T('header.wa');
+      }
+      document.querySelector('.strip').textContent = T('strip');
+      document.querySelector('.filtros-label').textContent = T('filtros.label');
+      // Filter buttons
+      var filtroMap = { 'todos': 'filtro.todos', 'bebidas': 'filtro.bebidas', 'galletitas': 'filtro.galletitas', 'golosinas': 'filtro.golosinas', 'nuevo': 'filtro.nuevo', 'rapido': 'filtro.rapido' };
+      document.querySelectorAll('.filtro-btn[data-filtro]').forEach(function(b) {
+        var key = filtroMap[b.dataset.filtro];
+        if (key) b.textContent = T(key);
+      });
+      // Section title
+      var st = document.getElementById('sectionLabel');
+      if (st) st.textContent = T('products.title');
+      // Reviews
+      var rt = document.querySelector('.resenas-titulo');
+      if (rt) rt.textContent = T('reviews.title');
+      document.querySelectorAll('.resena-filtro-btn').forEach(function(b) {
+        var map = { 'nuevas': 'reviews.latest', 'mejor': 'reviews.best', 'peor': 'reviews.worst' };
+        if (map[b.dataset.orden]) b.textContent = T(map[b.dataset.orden]);
+      });
+      var cta = document.querySelector('.btn-resena');
+      if (cta) cta.textContent = T('reviews.cta');
+      // Footer
+      var fs = document.querySelector('footer p:last-child');
+      if (fs) fs.textContent = T('footer.sub');
+      // Chat button
+      var cb = document.querySelector('.btn-chat-flotante');
+      if (cb) cb.textContent = T('chat.btn');
+      // Re-render products with current filter
+      var activeFiltro = (document.querySelector('.filtro-btn.active') || {}).dataset || { filtro: 'todos' };
+      renderProductos(activeFiltro.filtro || 'todos');
+    }
+
+    // Language switcher events
+    document.getElementById('langSwitcher').addEventListener('click', function(e) {
+      var btn = e.target.closest('.lang-btn');
+      if (btn) setLanguage(btn.dataset.lang);
+    });
+
     const WA = '5491161851985';
 
     // ── PRODUCTOS ── (cat: yerba | alfajores | bebidas | galletitas)
     const productos = [
-      { nombre: 'Yerba Mate Playadito 1 kg',          precio: 10.00, cat: 'yerba',     desc: 'Yerba suave elaborada con palo. Cultivada desde 1926 en Colonia Liebig, Corrientes. Apta para celíacos.',                                                                                                                          img: 'img/playadito.webp',           emoji: '🧉', stock: true,  rapido: true, unidades: 1 },
-      { nombre: 'Alfajor Havanna Blanco',              precio:  4.00, cat: 'alfajores', desc: 'Delicado bocadito de dulce de leche cubierto de un exquisito merengue italiano. El clásico Havanna en su versión más cremosa.',                                                                                                        img: 'img/alfajor-havanna-blancos.webp', emoji: '🍬', stock: true },
-      { nombre: 'Alfajor Havanna Negro',               precio:  4.00, cat: 'alfajores', desc: 'Delicado bocadito de dulce de leche cubierto con el más suave chocolate semiamargo. El alfajor más icónico de Argentina.',                                                                                                             img: 'img/alfajor-havanna-negros.webp',  emoji: '🍫', stock: true,  rapido: true },
-      { nombre: 'Yerba Mate Amanda 1 kg',              precio: 11.00, cat: 'yerba',     desc: 'Yerba suave y equilibrada, elaborada en Misiones. Sin palo, de corte fino. Una de las más populares de Argentina.',                                                                                                                   img: 'img/amanda.webp',              emoji: '🧉', stock: true },
-      { nombre: 'Yerba Mate Aguamate Organic 500 g',   precio: 11.00, cat: 'yerba',     desc: 'Yerba orgánica argentina de Misiones. Secada sin humo, sin pesticidas ni fertilizantes artificiales. Sabor limpio, suave y equilibrado. Certificada orgánica y Fair Trade.',                                                          img: 'img/aguamate.webp',            emoji: '🧉', stock: false, },
-      { nombre: 'Fernet Branca Italiano 70 cl',        precio: 30.00, cat: 'bebidas',   desc: 'El Fernet-Branca original, creado en 1845 por Bernardino Branca. Receta italiana guardada como tesoro familiar. Ideal con Coca-Cola: el clásico "Fernet con Cola".',                                                                  img: 'img/fernet.webp',              emoji: '🥃', stock: true, rapido: true, unidades: 4 },
-      { nombre: 'Yerba Mate Rosamonte Tradicional 1 kg', precio: 10.00, cat: 'yerba',   desc: 'Estacionada 18 meses. Sabor intenso y puro, cultivada en Misiones. Sin gluten. Una de las más reconocidas de Argentina.',                                                                                                             img: 'img/rosamonte.webp',           emoji: '🧉', stock: true },
-      { nombre: 'Chocolinas 150 g',                    precio:  3.00, cat: 'galletitas', desc: 'Las galletitas de chocolate indispensables para hacer la Chocotorta. Un clásico argentino de Bagley.',                                                                                                                               img: 'img/chocolinas.webp',          emoji: '🍪', stock: true },
-      { nombre: 'Bizcochitos Agridulces Don Satur 200 g', precio: 5.00, cat: 'galletitas', desc: 'Desde 1967, Don Saturnino elabora estos clásicos bizcochitos agridulces en su panadería artesanal. Crujientes, con el sabor característico que los hace únicos.',                                                                  img: 'img/bizcochitos.webp',         emoji: '🥐', stock: true },
-      { nombre: 'Palitos Salados de Queso 140 g',      precio:  4.00, cat: 'galletitas', desc: 'Exquisitos palitos salados con sabor a queso. Crujientes, de textura perfecta y sabor equilibrado. El snack ideal para acompañar el mate o el aperitivo.',                                                                           img: 'img/palitos-salados-queso.webp', emoji: '🧀', stock: true, nuevo: true },
-      { nombre: 'Caramelos Fizz x 5',                  precio:  2.00, cat: 'golosinas', desc: 'Tira de 5 caramelos Fizz, el clásico caramelo ácido efervescente argentino. Sabores frutales intensos que explotan en la boca. Un clásico de la infancia.',                                                                         img: 'img/caramelos-fizz.webp',      emoji: '🍬', stock: true, nuevo: true },
-      { nombre: 'Havannets Chocolate',                  precio:  4.00, cat: 'alfajores', desc: 'Bizcocho de dulce de leche bañado en chocolate semiamargo. El bocadito más famoso de Havanna — pequeño, irresistible y 100% argentino.',                                                                                             img: 'img/havannets.webp',           emoji: '🍫', stock: true, nuevo: true },
+      { nombre: 'Yerba Mate Playadito 1 kg',          precio: 10.00, cat: 'yerba',     desc: 'Yerba suave elaborada con palo. Cultivada desde 1926 en Colonia Liebig, Corrientes. Apta para celíacos.', desc_en: 'Mild yerba mate with stick. Grown since 1926 in Corrientes. Gluten-free.', desc_hr: 'Blaga yerba mate s palom. Uzgaja se od 1926. u Corrientesu. Bez glutena.',                                                                                                                          img: 'img/playadito.webp',           emoji: '🧉', stock: true,  rapido: true, unidades: 1 },
+      { nombre: 'Alfajor Havanna Blanco',              precio:  4.00, cat: 'alfajores', desc: 'Delicado bocadito de dulce de leche cubierto de un exquisito merengue italiano. El clásico Havanna en su versión más cremosa.', desc_en: 'Dulce de leche bite covered with Italian meringue. The classic Havanna at its creamiest.', desc_hr: 'Zalogaj dulce de leche prekriven talijanskim meringom. Klasični Havanna u kremastoj verziji.',                                                                                                        img: 'img/alfajor-havanna-blancos.webp', emoji: '🍬', stock: true },
+      { nombre: 'Alfajor Havanna Negro',               precio:  4.00, cat: 'alfajores', desc: 'Delicado bocadito de dulce de leche cubierto con el más suave chocolate semiamargo. El alfajor más icónico de Argentina.', desc_en: 'Dulce de leche bite coated in smooth dark chocolate. Argentina\'s most iconic alfajor.', desc_hr: 'Zalogaj dulce de leche prekriven glatkom tamnom čokoladom. Najprepoznatljiviji argentinski alfajor.',                                                                                                             img: 'img/alfajor-havanna-negros.webp',  emoji: '🍫', stock: true,  rapido: true },
+      { nombre: 'Yerba Mate Amanda 1 kg',              precio: 11.00, cat: 'yerba',     desc: 'Yerba suave y equilibrada, elaborada en Misiones. Sin palo, de corte fino. Una de las más populares de Argentina.', desc_en: 'Smooth, balanced yerba mate from Misiones. No stick, fine cut. One of Argentina\'s most popular.', desc_hr: 'Glatka, uravnotežena yerba mate iz Misionesa. Bez pala, fino rezana. Jedan od najpopularnijih u Argentini.',                                                                                                                   img: 'img/amanda.webp',              emoji: '🧉', stock: true },
+      { nombre: 'Yerba Mate Aguamate Organic 500 g',   precio: 11.00, cat: 'yerba',     desc: 'Yerba orgánica argentina de Misiones. Secada sin humo, sin pesticidas ni fertilizantes artificiales. Sabor limpio, suave y equilibrado. Certificada orgánica y Fair Trade.', desc_en: 'Organic Argentine yerba from Misiones. Smoke-free, no pesticides. Clean, smooth flavor. Organic & Fair Trade certified.', desc_hr: 'Organska argentinska yerba iz Misionesa. Bez dima, bez pesticida. Čist, blagi okus. Organski i Fair Trade certificirano.',                                                          img: 'img/aguamate.webp',            emoji: '🧉', stock: false, },
+      { nombre: 'Fernet Branca Italiano 70 cl',        precio: 30.00, cat: 'bebidas',   desc: 'El Fernet-Branca original, creado en 1845 por Bernardino Branca. Receta italiana guardada como tesoro familiar. Ideal con Coca-Cola: el clásico "Fernet con Cola".', desc_en: 'The original Fernet-Branca, created in 1845. A family secret recipe. Perfect with Coca-Cola.', desc_hr: 'Originalni Fernet-Branca, stvoren 1845. Obiteljski tajni recept. Savršen s Coca-Colom.',                                                                  img: 'img/fernet.webp',              emoji: '🥃', stock: true, rapido: true, unidades: 4 },
+      { nombre: 'Yerba Mate Rosamonte Tradicional 1 kg', precio: 10.00, cat: 'yerba',   desc: 'Estacionada 18 meses. Sabor intenso y puro, cultivada en Misiones. Sin gluten. Una de las más reconocidas de Argentina.', desc_en: 'Aged 18 months. Intense, pure flavor from Misiones. Gluten-free. One of Argentina\'s most recognized brands.', desc_hr: 'Odležano 18 mjeseci. Intenzivan, čisti okus iz Misionesa. Bez glutena. Jedan od najpoznatijih argentinskih brendova.',                                                                                                             img: 'img/rosamonte.webp',           emoji: '🧉', stock: true },
+      { nombre: 'Chocolinas 150 g',                    precio:  3.00, cat: 'galletitas', desc: 'Las galletitas de chocolate indispensables para hacer la Chocotorta. Un clásico argentino de Bagley.', desc_en: 'Chocolate biscuits essential for making Chocotorta. An Argentine classic by Bagley.', desc_hr: 'Čokoladni keksi nezaobilazni za pravljenje Chocotorte. Argentinski klasik marke Bagley.',                                                                                                                               img: 'img/chocolinas.webp',          emoji: '🍪', stock: true },
+      { nombre: 'Bizcochitos Agridulces Don Satur 200 g', precio: 5.00, cat: 'galletitas', desc: 'Desde 1967, Don Saturnino elabora estos clásicos bizcochitos agridulces en su panadería artesanal. Crujientes, con el sabor característico que los hace únicos.', desc_en: 'Since 1967, Don Saturnino crafts these sweet-and-salty biscuits in his artisan bakery. Crunchy and uniquely flavored.', desc_hr: 'Od 1967. Don Saturnino izrađuje ove slatko-slane kekse u zanatskoj pekari. Hrskavi i jedinstvenog okusa.',                                                                  img: 'img/bizcochitos.webp',         emoji: '🥐', stock: true },
+      { nombre: 'Palitos Salados de Queso 140 g',      precio:  4.00, cat: 'galletitas', desc: 'Exquisitos palitos salados con sabor a queso. Crujientes, de textura perfecta y sabor equilibrado. El snack ideal para acompañar el mate o el aperitivo.', desc_en: 'Savory cheese-flavored sticks. Crunchy, perfect texture. Ideal with mate or as an aperitif.', desc_hr: 'Slani štapići s okusom sira. Hrskavi, savršene teksture. Idealni uz mate ili kao aperitiv.',                                                                           img: 'img/palitos-salados-queso.webp', emoji: '🧀', stock: true, nuevo: true },
+      { nombre: 'Caramelos Fizz x 5',                  precio:  2.00, cat: 'golosinas', desc: 'Tira de 5 caramelos Fizz, el clásico caramelo ácido efervescente argentino. Sabores frutales intensos que explotan en la boca. Un clásico de la infancia.', desc_en: 'Pack of 5 Fizz candies, the classic Argentine fizzy sour candy. Intense fruity flavors that pop in your mouth.', desc_hr: 'Pakovanje od 5 Fizz bombona, klasičnih argentinskih šumećih kiselih bombona. Intenzivni voćni okusi.',                                                                         img: 'img/caramelos-fizz.webp',      emoji: '🍬', stock: true, nuevo: true },
+      { nombre: 'Havannets Chocolate',                  precio:  4.00, cat: 'alfajores', desc: 'Bizcocho de dulce de leche bañado en chocolate semiamargo. El bocadito más famoso de Havanna — pequeño, irresistible y 100% argentino.', desc_en: 'Dulce de leche pastry dipped in dark chocolate. Havanna\'s most famous treat — small, irresistible, 100% Argentine.', desc_hr: 'Kolačić s dulce de leche umoćen u tamnu čokoladu. Havannin najpoznatiji zalogaj — mali, neodoljiv, 100% argentinski.',                                                                                             img: 'img/havannets.webp',           emoji: '🍫', stock: true, nuevo: true },
     ];
 
     function imgError(el) {
@@ -299,7 +453,7 @@
     }
 
     function waMsg(p) {
-      return `Hola! 👋 Quiero consultar disponibilidad:\n\n🛒 *${p.nombre}*\n💰 Precio: ${p.precio.toFixed(2).replace('.',',')} €\n\n¿Está disponible? ¡Gracias!`;
+      return T('wa.msg').replace('{n}', p.nombre).replace('{p}', p.precio.toFixed(2).replace('.',','));
     }
 
     const waIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.122 1.533 5.857L0 24l6.335-1.518A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.003-1.364l-.358-.213-3.762.9.966-3.666-.234-.376A9.818 9.818 0 1112 21.818z"/></svg>`;
@@ -330,25 +484,25 @@
 
       grid.innerHTML = lista.map(function(p) { return `
         <div class="card${p.stock ? '' : ' out-of-stock'}">
-          <span class="stock-badge ${p.stock ? 'in' : 'out'}">${p.stock ? 'Disponible' : 'Sin stock'}</span>
-          ${p.nuevo ? '<span class="badge-nuevo">Nuevo</span>' : ''}
+          <span class="stock-badge ${p.stock ? 'in' : 'out'}">${p.stock ? T('card.disponible') : T('card.sinstock')}</span>
+          ${p.nuevo ? `<span class="badge-nuevo">${T('card.nuevo')}</span>` : ''}
           <div class="card-img-wrap">
             <img class="card-img" src="${p.img}" alt="${p.nombre}" loading="lazy" data-emoji="${p.emoji}" onerror="imgError(this)" />
           </div>
           <div class="card-body">
             <div class="card-name">${p.nombre}</div>
-            <div class="card-desc">${p.desc}</div>
-            ${p.stock && p.rapido ? '<span class="badge-rapido">🔥 Se agota rápido</span>' : ''}
-            ${p.stock && p.unidades && p.unidades <= 5 ? `<span class="badge-stock-bajo">⚠️ ¡${p.unidades === 1 ? 'Última unidad' : `Últimas ${p.unidades} unidades`}!</span>` : ''}
+            <div class="card-desc">${langActual === 'en' ? (p.desc_en||p.desc) : langActual === 'hr' ? (p.desc_hr||p.desc) : p.desc}</div>
+            ${p.stock && p.rapido ? `<span class="badge-rapido">${T('card.rapido')}</span>` : ''}
+            ${p.stock && p.unidades && p.unidades <= 5 ? `<span class="badge-stock-bajo">${p.unidades === 1 ? T('card.ultima') : T('card.ultimas').replace('{n}', p.unidades)}</span>` : ''}
           </div>
           <div class="card-footer">
             <div>
               <div class="price">${p.precio.toFixed(2).replace('.',',')} €</div>
-              <div class="price-unit">por unidad</div>
+              <div class="price-unit">${T('card.porunidad')}</div>
             </div>
             ${p.stock
               ? `<a class="btn-wa" href="https://wa.me/${WA}?text=${encodeURIComponent(waMsg(p))}" target="_blank" rel="noopener">${waIcon} Consultar</a>`
-              : `<span class="btn-consultar" style="opacity:0.5;cursor:not-allowed">Sin stock</span>`
+              : `<span class="btn-consultar" style="opacity:0.5;cursor:not-allowed">${T('card.sinstock')}</span>`
             }
           </div>
         </div>
@@ -357,6 +511,8 @@
 
     // Inicializar con "Todos"
     renderProductos('todos');
+    // Aplicar idioma guardado
+    if (langActual !== 'es') setLanguage(langActual);
 
     // Eventos filtros
     document.getElementById('filtros').addEventListener('click', function(e) {
