@@ -275,9 +275,19 @@
       background: white;
       border: 1px solid var(--borde);
       border-radius: 999px;
-      padding: 0.3rem 0.75rem;
-      font-size: 0.75rem;
-      color: var(--suave);
+      padding: 0.4rem 0.9rem;
+      font-size: 0.78rem;
+      color: var(--azul);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      transition: all 0.18s;
+    }
+    .welcome-product-pill:hover {
+      background: var(--azul);
+      color: white;
+      border-color: var(--azul);
+      transform: scale(1.03);
     }
 
     .start-btn {
@@ -359,25 +369,30 @@
     let historial = [];
     let cargando = false;
 
-    // Welcome pills
+    // Welcome pills — clickeables
     const wp = document.getElementById('welcomeProducts');
     PRODUCTOS_DISPONIBLES.forEach(p => {
-      const pill = document.createElement('span');
+      const pill = document.createElement('button');
       pill.className = 'welcome-product-pill';
       pill.textContent = p;
+      // Extraer solo el nombre del producto (sin precio)
+      const nombreProducto = p.split(' — ')[0];
+      pill.addEventListener('click', () => {
+        iniciarChat(`Quiero pedir: ${nombreProducto}`);
+      });
       wp.appendChild(pill);
     });
 
     // Start
-    document.getElementById('startBtn').addEventListener('click', iniciarChat);
+    document.getElementById('startBtn').addEventListener('click', () => iniciarChat(null));
 
-    function iniciarChat() {
+    function iniciarChat(mensajeInicial) {
       document.getElementById('welcome').style.display = 'none';
       document.getElementById('chatWrap').style.display = 'flex';
       document.getElementById('sugerencias').style.display = 'flex';
       document.getElementById('inputBar').style.display = 'flex';
       document.getElementById('msgInput').focus();
-      enviarMensaje('Hola! Quiero hacer un pedido.');
+      enviarMensaje(mensajeInicial || 'Hola! Quiero hacer un pedido.');
     }
 
     // Input
