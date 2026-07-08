@@ -237,7 +237,7 @@
   </div>
 
   <div class="mundial-banner">
-    <div><span class="trofeo">🏆</span> <strong>¡Vamos Argentina!</strong> · Próximo partido 8vos: Mártes 7 · 06:00 PM 🇭🇷</div>
+    <div><span class="trofeo">🏆</span> <strong>¡Vamos Argentina!</strong> · Próximo partido 4tos: Domingo 12 · 03:00 AM 🇭🇷</div>
     <div class="mundial-countdown" id="countdown">
       <div class="countdown-item"><span id="cd-d">--</span><small>días</small></div>
       <div class="countdown-item"><span id="cd-h">--</span><small>horas</small></div>
@@ -525,7 +525,7 @@
 
     // ── CUENTA REGRESIVA ──
     (function() {
-      var partido = new Date('2026-07-07T18:00:00+02:00');
+      var partido = new Date('2026-07-12T03:00:00+02:00');
       function actualizar() {
         var diff = partido - new Date();
         if (diff <= 0) { document.getElementById('countdown').innerHTML = '<strong>⚽ ¡Partido en juego! ¡Vamos Argentina! 🇦🇷</strong>'; return; }
