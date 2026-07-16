@@ -340,7 +340,7 @@
         <table class="pl-table">
           <tr><td>Ingresos por ventas</td><td style="text-align:right;font-weight:700" id="pl-ingresos">€0,00</td></tr>
           <tr><td>Costo de productos vendidos</td><td style="text-align:right;color:var(--rojo)" id="pl-costos">−€0,00</td></tr>
-          <tr><td>Gastos extra</td><td style="text-align:right;color:var(--rojo)" id="pl-gastos">−€0,00</td></tr>
+          <tr><td>Gastos operativos <small style='color:var(--suave)'>(sin compras)</small></td><td style="text-align:right;color:var(--rojo)" id="pl-gastos">−€0,00</td></tr>
           <tr><td><strong>Ganancia neta</strong></td><td style="text-align:right;font-weight:800;color:var(--verde)" id="pl-neta">€0,00</td></tr>
         </table>
       </div>
@@ -663,15 +663,18 @@
   function updateDashboard() {
     const totalIngresos = ventas.reduce((s, v) => s + (v.total || 0), 0);
     const totalCostos = ventas.reduce((s, v) => s + (v.costoTotal || 0), 0);
-    const totalGastos = gastos.reduce((s, v) => s + (v.monto || 0), 0);
+    // Excluir "compra de stock" del P&L — ya están cubiertas por costoTotal
+    const gastosOperativos = gastos.filter(g => g.categoria !== 'compra');
+    const totalGastosOp = gastosOperativos.reduce((s, g) => s + (g.monto || 0), 0);
+    const totalGastosTodos = gastos.reduce((s, g) => s + (g.monto || 0), 0);
     const gananciaVentas = totalIngresos - totalCostos;
-    const gananciaNeta = gananciaVentas - totalGastos;
+    const gananciaNeta = gananciaVentas - totalGastosOp;
     const margenPct = totalIngresos > 0 ? (gananciaVentas / totalIngresos) * 100 : 0;
 
     document.getElementById('m-ingresos').textContent = fmt(totalIngresos);
     document.getElementById('m-ventas-count').textContent = ventas.length + ' venta' + (ventas.length !== 1 ? 's' : '');
-    document.getElementById('m-gastos').textContent = fmt(totalGastos);
-    document.getElementById('m-gastos-count').textContent = gastos.length + ' registro' + (gastos.length !== 1 ? 's' : '');
+    document.getElementById('m-gastos').textContent = fmt(totalGastosOp);
+    document.getElementById('m-gastos-count').textContent = gastosOperativos.length + ' operativo' + (gastosOperativos.length !== 1 ? 's' : '');
     document.getElementById('m-ganancia').textContent = fmt(gananciaNeta);
     document.getElementById('m-ganancia').className = 'metric-value ' + (gananciaNeta >= 0 ? 'verde' : 'rojo');
     document.getElementById('m-margen').textContent = fmtPct(margenPct);
@@ -679,16 +682,26 @@
 
     document.getElementById('pl-ingresos').textContent = fmt(totalIngresos);
     document.getElementById('pl-costos').textContent = '−' + fmt(totalCostos);
-    document.getElementById('pl-gastos').textContent = '−' + fmt(totalGastos);
+    document.getElementById('pl-gastos').textContent = '−' + fmt(totalGastosOp);
     document.getElementById('pl-neta').textContent = fmt(gananciaNeta);
     document.getElementById('pl-neta').style.color = gananciaNeta >= 0 ? 'var(--verde)' : 'var(--rojo)';
 
-    // Top productos
+    // Top productos — soporte formato viejo y nuevo (items array)
     const por = {};
     ventas.forEach(v => {
-      if (!por[v.productoNombre]) por[v.productoNombre] = { uds: 0, total: 0 };
-      por[v.productoNombre].uds += v.cantidad || 0;
-      por[v.productoNombre].total += v.total || 0;
+      if (v.items && v.items.length > 0) {
+        v.items.forEach(item => {
+          const nombre = item.productoNombre || 'Sin nombre';
+          if (!por[nombre]) por[nombre] = { uds: 0, total: 0 };
+          por[nombre].uds += item.cantidad || 0;
+          por[nombre].total += item.subtotal || 0;
+        });
+      } else {
+        const nombre = v.productoNombre || 'Sin nombre';
+        if (!por[nombre]) por[nombre] = { uds: 0, total: 0 };
+        por[nombre].uds += v.cantidad || 0;
+        por[nombre].total += v.total || 0;
+      }
     });
     const top = Object.entries(por).sort((a, b) => b[1].uds - a[1].uds).slice(0, 5);
     const topEl = document.getElementById('top-productos');
