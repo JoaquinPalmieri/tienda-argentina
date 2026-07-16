@@ -897,28 +897,22 @@
     const total = ventaItems.reduce((s, i) => s + i.subtotal, 0);
     const costoTotal = ventaItems.reduce((s, i) => s + i.costoSubtotal, 0);
     const ganancia = total - costoTotal;
+    const INC = firebase.firestore.FieldValue.increment;
     if (editingVentaId) {
-      // Calcular diferencia neta de stock entre venta vieja y nueva
+      // Calcular diferencia neta de stock con increment (atómico)
       const oldVenta = ventas.find(v => v.id === editingVentaId);
       const stockChanges = {};
       if (oldVenta) {
         const oldItems = oldVenta.items || [{ productoId: oldVenta.productoId, cantidad: oldVenta.cantidad || 0 }];
-        // Restaurar stock de ítems viejos (sumar)
         oldItems.forEach(item => {
-          stockChanges[item.productoId] = (stockChanges[item.productoId] || 0) + (item.cantidad || 0);
+          if (item.productoId) stockChanges[item.productoId] = (stockChanges[item.productoId] || 0) + (item.cantidad || 0);
         });
       }
-      // Descontar stock de ítems nuevos (restar)
       ventaItems.forEach(item => {
         stockChanges[item.productoId] = (stockChanges[item.productoId] || 0) - item.cantidad;
       });
-      // Aplicar cambios netos
       for (const [productoId, cambio] of Object.entries(stockChanges)) {
-        const prod = productos.find(p => p.id === productoId);
-        if (prod) {
-          const nuevoStock = Math.max(0, (prod.stock || 0) + cambio);
-          await db.collection('productos').doc(productoId).update({ stock: nuevoStock });
-        }
+        if (cambio !== 0) await db.collection('productos').doc(productoId).update({ stock: INC(cambio) });
       }
       await db.collection('ventas').doc(editingVentaId).update({ items: ventaItems, total, costoTotal, ganancia, cliente, fecha, notas });
       showToast('✅ Venta actualizada');
@@ -929,10 +923,7 @@
         creadoEn: firebase.firestore.FieldValue.serverTimestamp()
       });
       for (const item of ventaItems) {
-        const prod = productos.find(p => p.id === item.productoId);
-        if (prod) {
-          await db.collection('productos').doc(item.productoId).update({ stock: Math.max(0, (prod.stock || 0) - item.cantidad) });
-        }
+        await db.collection('productos').doc(item.productoId).update({ stock: INC(-item.cantidad) });
       }
       showToast('✅ Venta registrada');
     }
@@ -1084,15 +1075,13 @@
 
   window.deleteVenta = async function(id) {
     if (!confirm('¿Eliminar esta venta?')) return;
-    // Restaurar stock antes de eliminar
     const v = ventas.find(x => x.id === id);
     if (v) {
+      const INC = firebase.firestore.FieldValue.increment;
       const items = v.items || [{ productoId: v.productoId, cantidad: v.cantidad || 0 }];
       for (const item of items) {
-        if (!item.productoId) continue;
-        const prod = productos.find(p => p.id === item.productoId);
-        if (prod) {
-          await db.collection('productos').doc(item.productoId).update({ stock: (prod.stock || 0) + (item.cantidad || 0) });
+        if (item.productoId && item.cantidad) {
+          await db.collection('productos').doc(item.productoId).update({ stock: INC(item.cantidad) });
         }
       }
     }
