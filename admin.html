@@ -242,6 +242,42 @@
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+    .venta-item-row {
+      display: flex;
+      align-items: center;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--borde);
+      gap: 0.5rem;
+    }
+    .venta-item-row:last-child { border-bottom: none; }
+    .venta-items-list { margin: 0.5rem 0 0.75rem; }
+    .venta-total-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0;
+      border-top: 2px solid var(--borde);
+      font-weight: 800;
+      font-size: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .add-item-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: stretch;
+      margin-bottom: 0.25rem;
+    }
+    .add-item-row select { flex: 1; }
+    .add-item-row input { width: 68px; }
+    .nota-preview {
+      font-size: 0.68rem;
+      color: var(--suave);
+      font-style: italic;
+      max-width: 120px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .pl-table td { padding: 0.5rem 0; }
     .pl-table tr { border-bottom: 1px solid var(--borde); }
     .pl-table tr:last-child { border-bottom: none; font-size: 1rem; }
@@ -344,7 +380,7 @@
       <div class="card" style="padding:0">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Fecha</th><th>Producto</th><th>Uds</th><th>Total</th><th>Ganancia</th><th></th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Cliente</th><th>Ítems</th><th>Total</th><th>Ganancia</th><th></th></tr></thead>
             <tbody id="ventasTable">
               <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Sin ventas registradas</div></div></td></tr>
             </tbody>
@@ -431,20 +467,26 @@
 <div class="modal-overlay" id="modalVenta">
   <div class="modal">
     <div class="modal-title" id="modalVentaTitle">Registrar venta</div>
+
     <div class="form-group">
-      <label class="form-label">Producto</label>
-      <select class="form-select" id="vProducto"></select>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Cantidad</label>
+      <label class="form-label">Agregar producto</label>
+      <div class="add-item-row">
+        <select class="form-select" id="vProducto"></select>
         <input class="form-input" id="vCantidad" type="number" min="1" value="1">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Precio unitario (€)</label>
-        <input class="form-input" id="vPrecio" type="number" step="0.01" min="0">
+        <button class="btn btn-primary" id="btnAddItem" style="white-space:nowrap;padding:0 0.9rem">+</button>
       </div>
     </div>
+
+    <div class="venta-items-list" id="ventaItemsList">
+      <div id="ventaItemsEmpty" style="padding:0.5rem 0;color:var(--suave);font-size:0.8rem;text-align:center">Agregá al menos un producto ↑</div>
+    </div>
+    <div class="venta-total-bar" id="ventaTotalBar" style="display:none">
+      <span>Total</span>
+      <span id="ventaTotalVal">€0,00</span>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--borde);margin-bottom:1rem">
+
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Cliente</label>
@@ -539,6 +581,7 @@
   // ── STATE ──
   let productos = [], ventas = [], gastos = [];
   let editingProductoId = null, editingStockId = null, editingGastoId = null, editingVentaId = null;
+  let ventaItems = [];
 
   // ── HELPERS ──
   const fmt = n => '€' + (n || 0).toFixed(2).replace('.', ',');
@@ -685,11 +728,6 @@
     if (prevVal) sel.value = prevVal;
   }
 
-  document.getElementById('vProducto').addEventListener('change', function() {
-    const p = productos.find(x => x.id === this.value);
-    if (p) document.getElementById('vPrecio').value = p.precio.toFixed(2);
-  });
-
   document.getElementById('btnAddProducto').addEventListener('click', () => {
     editingProductoId = null;
     document.getElementById('modalProductoTitle').textContent = 'Agregar producto';
@@ -735,63 +773,136 @@
       tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Sin ventas registradas</div></div></td></tr>';
       return;
     }
-    tbody.innerHTML = ventas.map(v => `<tr>
-      <td style="white-space:nowrap">${fmtDate(v.fecha)}</td>
-      <td style="max-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${v.productoNombre||''}">${v.productoNombre||'—'}</td>
-      <td>${v.cantidad}</td>
-      <td style="font-weight:700;white-space:nowrap">${fmt(v.total)}</td>
-      <td style="color:var(--verde);font-weight:700;white-space:nowrap">${fmt(v.ganancia)}</td>
-      <td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" onclick="editVenta('${v.id}')">✏️</button> <button class="btn btn-ghost btn-sm" onclick="deleteVenta('${v.id}')">🗑️</button></td>
-    </tr>`).join('');
+    tbody.innerHTML = ventas.map(v => {
+      // Support both old (single) and new (multi-item) format
+      let itemsLabel;
+      if (v.items && v.items.length > 0) {
+        itemsLabel = v.items.map(i => `${i.cantidad}× ${i.productoNombre}`).join(', ');
+      } else {
+        itemsLabel = `${v.cantidad || 1}× ${v.productoNombre || '—'}`;
+      }
+      const notaCell = v.notas
+        ? `<div class="nota-preview">💬 ${v.notas}</div>`
+        : '';
+      return `<tr>
+        <td style="white-space:nowrap">${fmtDate(v.fecha)}</td>
+        <td style="max-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${v.cliente || '—'}</td>
+        <td style="max-width:120px">
+          <div style="font-size:0.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${itemsLabel}">${itemsLabel}</div>
+          ${notaCell}
+        </td>
+        <td style="font-weight:700;white-space:nowrap">${fmt(v.total)}</td>
+        <td style="color:var(--verde);font-weight:700;white-space:nowrap">${fmt(v.ganancia)}</td>
+        <td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" onclick="editVenta('${v.id}')">✏️</button> <button class="btn btn-ghost btn-sm" onclick="deleteVenta('${v.id}')">🗑️</button></td>
+      </tr>`;
+    }).join('');
   }
 
+  // ── VENTA CART ──
+  function renderVentaItems() {
+    const list = document.getElementById('ventaItemsList');
+    const empty = document.getElementById('ventaItemsEmpty');
+    const totalBar = document.getElementById('ventaTotalBar');
+    // Remove existing item rows
+    list.querySelectorAll('.venta-item-row').forEach(r => r.remove());
+    if (ventaItems.length === 0) {
+      empty.style.display = 'block';
+      totalBar.style.display = 'none';
+      return;
+    }
+    empty.style.display = 'none';
+    totalBar.style.display = 'flex';
+    ventaItems.forEach((item, i) => {
+      const row = document.createElement('div');
+      row.className = 'venta-item-row';
+      row.innerHTML = `
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:0.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.productoNombre}</div>
+          <div style="color:var(--suave);font-size:0.72rem">${item.cantidad} × ${fmt(item.precioUnitario)}</div>
+        </div>
+        <div style="font-weight:700;white-space:nowrap;margin-right:0.5rem">${fmt(item.subtotal)}</div>
+        <button class="btn btn-ghost btn-sm" onclick="removeVentaItem(${i})" style="padding:2px 6px;font-size:1rem;line-height:1">×</button>
+      `;
+      list.insertBefore(row, empty);
+    });
+    const total = ventaItems.reduce((s, i) => s + i.subtotal, 0);
+    document.getElementById('ventaTotalVal').textContent = fmt(total);
+  }
+
+  window.removeVentaItem = function(i) {
+    ventaItems.splice(i, 1);
+    renderVentaItems();
+  };
+
+  document.getElementById('btnAddItem').addEventListener('click', () => {
+    const productoId = document.getElementById('vProducto').value;
+    const cantidad = parseInt(document.getElementById('vCantidad').value);
+    if (!productoId || isNaN(cantidad) || cantidad < 1) { showToast('⚠️ Seleccioná producto y cantidad'); return; }
+    const producto = productos.find(p => p.id === productoId);
+    if (!producto) return;
+    const existing = ventaItems.find(x => x.productoId === productoId);
+    if (existing) {
+      existing.cantidad += cantidad;
+      existing.subtotal = existing.precioUnitario * existing.cantidad;
+      existing.costoSubtotal = existing.costoUnitario * existing.cantidad;
+    } else {
+      ventaItems.push({
+        productoId,
+        productoNombre: producto.nombre,
+        cantidad,
+        precioUnitario: producto.precio,
+        costoUnitario: producto.costo,
+        subtotal: producto.precio * cantidad,
+        costoSubtotal: producto.costo * cantidad
+      });
+    }
+    document.getElementById('vCantidad').value = 1;
+    renderVentaItems();
+  });
+
   document.getElementById('btnAddVenta').addEventListener('click', () => {
+    editingVentaId = null;
+    ventaItems = [];
+    renderVentaItems();
     document.getElementById('vFecha').value = today();
     document.getElementById('vCantidad').value = 1;
     document.getElementById('vNotas').value = '';
     document.getElementById('vCliente').value = '';
-    if (productos.length > 0) {
-      document.getElementById('vProducto').value = productos[0].id;
-      document.getElementById('vPrecio').value = productos[0].precio.toFixed(2);
-    }
+    document.getElementById('modalVentaTitle').textContent = 'Registrar venta';
+    document.getElementById('btnSaveVenta').textContent = 'Guardar venta';
     document.getElementById('modalVenta').classList.add('open');
   });
 
-  document.getElementById('btnCancelVenta').addEventListener('click', () => { editingVentaId = null; document.getElementById('btnSaveVenta').textContent = 'Guardar venta'; document.getElementById('modalVentaTitle').textContent = 'Registrar venta'; document.getElementById('modalVenta').classList.remove('open'); });
+  document.getElementById('btnCancelVenta').addEventListener('click', () => { editingVentaId = null; ventaItems = []; renderVentaItems(); document.getElementById('btnSaveVenta').textContent = 'Guardar venta'; document.getElementById('modalVentaTitle').textContent = 'Registrar venta'; document.getElementById('modalVenta').classList.remove('open'); });
 
   document.getElementById('btnSaveVenta').addEventListener('click', async () => {
-    const productoId = document.getElementById('vProducto').value;
-    const cantidad = parseInt(document.getElementById('vCantidad').value);
-    const precio = parseFloat(document.getElementById('vPrecio').value);
+    if (ventaItems.length === 0) { showToast('⚠️ Agregá al menos un producto'); return; }
     const cliente = document.getElementById('vCliente').value.trim();
     const fecha = document.getElementById('vFecha').value;
     const notas = document.getElementById('vNotas').value.trim();
-    if (!productoId || isNaN(cantidad) || cantidad < 1 || isNaN(precio) || !fecha) { showToast('⚠️ Completá los campos requeridos'); return; }
-    const producto = productos.find(p => p.id === productoId);
-    const total = precio * cantidad;
-    const costoTotal = (producto?.costo || 0) * cantidad;
+    if (!fecha) { showToast('⚠️ Completá la fecha'); return; }
+    const total = ventaItems.reduce((s, i) => s + i.subtotal, 0);
+    const costoTotal = ventaItems.reduce((s, i) => s + i.costoSubtotal, 0);
     const ganancia = total - costoTotal;
     if (editingVentaId) {
-      await db.collection('ventas').doc(editingVentaId).update({
-        productoId, productoNombre: producto?.nombre || '',
-        cantidad, precioUnitario: precio, costoUnitario: producto?.costo || 0,
-        total, costoTotal, ganancia, cliente, fecha, notas
-      });
+      await db.collection('ventas').doc(editingVentaId).update({ items: ventaItems, total, costoTotal, ganancia, cliente, fecha, notas });
       showToast('✅ Venta actualizada');
       editingVentaId = null;
     } else {
       await db.collection('ventas').add({
-        productoId, productoNombre: producto?.nombre || '',
-        cantidad, precioUnitario: precio, costoUnitario: producto?.costo || 0,
-        total, costoTotal, ganancia, cliente, fecha, notas,
+        items: ventaItems, total, costoTotal, ganancia, cliente, fecha, notas,
         creadoEn: firebase.firestore.FieldValue.serverTimestamp()
       });
-      if (producto) {
-        const nuevoStock = Math.max(0, (producto.stock || 0) - cantidad);
-        await db.collection('productos').doc(productoId).update({ stock: nuevoStock });
+      for (const item of ventaItems) {
+        const prod = productos.find(p => p.id === item.productoId);
+        if (prod) {
+          await db.collection('productos').doc(item.productoId).update({ stock: Math.max(0, (prod.stock || 0) - item.cantidad) });
+        }
       }
       showToast('✅ Venta registrada');
     }
+    ventaItems = [];
+    renderVentaItems();
     document.getElementById('btnSaveVenta').textContent = 'Guardar venta';
     document.getElementById('modalVentaTitle').textContent = 'Registrar venta';
     document.getElementById('modalVenta').classList.remove('open');
@@ -912,11 +1023,22 @@
     const v = ventas.find(x => x.id === id);
     if (!v) return;
     editingVentaId = id;
-    if (productos.length > 0) {
-      document.getElementById('vProducto').value = v.productoId || productos[0].id;
+    // Load items (support old single-item format)
+    if (v.items && v.items.length > 0) {
+      ventaItems = v.items.map(i => ({ ...i }));
+    } else {
+      ventaItems = [{
+        productoId: v.productoId || '',
+        productoNombre: v.productoNombre || '',
+        cantidad: v.cantidad || 1,
+        precioUnitario: v.precioUnitario || 0,
+        costoUnitario: v.costoUnitario || 0,
+        subtotal: v.total || 0,
+        costoSubtotal: v.costoTotal || 0
+      }];
     }
-    document.getElementById('vCantidad').value = v.cantidad;
-    document.getElementById('vPrecio').value = v.precioUnitario;
+    renderVentaItems();
+    document.getElementById('vCantidad').value = 1;
     document.getElementById('vCliente').value = v.cliente || '';
     document.getElementById('vFecha').value = v.fecha;
     document.getElementById('vNotas').value = v.notas || '';
