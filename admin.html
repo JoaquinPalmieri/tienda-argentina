@@ -319,7 +319,7 @@
           <div class="metric-sub" id="m-ventas-count">0 ventas</div>
         </div>
         <div class="metric-card">
-          <div class="metric-label">Compras de stock</div>
+          <div class="metric-label">Gastos</div>
           <div class="metric-value rojo" id="m-gastos">€0</div>
           <div class="metric-sub" id="m-gastos-count">0 registros</div>
         </div>
@@ -673,10 +673,8 @@
 
     document.getElementById('m-ingresos').textContent = fmt(totalIngresos);
     document.getElementById('m-ventas-count').textContent = ventas.length + ' venta' + (ventas.length !== 1 ? 's' : '');
-    const gastoCompras = gastos.filter(g => g.categoria === 'compra');
-    const totalCompras = gastoCompras.reduce((s, g) => s + (g.monto || 0), 0);
-    document.getElementById('m-gastos').textContent = fmt(totalCompras);
-    document.getElementById('m-gastos-count').textContent = 'en compras de stock';
+    document.getElementById('m-gastos').textContent = fmt(totalGastosOp);
+    document.getElementById('m-gastos-count').textContent = gastosOperativos.length + ' operativo' + (gastosOperativos.length !== 1 ? 's' : '');
     document.getElementById('m-ganancia').textContent = fmt(gananciaNeta);
     document.getElementById('m-ganancia').className = 'metric-value ' + (gananciaNeta >= 0 ? 'verde' : 'rojo');
     document.getElementById('m-margen').textContent = fmtPct(margenPct);
@@ -900,6 +898,28 @@
     const costoTotal = ventaItems.reduce((s, i) => s + i.costoSubtotal, 0);
     const ganancia = total - costoTotal;
     if (editingVentaId) {
+      // Calcular diferencia neta de stock entre venta vieja y nueva
+      const oldVenta = ventas.find(v => v.id === editingVentaId);
+      const stockChanges = {};
+      if (oldVenta) {
+        const oldItems = oldVenta.items || [{ productoId: oldVenta.productoId, cantidad: oldVenta.cantidad || 0 }];
+        // Restaurar stock de ítems viejos (sumar)
+        oldItems.forEach(item => {
+          stockChanges[item.productoId] = (stockChanges[item.productoId] || 0) + (item.cantidad || 0);
+        });
+      }
+      // Descontar stock de ítems nuevos (restar)
+      ventaItems.forEach(item => {
+        stockChanges[item.productoId] = (stockChanges[item.productoId] || 0) - item.cantidad;
+      });
+      // Aplicar cambios netos
+      for (const [productoId, cambio] of Object.entries(stockChanges)) {
+        const prod = productos.find(p => p.id === productoId);
+        if (prod) {
+          const nuevoStock = Math.max(0, (prod.stock || 0) + cambio);
+          await db.collection('productos').doc(productoId).update({ stock: nuevoStock });
+        }
+      }
       await db.collection('ventas').doc(editingVentaId).update({ items: ventaItems, total, costoTotal, ganancia, cliente, fecha, notas });
       showToast('✅ Venta actualizada');
       editingVentaId = null;
@@ -1064,6 +1084,18 @@
 
   window.deleteVenta = async function(id) {
     if (!confirm('¿Eliminar esta venta?')) return;
+    // Restaurar stock antes de eliminar
+    const v = ventas.find(x => x.id === id);
+    if (v) {
+      const items = v.items || [{ productoId: v.productoId, cantidad: v.cantidad || 0 }];
+      for (const item of items) {
+        if (!item.productoId) continue;
+        const prod = productos.find(p => p.id === item.productoId);
+        if (prod) {
+          await db.collection('productos').doc(item.productoId).update({ stock: (prod.stock || 0) + (item.cantidad || 0) });
+        }
+      }
+    }
     await db.collection('ventas').doc(id).delete();
     showToast('🗑️ Venta eliminada');
   };
