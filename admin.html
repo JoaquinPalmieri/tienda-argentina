@@ -319,7 +319,7 @@
           <div class="metric-sub" id="m-ventas-count">0 ventas</div>
         </div>
         <div class="metric-card">
-          <div class="metric-label">Gastos</div>
+          <div class="metric-label">Compras de stock</div>
           <div class="metric-value rojo" id="m-gastos">€0</div>
           <div class="metric-sub" id="m-gastos-count">0 registros</div>
         </div>
@@ -673,8 +673,10 @@
 
     document.getElementById('m-ingresos').textContent = fmt(totalIngresos);
     document.getElementById('m-ventas-count').textContent = ventas.length + ' venta' + (ventas.length !== 1 ? 's' : '');
-    document.getElementById('m-gastos').textContent = fmt(totalGastosOp);
-    document.getElementById('m-gastos-count').textContent = gastosOperativos.length + ' operativo' + (gastosOperativos.length !== 1 ? 's' : '');
+    const gastoCompras = gastos.filter(g => g.categoria === 'compra');
+    const totalCompras = gastoCompras.reduce((s, g) => s + (g.monto || 0), 0);
+    document.getElementById('m-gastos').textContent = fmt(totalCompras);
+    document.getElementById('m-gastos-count').textContent = 'en compras de stock';
     document.getElementById('m-ganancia').textContent = fmt(gananciaNeta);
     document.getElementById('m-ganancia').className = 'metric-value ' + (gananciaNeta >= 0 ? 'verde' : 'rojo');
     document.getElementById('m-margen').textContent = fmtPct(margenPct);
