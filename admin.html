@@ -344,7 +344,7 @@
       <div class="card" style="padding:0">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Fecha</th><th>Producto</th><th>Uds</th><th>Total</th><th>Ganancia</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Producto</th><th>Uds</th><th>Total</th><th>Ganancia</th><th></th></tr></thead>
             <tbody id="ventasTable">
               <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Sin ventas registradas</div></div></td></tr>
             </tbody>
@@ -362,7 +362,7 @@
       <div class="card" style="padding:0">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Fecha</th><th>Descripción</th><th>Cat.</th><th>Monto</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Descripción</th><th>Cat.</th><th>Monto</th><th></th></tr></thead>
             <tbody id="gastosTable">
               <tr><td colspan="4"><div class="empty-state"><div class="empty-icon">💸</div><div class="empty-text">Sin gastos registrados</div></div></td></tr>
             </tbody>
@@ -430,7 +430,7 @@
 <!-- MODAL: Venta -->
 <div class="modal-overlay" id="modalVenta">
   <div class="modal">
-    <div class="modal-title">Registrar venta</div>
+    <div class="modal-title" id="modalVentaTitle">Registrar venta</div>
     <div class="form-group">
       <label class="form-label">Producto</label>
       <select class="form-select" id="vProducto"></select>
@@ -469,7 +469,7 @@
 <!-- MODAL: Gasto -->
 <div class="modal-overlay" id="modalGasto">
   <div class="modal">
-    <div class="modal-title">Registrar gasto</div>
+    <div class="modal-title" id="modalGastoTitle">Registrar gasto</div>
     <div class="form-group">
       <label class="form-label">Descripción</label>
       <input class="form-input" id="gDesc" type="text" placeholder="Ej: Envío Pampa Drugstore">
@@ -538,7 +538,7 @@
 
   // ── STATE ──
   let productos = [], ventas = [], gastos = [];
-  let editingProductoId = null, editingStockId = null;
+  let editingProductoId = null, editingStockId = null, editingGastoId = null, editingVentaId = null;
 
   // ── HELPERS ──
   const fmt = n => '€' + (n || 0).toFixed(2).replace('.', ',');
@@ -732,15 +732,16 @@
   function renderVentas() {
     const tbody = document.getElementById('ventasTable');
     if (ventas.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Sin ventas registradas</div></div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Sin ventas registradas</div></div></td></tr>';
       return;
     }
     tbody.innerHTML = ventas.map(v => `<tr>
       <td style="white-space:nowrap">${fmtDate(v.fecha)}</td>
-      <td style="max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${v.productoNombre||''}">${v.productoNombre||'—'}</td>
+      <td style="max-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${v.productoNombre||''}">${v.productoNombre||'—'}</td>
       <td>${v.cantidad}</td>
       <td style="font-weight:700;white-space:nowrap">${fmt(v.total)}</td>
       <td style="color:var(--verde);font-weight:700;white-space:nowrap">${fmt(v.ganancia)}</td>
+      <td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" onclick="editVenta('${v.id}')">✏️</button> <button class="btn btn-ghost btn-sm" onclick="deleteVenta('${v.id}')">🗑️</button></td>
     </tr>`).join('');
   }
 
@@ -756,7 +757,7 @@
     document.getElementById('modalVenta').classList.add('open');
   });
 
-  document.getElementById('btnCancelVenta').addEventListener('click', () => document.getElementById('modalVenta').classList.remove('open'));
+  document.getElementById('btnCancelVenta').addEventListener('click', () => { editingVentaId = null; document.getElementById('btnSaveVenta').textContent = 'Guardar venta'; document.getElementById('modalVentaTitle').textContent = 'Registrar venta'; document.getElementById('modalVenta').classList.remove('open'); });
 
   document.getElementById('btnSaveVenta').addEventListener('click', async () => {
     const productoId = document.getElementById('vProducto').value;
@@ -770,17 +771,29 @@
     const total = precio * cantidad;
     const costoTotal = (producto?.costo || 0) * cantidad;
     const ganancia = total - costoTotal;
-    await db.collection('ventas').add({
-      productoId, productoNombre: producto?.nombre || '',
-      cantidad, precioUnitario: precio, costoUnitario: producto?.costo || 0,
-      total, costoTotal, ganancia, cliente, fecha, notas,
-      creadoEn: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    if (producto) {
-      const nuevoStock = Math.max(0, (producto.stock || 0) - cantidad);
-      await db.collection('productos').doc(productoId).update({ stock: nuevoStock });
+    if (editingVentaId) {
+      await db.collection('ventas').doc(editingVentaId).update({
+        productoId, productoNombre: producto?.nombre || '',
+        cantidad, precioUnitario: precio, costoUnitario: producto?.costo || 0,
+        total, costoTotal, ganancia, cliente, fecha, notas
+      });
+      showToast('✅ Venta actualizada');
+      editingVentaId = null;
+    } else {
+      await db.collection('ventas').add({
+        productoId, productoNombre: producto?.nombre || '',
+        cantidad, precioUnitario: precio, costoUnitario: producto?.costo || 0,
+        total, costoTotal, ganancia, cliente, fecha, notas,
+        creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      if (producto) {
+        const nuevoStock = Math.max(0, (producto.stock || 0) - cantidad);
+        await db.collection('productos').doc(productoId).update({ stock: nuevoStock });
+      }
+      showToast('✅ Venta registrada');
     }
-    showToast('✅ Venta registrada');
+    document.getElementById('btnSaveVenta').textContent = 'Guardar venta';
+    document.getElementById('modalVentaTitle').textContent = 'Registrar venta';
     document.getElementById('modalVenta').classList.remove('open');
   });
 
@@ -789,18 +802,22 @@
     const tbody = document.getElementById('gastosTable');
     const cats = { envio: 'Envío', compra: 'Compra', embalaje: 'Embalaje', marketing: 'Marketing', otro: 'Otro' };
     if (gastos.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">💸</div><div class="empty-text">Sin gastos registrados</div></div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">💸</div><div class="empty-text">Sin gastos registrados</div></div></td></tr>';
       return;
     }
     tbody.innerHTML = gastos.map(g => `<tr>
       <td style="white-space:nowrap">${fmtDate(g.fecha)}</td>
-      <td style="max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${g.descripcion}</td>
+      <td style="max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${g.descripcion}</td>
       <td><span class="badge badge-naranja">${cats[g.categoria] || g.categoria}</span></td>
       <td style="font-weight:700;color:var(--rojo);white-space:nowrap">${fmt(g.monto)}</td>
+      <td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" onclick="editGasto('${g.id}')">✏️</button> <button class="btn btn-ghost btn-sm" onclick="deleteGasto('${g.id}')">🗑️</button></td>
     </tr>`).join('');
   }
 
   document.getElementById('btnAddGasto').addEventListener('click', () => {
+    editingGastoId = null;
+    document.getElementById('modalGastoTitle').textContent = 'Registrar gasto';
+    document.getElementById('btnSaveGasto').textContent = 'Guardar gasto';
     document.getElementById('gFecha').value = today();
     document.getElementById('gDesc').value = '';
     document.getElementById('gMonto').value = '';
@@ -808,7 +825,7 @@
     document.getElementById('modalGasto').classList.add('open');
   });
 
-  document.getElementById('btnCancelGasto').addEventListener('click', () => document.getElementById('modalGasto').classList.remove('open'));
+  document.getElementById('btnCancelGasto').addEventListener('click', () => { editingGastoId = null; document.getElementById('btnSaveGasto').textContent = 'Guardar gasto'; document.getElementById('modalGastoTitle').textContent = 'Registrar gasto'; document.getElementById('modalGasto').classList.remove('open'); });
 
   document.getElementById('btnSaveGasto').addEventListener('click', async () => {
     const descripcion = document.getElementById('gDesc').value.trim();
@@ -817,11 +834,16 @@
     const fecha = document.getElementById('gFecha').value;
     const notas = document.getElementById('gNotas').value.trim();
     if (!descripcion || isNaN(monto) || !fecha) { showToast('⚠️ Completá los campos requeridos'); return; }
-    await db.collection('gastos').add({
-      descripcion, monto, categoria, fecha, notas,
-      creadoEn: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    showToast('✅ Gasto registrado');
+    if (editingGastoId) {
+      await db.collection('gastos').doc(editingGastoId).update({ descripcion, monto, categoria, fecha, notas });
+      showToast('✅ Gasto actualizado');
+      editingGastoId = null;
+    } else {
+      await db.collection('gastos').add({ descripcion, monto, categoria, fecha, notas, creadoEn: firebase.firestore.FieldValue.serverTimestamp() });
+      showToast('✅ Gasto registrado');
+    }
+    document.getElementById('btnSaveGasto').textContent = 'Guardar gasto';
+    document.getElementById('modalGastoTitle').textContent = 'Registrar gasto';
     document.getElementById('modalGasto').classList.remove('open');
   });
 
@@ -862,6 +884,52 @@
     showToast('✅ Stock actualizado');
     document.getElementById('modalStock').classList.remove('open');
   });
+
+
+  // ── EDITAR / ELIMINAR GASTOS ──
+  window.editGasto = function(id) {
+    const g = gastos.find(x => x.id === id);
+    if (!g) return;
+    editingGastoId = id;
+    document.getElementById('gDesc').value = g.descripcion;
+    document.getElementById('gMonto').value = g.monto;
+    document.getElementById('gCat').value = g.categoria;
+    document.getElementById('gFecha').value = g.fecha;
+    document.getElementById('gNotas').value = g.notas || '';
+    document.getElementById('modalGastoTitle').textContent = 'Editar gasto';
+    document.getElementById('btnSaveGasto').textContent = 'Guardar cambios';
+    document.getElementById('modalGasto').classList.add('open');
+  };
+
+  window.deleteGasto = async function(id) {
+    if (!confirm('¿Eliminar este gasto?')) return;
+    await db.collection('gastos').doc(id).delete();
+    showToast('🗑️ Gasto eliminado');
+  };
+
+  // ── EDITAR / ELIMINAR VENTAS ──
+  window.editVenta = function(id) {
+    const v = ventas.find(x => x.id === id);
+    if (!v) return;
+    editingVentaId = id;
+    if (productos.length > 0) {
+      document.getElementById('vProducto').value = v.productoId || productos[0].id;
+    }
+    document.getElementById('vCantidad').value = v.cantidad;
+    document.getElementById('vPrecio').value = v.precioUnitario;
+    document.getElementById('vCliente').value = v.cliente || '';
+    document.getElementById('vFecha').value = v.fecha;
+    document.getElementById('vNotas').value = v.notas || '';
+    document.getElementById('modalVentaTitle').textContent = 'Editar venta';
+    document.getElementById('btnSaveVenta').textContent = 'Guardar cambios';
+    document.getElementById('modalVenta').classList.add('open');
+  };
+
+  window.deleteVenta = async function(id) {
+    if (!confirm('¿Eliminar esta venta?')) return;
+    await db.collection('ventas').doc(id).delete();
+    showToast('🗑️ Venta eliminada');
+  };
 
   // Close modals on overlay click
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
