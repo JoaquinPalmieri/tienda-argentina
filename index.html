@@ -239,7 +239,7 @@
   </div>
 
   <div class="mundial-banner">
-    <div><span class="trofeo">🏆</span> <strong>¡Vamos Argentina!</strong> · Semifinal: Miércoles 15 · 21:00 hs 🇭🇷</div>
+    <div><span class="trofeo">🏆</span> <strong>¡Vamos Argentina!</strong> · La Final: Domingo 19 · 21:00 hs 🇭🇷</div>
     <div class="mundial-countdown" id="countdown">
       <div class="countdown-item"><span id="cd-d">--</span><small>días</small></div>
       <div class="countdown-item"><span id="cd-h">--</span><small>horas</small></div>
@@ -527,7 +527,7 @@
 
     // ── CUENTA REGRESIVA ──
     (function() {
-      var partido = new Date('2026-07-15T21:00:00+02:00');
+      var partido = new Date('2026-07-19T21:00:00+02:00');
       function actualizar() {
         var diff = partido - new Date();
         if (diff <= 0) { document.getElementById('countdown').innerHTML = '<strong>⚽ ¡Partido en juego! ¡Vamos Argentina! 🇦🇷</strong>'; return; }
