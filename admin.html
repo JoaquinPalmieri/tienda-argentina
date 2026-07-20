@@ -501,6 +501,10 @@
       <label class="form-label">Notas (opcional)</label>
       <textarea class="form-textarea" id="vNotas" placeholder="Observaciones, entrega, etc."></textarea>
     </div>
+    <div class="form-group">
+      <label class="form-label">Extra cobrado (€) <span style="color:var(--suave);font-weight:400">— opcional, si el cliente pagó de más</span></label>
+      <input class="form-input" id="vExtra" type="number" step="0.01" min="0" placeholder="0.00">
+    </div>
     <div class="form-actions">
       <button class="btn btn-ghost" id="btnCancelVenta">Cancelar</button>
       <button class="btn btn-success" id="btnSaveVenta">Guardar venta</button>
@@ -661,7 +665,7 @@
 
   // ── DASHBOARD ──
   function updateDashboard() {
-    const totalIngresos = ventas.reduce((s, v) => s + (v.total || 0), 0);
+    const totalIngresos = ventas.reduce((s, v) => s + (v.total || 0), 0); // total ya incluye extra
     const totalCostos = ventas.reduce((s, v) => s + (v.costoTotal || 0), 0);
     // Excluir "compra de stock" del P&L — ya están cubiertas por costoTotal
     const gastosOperativos = gastos.filter(g => g.categoria !== 'compra');
@@ -794,6 +798,9 @@
       } else {
         itemsLabel = `${v.cantidad || 1}× ${v.productoNombre || '—'}`;
       }
+      const extraCell = v.extra && v.extra > 0
+        ? `<div class="nota-preview" style="color:var(--verde)">➕ Extra: €${Number(v.extra).toFixed(2).replace('.',',')}</div>`
+        : '';
       const notaCell = v.notas
         ? `<div class="nota-preview">💬 ${v.notas}</div>`
         : '';
@@ -802,7 +809,7 @@
         <td style="max-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${v.cliente || '—'}</td>
         <td style="max-width:120px">
           <div style="font-size:0.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${itemsLabel}">${itemsLabel}</div>
-          ${notaCell}
+          ${extraCell}${notaCell}
         </td>
         <td style="font-weight:700;white-space:nowrap">${fmt(v.total)}</td>
         <td style="color:var(--verde);font-weight:700;white-space:nowrap">${fmt(v.ganancia)}</td>
@@ -881,6 +888,7 @@
     document.getElementById('vCantidad').value = 1;
     document.getElementById('vNotas').value = '';
     document.getElementById('vCliente').value = '';
+    document.getElementById('vExtra').value = '';
     document.getElementById('modalVentaTitle').textContent = 'Registrar venta';
     document.getElementById('btnSaveVenta').textContent = 'Guardar venta';
     document.getElementById('modalVenta').classList.add('open');
@@ -893,8 +901,10 @@
     const cliente = document.getElementById('vCliente').value.trim();
     const fecha = document.getElementById('vFecha').value;
     const notas = document.getElementById('vNotas').value.trim();
+    const extra = parseFloat(document.getElementById('vExtra').value) || 0;
     if (!fecha) { showToast('⚠️ Completá la fecha'); return; }
-    const total = ventaItems.reduce((s, i) => s + i.subtotal, 0);
+    const totalProductos = ventaItems.reduce((s, i) => s + i.subtotal, 0);
+    const total = totalProductos + extra;
     const costoTotal = ventaItems.reduce((s, i) => s + i.costoSubtotal, 0);
     const ganancia = total - costoTotal;
     const INC = firebase.firestore.FieldValue.increment;
@@ -915,13 +925,13 @@
       for (var pid in stockChanges) {
         if (stockChanges[pid] !== 0) await db.collection('productos').doc(pid).update({ stock: INC(stockChanges[pid]) });
       }
-      await db.collection('ventas').doc(editingVentaId).update({ items: ventaItems, total: total, costoTotal: costoTotal, ganancia: ganancia, cliente: cliente, fecha: fecha, notas: notas, stockTracked: true });
+      await db.collection('ventas').doc(editingVentaId).update({ items: ventaItems, total: total, costoTotal: costoTotal, ganancia: ganancia, cliente: cliente, fecha: fecha, notas: notas, extra: extra, stockTracked: true });
       showToast('Venta actualizada');
       editingVentaId = null;
     } else {
       await db.collection('ventas').add({
         items: ventaItems, total: total, costoTotal: costoTotal, ganancia: ganancia,
-        cliente: cliente, fecha: fecha, notas: notas, stockTracked: true,
+        cliente: cliente, fecha: fecha, notas: notas, extra: extra, stockTracked: true,
         creadoEn: firebase.firestore.FieldValue.serverTimestamp()
       });
       for (var i = 0; i < ventaItems.length; i++) {
@@ -1070,6 +1080,7 @@
     document.getElementById('vCliente').value = v.cliente || '';
     document.getElementById('vFecha').value = v.fecha;
     document.getElementById('vNotas').value = v.notas || '';
+    document.getElementById('vExtra').value = v.extra || '';
     document.getElementById('modalVentaTitle').textContent = 'Editar venta';
     document.getElementById('btnSaveVenta').textContent = 'Guardar cambios';
     document.getElementById('modalVenta').classList.add('open');
