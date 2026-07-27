@@ -319,7 +319,7 @@
           <div class="metric-sub" id="m-ventas-count">0 ventas</div>
         </div>
         <div class="metric-card">
-          <div class="metric-label">Gastos</div>
+          <div class="metric-label">Compras de stock</div>
           <div class="metric-value rojo" id="m-gastos">€0</div>
           <div class="metric-sub" id="m-gastos-count">0 registros</div>
         </div>
@@ -673,12 +673,15 @@
     const totalGastosTodos = gastos.reduce((s, g) => s + (g.monto || 0), 0);
     const gananciaVentas = totalIngresos - totalCostos;
     const gananciaNeta = gananciaVentas - totalGastosOp;
-    const margenPct = totalIngresos > 0 ? (gananciaVentas / totalIngresos) * 100 : 0;
+    const totalCostosBase = ventas.reduce((s, v) => s + (v.costoTotal || 0), 0);
+    const margenPct = totalCostosBase > 0 ? (gananciaVentas / totalCostosBase) * 100 : 0;
 
     document.getElementById('m-ingresos').textContent = fmt(totalIngresos);
     document.getElementById('m-ventas-count').textContent = ventas.length + ' venta' + (ventas.length !== 1 ? 's' : '');
-    document.getElementById('m-gastos').textContent = fmt(totalGastosOp);
-    document.getElementById('m-gastos-count').textContent = gastosOperativos.length + ' operativo' + (gastosOperativos.length !== 1 ? 's' : '');
+    const gastoCompras = gastos.filter(g => g.categoria === 'compra');
+    const totalCompras = gastoCompras.reduce((s, g) => s + (g.monto || 0), 0);
+    document.getElementById('m-gastos').textContent = fmt(totalCompras);
+    document.getElementById('m-gastos-count').textContent = 'en compras de stock';
     document.getElementById('m-ganancia').textContent = fmt(gananciaNeta);
     document.getElementById('m-ganancia').className = 'metric-value ' + (gananciaNeta >= 0 ? 'verde' : 'rojo');
     document.getElementById('m-margen').textContent = fmtPct(margenPct);
@@ -726,8 +729,8 @@
       return;
     }
     tbody.innerHTML = productos.map(p => {
-      const margen = p.precio > 0 ? ((p.precio - p.costo) / p.precio) * 100 : 0;
-      const cls = margen >= 30 ? 'good' : margen < 15 ? 'bad' : '';
+      const margen = p.costo > 0 ? ((p.precio - p.costo) / p.costo) * 100 : 0;
+      const cls = margen >= 40 ? 'good' : margen < 20 ? 'bad' : '';
       return `<tr>
         <td style="font-weight:600;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nombre}</td>
         <td style="white-space:nowrap">${fmt(p.costo)}</td>
