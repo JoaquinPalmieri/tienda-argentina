@@ -212,6 +212,9 @@
 		.lang-btn:hover { background: rgba(255,255,255,0.15); color: white; }
 		.lang-btn.active { background: white; color: var(--azul); border-color: white; }
   </style>
+  <!-- Firebase SDK (solo lectura de stock) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -239,7 +242,7 @@
   </div>
 
   <div class="mundial-banner">
-  <div><span class="trofeo">🥈</span> <strong>¡Grande Argentina!</strong> · Subcampeones del Mundo 2026 🇦🇷</div>
+  <div><span class="trofeo">🥈</span> <strong>¡Grandes, Argentina!</strong> · Subcampeones del Mundo 2026 🇦🇷</div>
 </div>
 
   <!-- ── FILTROS PRODUCTOS ── -->
@@ -422,6 +425,22 @@
       if (btn) setLanguage(btn.dataset.lang);
     });
 
+    // ── STOCK EN VIVO (Firestore) ──
+    // nombre del producto → cantidad (número). Se carga async después del primer render.
+    var stockFirestore = null; // null = aún no cargado, {} = cargado (vacío o con datos)
+
+    function getStockRender(p) {
+      // Si Firestore todavía no cargó, usar el valor hardcodeado
+      if (stockFirestore === null) return { stock: p.stock, ultimos: p.ultimos || null };
+      var fs = stockFirestore[p.nombre];
+      if (fs === undefined) return { stock: p.stock, ultimos: p.ultimos || null };
+      var cantidad = fs.cantidad;
+      return {
+        stock: cantidad > 0,
+        ultimos: (cantidad > 0 && cantidad <= 5) ? cantidad : null
+      };
+    }
+
     const WA = '5491161851985';
 
     // ── PRODUCTOS ── (cat: yerba | alfajores | bebidas | galletitas)
@@ -480,9 +499,11 @@
 
       count.textContent = lista.length + ' producto' + (lista.length !== 1 ? 's' : '');
 
-      grid.innerHTML = lista.map(function(p) { return `
-        <div class="card${p.stock ? '' : ' out-of-stock'}">
-          <span class="stock-badge ${p.stock ? 'in' : 'out'}">${p.stock ? T('card.disponible') : T('card.sinstock')}</span>
+      grid.innerHTML = lista.map(function(p) {
+        var si = getStockRender(p); // stock en vivo desde Firestore (o fallback hardcodeado)
+        return `
+        <div class="card${si.stock ? '' : ' out-of-stock'}">
+          <span class="stock-badge ${si.stock ? 'in' : 'out'}">${si.stock ? T('card.disponible') : T('card.sinstock')}</span>
           ${p.nuevo ? `<span class="badge-nuevo">${T('card.nuevo')}</span>` : ''}
           <div class="card-img-wrap">
             <img class="card-img" src="${p.img}" alt="${p.nombre}" loading="lazy" data-emoji="${p.emoji}" onerror="imgError(this)" />
@@ -490,15 +511,15 @@
           <div class="card-body">
             <div class="card-name">${p.nombre}</div>
             <div class="card-desc">${langActual === 'en' ? (p.desc_en||p.desc) : langActual === 'hr' ? (p.desc_hr||p.desc) : p.desc}</div>
-            ${p.stock && p.rapido ? `<span class="badge-rapido">${T('card.rapido')}</span>` : ''}
-            ${p.stock && p.ultimos && p.ultimos <= 5 ? `<span class="badge-stock-bajo">${p.ultimos === 1 ? T('card.ultima') : T('card.ultimas').replace('{n}', p.ultimos)}</span>` : ''}
+            ${si.stock && p.rapido ? `<span class="badge-rapido">${T('card.rapido')}</span>` : ''}
+            ${si.ultimos ? `<span class="badge-stock-bajo">${si.ultimos === 1 ? T('card.ultima') : T('card.ultimas').replace('{n}', si.ultimos)}</span>` : ''}
           </div>
           <div class="card-footer">
             <div>
               <div class="price">${p.precio.toFixed(2).replace('.',',')} €</div>
               <div class="price-unit">${T('card.porunidad')}</div>
             </div>
-            ${p.stock
+            ${si.stock
               ? `<a class="btn-wa" href="https://wa.me/${WA}?text=${encodeURIComponent(waMsg(p))}" target="_blank" rel="noopener">${waIcon} Consultar</a>`
               : `<span class="btn-consultar" style="opacity:0.5;cursor:not-allowed">${T('card.sinstock')}</span>`
             }
@@ -507,8 +528,42 @@
       `; }).join('');
     }
 
-    // Inicializar con "Todos"
+    // Inicializar con "Todos" (valores hardcodeados hasta que cargue Firestore)
     renderProductos('todos');
+    // ── FIREBASE: cargar stock en vivo ──
+    (function() {
+      var firebaseConfig = {
+        apiKey: "AIzaSyDG2EFJ6PY0lGpg_DExUliJV_PXNvi-SWY",
+        authDomain: "argentina-en-casa.firebaseapp.com",
+        projectId: "argentina-en-casa",
+        storageBucket: "argentina-en-casa.firebasestorage.app",
+        messagingSenderId: "517487115098",
+        appId: "1:517487115098:web:c46191f663a9de14dcd163"
+      };
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      var db = firebase.firestore();
+
+      db.collection('productos').get().then(function(snapshot) {
+        var map = {};
+        snapshot.forEach(function(doc) {
+          var d = doc.data();
+          if (!d.nombre) return;
+          var cantidad = 0;
+          if (typeof d.stock === 'number') cantidad = d.stock;
+          else if (typeof d.stock === 'boolean') cantidad = d.stock ? 999 : 0;
+          map[d.nombre] = { cantidad: cantidad };
+        });
+        stockFirestore = map;
+        // Re-render con stock real
+        var activeFiltro = (document.querySelector('.filtro-btn.active') || {}).dataset || {};
+        renderProductos(activeFiltro.filtro || 'todos');
+      }).catch(function(err) {
+        console.warn('[Stock] Firestore no disponible, usando valores locales.', err);
+        stockFirestore = {}; // vacío = todos los productos usan fallback hardcodeado
+      });
+    })();
+
+
     // Aplicar idioma guardado
     if (langActual !== 'es') setLanguage(langActual);
 
