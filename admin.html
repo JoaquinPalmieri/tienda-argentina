@@ -362,7 +362,7 @@
       <div class="card" style="padding:0">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Producto</th><th>Costo</th><th>Precio</th><th>Margen</th><th></th></tr></thead>
+            <thead><tr><th>Producto</th><th>Costo</th><th>Precio</th><th>Margen</th><th>Stock</th><th></th></tr></thead>
             <tbody id="productosTable">
               <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">Sin productos</div></div></td></tr>
             </tbody>
@@ -455,6 +455,9 @@
     <div class="form-group">
       <label class="form-label">Stock inicial</label>
       <input class="form-input" id="pStock" type="number" min="0" placeholder="0">
+      <div id="pStockNote" style="display:none;font-size:0.72rem;color:var(--suave);margin-top:0.3rem">
+        ℹ️ Editá el stock desde la pestaña <strong>Stock</strong> para no perder cambios de ventas.
+      </div>
     </div>
     <div class="form-actions">
       <button class="btn btn-ghost" id="btnCancelProducto">Cancelar</button>
@@ -731,11 +734,17 @@
     tbody.innerHTML = productos.map(p => {
       const margen = p.costo > 0 ? ((p.precio - p.costo) / p.costo) * 100 : 0;
       const cls = margen >= 40 ? 'good' : margen < 20 ? 'bad' : '';
+      const s = p.stock || 0;
+      const stockBadge = s === 0
+        ? '<span class="badge badge-rojo">0</span>'
+        : s <= 3 ? `<span class="badge badge-naranja">${s}</span>`
+        : `<span class="badge badge-verde">${s}</span>`;
       return `<tr>
-        <td style="font-weight:600;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nombre}</td>
+        <td style="font-weight:600;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nombre}</td>
         <td style="white-space:nowrap">${fmt(p.costo)}</td>
         <td style="white-space:nowrap">${fmt(p.precio)}</td>
         <td><span class="margin-chip ${cls}">${fmtPct(margen)}</span></td>
+        <td>${stockBadge}</td>
         <td><button class="btn btn-ghost btn-sm" onclick="editProducto('${p.id}')">✏️</button></td>
       </tr>`;
     }).join('');
@@ -752,6 +761,8 @@
     editingProductoId = null;
     document.getElementById('modalProductoTitle').textContent = 'Agregar producto';
     ['pNombre','pCosto','pPrecio','pStock'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('pStock').disabled = false;
+    document.getElementById('pStockNote').style.display = 'none';
     document.getElementById('modalProducto').classList.add('open');
   });
 
@@ -763,7 +774,11 @@
     document.getElementById('pNombre').value = p.nombre;
     document.getElementById('pCosto').value = p.costo;
     document.getElementById('pPrecio').value = p.precio;
-    document.getElementById('pStock').value = p.stock || 0;
+    // Stock: mostrar como referencia pero no sobreescribir — se gestiona desde la pestaña Stock
+    const stockInput = document.getElementById('pStock');
+    stockInput.value = p.stock || 0;
+    stockInput.disabled = true;
+    document.getElementById('pStockNote').style.display = 'block';
     document.getElementById('modalProducto').classList.add('open');
   };
 
@@ -775,12 +790,13 @@
     const precio = parseFloat(document.getElementById('pPrecio').value);
     const stock = parseInt(document.getElementById('pStock').value) || 0;
     if (!nombre || isNaN(costo) || isNaN(precio)) { showToast('⚠️ Completá todos los campos'); return; }
-    const data = { nombre, costo, precio, stock };
     if (editingProductoId) {
-      await db.collection('productos').doc(editingProductoId).update(data);
+      // Al editar: NO tocar stock (se gestiona desde la pestaña Stock y con ventas)
+      await db.collection('productos').doc(editingProductoId).update({ nombre, costo, precio });
       showToast('✅ Producto actualizado');
     } else {
-      await db.collection('productos').add(data);
+      // Al crear: incluir stock inicial
+      await db.collection('productos').add({ nombre, costo, precio, stock });
       showToast('✅ Producto agregado');
     }
     document.getElementById('modalProducto').classList.remove('open');
