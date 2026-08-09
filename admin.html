@@ -1161,6 +1161,30 @@
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
   });
+
+  // ── CONFIG: guardar WhatsApp ──
+  document.getElementById('btnSaveConfig').addEventListener('click', async () => {
+    const num = document.getElementById('configWaInput').value.trim().replace(/\D/g, '');
+    const msg = document.getElementById('configMsg');
+    if (!num || num.length < 8) {
+      msg.style.display = 'block';
+      msg.style.color = 'var(--rojo)';
+      msg.textContent = '⚠️ Ingresá un número válido (solo dígitos, sin espacios).';
+      return;
+    }
+    try {
+      await db.collection('config').doc('settings').set({ whatsapp: num }, { merge: true });
+      document.getElementById('configWaInput').value = '';
+      msg.style.display = 'block';
+      msg.style.color = 'var(--verde)';
+      msg.textContent = '✅ Número actualizado. La tienda lo usará en la próxima visita.';
+      setTimeout(() => { msg.style.display = 'none'; }, 4000);
+    } catch(e) {
+      msg.style.display = 'block';
+      msg.style.color = 'var(--rojo)';
+      msg.textContent = '❌ Error al guardar: ' + e.message;
+    }
+  });
 </script>
 </body>
 </html>
