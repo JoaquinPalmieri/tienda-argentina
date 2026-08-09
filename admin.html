@@ -423,6 +423,32 @@
       </div>
     </div>
 
+    <!-- TAB: Config -->
+    <div class="tab" id="tab-config">
+      <div class="section-header">
+        <div class="section-title">Configuración</div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:600;margin-bottom:0.75rem">📱 WhatsApp de contacto</div>
+        <p style="font-size:0.82rem;color:var(--suave);margin-bottom:1rem;line-height:1.5">
+          Este es el número al que los clientes le escriben desde la tienda.<br>
+          Formato: código de país + número, sin espacios ni guiones.<br>
+          <span style="font-family:monospace;background:#f0f2f7;padding:0.1rem 0.4rem;border-radius:4px">Ej: 5491161851985</span>
+        </p>
+        <div class="form-group">
+          <label class="form-label">Número actual</label>
+          <div id="configWaActual" style="font-family:monospace;font-size:0.95rem;color:var(--azul);padding:0.5rem 0;font-weight:600">Cargando...</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nuevo número</label>
+          <input class="form-input" id="configWaInput" type="tel" placeholder="5491161851985" inputmode="numeric">
+        </div>
+        <button class="btn btn-primary" id="btnSaveConfig" style="width:100%">💾 Guardar número</button>
+        <div id="configMsg" style="margin-top:0.75rem;font-size:0.82rem;display:none"></div>
+      </div>
+    </div>
+
   </main>
 
   <nav class="bottom-nav">
@@ -431,6 +457,7 @@
     <button class="nav-btn" data-tab="ventas"><span class="nav-icon">💰</span>Ventas</button>
     <button class="nav-btn" data-tab="gastos"><span class="nav-icon">💸</span>Gastos</button>
     <button class="nav-btn" data-tab="stock"><span class="nav-icon">🏷️</span>Stock</button>
+    <button class="nav-btn" data-tab="config"><span class="nav-icon">⚙️</span>Config</button>
   </nav>
 </div>
 
@@ -654,6 +681,13 @@
       updateDashboard();
       populateVentaSelect();
     });
+    // Listener config (WhatsApp)
+    db.collection('config').doc('settings').onSnapshot(doc => {
+      const wa = doc.exists ? (doc.data().whatsapp || '—') : '—';
+      const el = document.getElementById('configWaActual');
+      if (el) el.textContent = wa;
+    });
+
     db.collection('ventas').orderBy('fecha', 'desc').onSnapshot(snap => {
       ventas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderVentas();
