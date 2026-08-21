@@ -570,6 +570,23 @@
       <label class="form-label">Fecha</label>
       <input class="form-input" id="gFecha" type="date">
     </div>
+    <!-- Bloque extra: solo visible cuando la categoría es "compra de stock" -->
+    <div id="compraStockBloque" style="display:none;background:#f0f5ff;border:1px solid #c7d9f8;border-radius:10px;padding:1rem;margin-bottom:0.75rem">
+      <div style="font-weight:600;margin-bottom:0.75rem;color:var(--azul)">📦 Actualizar stock automáticamente</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Producto</label>
+          <select class="form-select" id="gProducto">
+            <option value="">— Seleccioná —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unidades compradas</label>
+          <input class="form-input" id="gUnidades" type="number" min="1" placeholder="0">
+        </div>
+      </div>
+      <div style="font-size:0.75rem;color:var(--suave)">Se sumará al stock actual del producto al guardar.</div>
+    </div>
     <div class="form-group">
       <label class="form-label">Notas (opcional)</label>
       <textarea class="form-textarea" id="gNotas" placeholder="Detalles adicionales"></textarea>
@@ -682,6 +699,12 @@
       populateVentaSelect();
     });
     // Listener config (WhatsApp)
+    // Mostrar/ocultar bloque compra de stock según categoría
+    document.getElementById('gCat').addEventListener('change', function() {
+      const bloque = document.getElementById('compraStockBloque');
+      bloque.style.display = this.value === 'compra' ? 'block' : 'none';
+    });
+
     db.collection('config').doc('settings').onSnapshot(doc => {
       const wa = doc.exists ? (doc.data().whatsapp || '—') : '—';
       const el = document.getElementById('configWaActual');
@@ -1024,6 +1047,13 @@
     document.getElementById('gDesc').value = '';
     document.getElementById('gMonto').value = '';
     document.getElementById('gNotas').value = '';
+    document.getElementById('gCat').value = 'envio';
+    document.getElementById('compraStockBloque').style.display = 'none';
+    document.getElementById('gUnidades').value = '';
+    // Poblar select con stock actual
+    const sel = document.getElementById('gProducto');
+    sel.innerHTML = '<option value="">\u2014 Seleccion\u00e1 \u2014</option>' +
+      productos.map(p => `<option value="${p.id}">${p.nombre} (stock: ${p.stock || 0})</option>`).join('');
     document.getElementById('modalGasto').classList.add('open');
   });
 
@@ -1036,13 +1066,36 @@
     const fecha = document.getElementById('gFecha').value;
     const notas = document.getElementById('gNotas').value.trim();
     if (!descripcion || isNaN(monto) || !fecha) { showToast('⚠️ Completá los campos requeridos'); return; }
+
+    // Si es compra de stock: validar producto y unidades, luego incrementar
+    let productoId = null; let unidades = 0;
+    if (categoria === 'compra') {
+      productoId = document.getElementById('gProducto').value;
+      unidades = parseInt(document.getElementById('gUnidades').value) || 0;
+      if (!productoId) { showToast('⚠️ Seleccioná el producto'); return; }
+      if (unidades < 1) { showToast('⚠️ Ingresá las unidades compradas'); return; }
+    }
+
+    const INC = firebase.firestore.FieldValue.increment;
     if (editingGastoId) {
       await db.collection('gastos').doc(editingGastoId).update({ descripcion, monto, categoria, fecha, notas });
       showToast('✅ Gasto actualizado');
       editingGastoId = null;
     } else {
-      await db.collection('gastos').add({ descripcion, monto, categoria, fecha, notas, creadoEn: firebase.firestore.FieldValue.serverTimestamp() });
-      showToast('✅ Gasto registrado');
+      const gastoData = { descripcion, monto, categoria, fecha, notas, creadoEn: firebase.firestore.FieldValue.serverTimestamp() };
+      if (categoria === 'compra' && productoId) {
+        gastoData.productoId = productoId;
+        gastoData.unidades = unidades;
+      }
+      await db.collection('gastos').add(gastoData);
+      // Incrementar stock si es compra
+      if (categoria === 'compra' && productoId && unidades > 0) {
+        await db.collection('productos').doc(productoId).update({ stock: INC(unidades) });
+        const p = productos.find(x => x.id === productoId);
+        showToast('✅ Gasto registrado · +' + unidades + ' unidades a ' + (p ? p.nombre : 'producto'));
+      } else {
+        showToast('✅ Gasto registrado');
+      }
     }
     document.getElementById('btnSaveGasto').textContent = 'Guardar gasto';
     document.getElementById('modalGastoTitle').textContent = 'Registrar gasto';
