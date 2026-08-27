@@ -573,19 +573,23 @@
     <!-- Bloque extra: solo visible cuando la categoría es "compra de stock" -->
     <div id="compraStockBloque" style="display:none;background:#f0f5ff;border:1px solid #c7d9f8;border-radius:10px;padding:1rem;margin-bottom:0.75rem">
       <div style="font-weight:600;margin-bottom:0.75rem;color:var(--azul)">📦 Actualizar stock automáticamente</div>
-      <div class="form-row">
-        <div class="form-group">
+      <div class="form-row" style="align-items:flex-end">
+        <div class="form-group" style="flex:2">
           <label class="form-label">Producto</label>
           <select class="form-select" id="gProducto">
             <option value="">— Seleccioná —</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Unidades compradas</label>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Unidades</label>
           <input class="form-input" id="gUnidades" type="number" min="1" placeholder="0">
         </div>
+        <div class="form-group" style="flex:0">
+          <button class="btn btn-primary" id="btnAddCompraItem" style="white-space:nowrap;padding:0 1rem">+</button>
+        </div>
       </div>
-      <div style="font-size:0.75rem;color:var(--suave)">Se sumará al stock actual del producto al guardar.</div>
+      <div id="compraItemsList" style="margin-top:0.5rem"></div>
+      <div id="compraItemsEmpty" style="font-size:0.78rem;color:var(--suave);text-align:center;padding:0.25rem 0">Agregá al menos un producto ↑</div>
     </div>
     <div class="form-group">
       <label class="form-label">Notas (opcional)</label>
@@ -633,6 +637,7 @@
   let productos = [], ventas = [], gastos = [];
   let editingProductoId = null, editingStockId = null, editingGastoId = null, editingVentaId = null;
   let ventaItems = [];
+  let compraItems = []; // carrito de compra de stock
 
   // ── HELPERS ──
   const fmt = n => '€' + (n || 0).toFixed(2).replace('.', ',');
@@ -1050,6 +1055,7 @@
     document.getElementById('gCat').value = 'envio';
     document.getElementById('compraStockBloque').style.display = 'none';
     document.getElementById('gUnidades').value = '';
+    compraItems = []; renderCompraItems();
     // Poblar select con stock actual
     const sel = document.getElementById('gProducto');
     sel.innerHTML = '<option value="">\u2014 Seleccion\u00e1 \u2014</option>' +
@@ -1057,7 +1063,27 @@
     document.getElementById('modalGasto').classList.add('open');
   });
 
-  document.getElementById('btnCancelGasto').addEventListener('click', () => { editingGastoId = null; document.getElementById('btnSaveGasto').textContent = 'Guardar gasto'; document.getElementById('modalGastoTitle').textContent = 'Registrar gasto'; document.getElementById('modalGasto').classList.remove('open'); });
+
+  document.getElementById('btnAddCompraItem').addEventListener('click', () => {
+    const sel = document.getElementById('gProducto');
+    const productoId = sel.value;
+    const unidades = parseInt(document.getElementById('gUnidades').value) || 0;
+    if (!productoId) { showToast('⚠️ Seleccioná un producto'); return; }
+    if (unidades < 1) { showToast('⚠️ Ingresá las unidades'); return; }
+    const p = productos.find(x => x.id === productoId);
+    if (!p) return;
+    const existing = compraItems.find(x => x.productoId === productoId);
+    if (existing) {
+      existing.unidades += unidades;
+    } else {
+      compraItems.push({ productoId, nombre: p.nombre, unidades });
+    }
+    document.getElementById('gProducto').value = '';
+    document.getElementById('gUnidades').value = '';
+    renderCompraItems();
+  });
+
+  document.getElementById('btnCancelGasto').addEventListener('click', () => { editingGastoId = null; compraItems = []; renderCompraItems(); document.getElementById('btnSaveGasto').textContent = 'Guardar gasto'; document.getElementById('modalGastoTitle').textContent = 'Registrar gasto'; document.getElementById('modalGasto').classList.remove('open'); });
 
   document.getElementById('btnSaveGasto').addEventListener('click', async () => {
     const descripcion = document.getElementById('gDesc').value.trim();
@@ -1067,13 +1093,10 @@
     const notas = document.getElementById('gNotas').value.trim();
     if (!descripcion || isNaN(monto) || !fecha) { showToast('⚠️ Completá los campos requeridos'); return; }
 
-    // Si es compra de stock: validar producto y unidades, luego incrementar
-    let productoId = null; let unidades = 0;
-    if (categoria === 'compra') {
-      productoId = document.getElementById('gProducto').value;
-      unidades = parseInt(document.getElementById('gUnidades').value) || 0;
-      if (!productoId) { showToast('⚠️ Seleccioná el producto'); return; }
-      if (unidades < 1) { showToast('⚠️ Ingresá las unidades compradas'); return; }
+    // Si es compra de stock: validar que haya ítems en el carrito
+    if (categoria === 'compra' && compraItems.length === 0) {
+      showToast('⚠️ Agregá al menos un producto al carrito');
+      return;
     }
 
     const INC = firebase.firestore.FieldValue.increment;
@@ -1083,16 +1106,16 @@
       editingGastoId = null;
     } else {
       const gastoData = { descripcion, monto, categoria, fecha, notas, creadoEn: firebase.firestore.FieldValue.serverTimestamp() };
-      if (categoria === 'compra' && productoId) {
-        gastoData.productoId = productoId;
-        gastoData.unidades = unidades;
-      }
+      if (categoria === 'compra') gastoData.items = compraItems.map(x => ({ productoId: x.productoId, nombre: x.nombre, unidades: x.unidades }));
       await db.collection('gastos').add(gastoData);
-      // Incrementar stock si es compra
-      if (categoria === 'compra' && productoId && unidades > 0) {
-        await db.collection('productos').doc(productoId).update({ stock: INC(unidades) });
-        const p = productos.find(x => x.id === productoId);
-        showToast('✅ Gasto registrado · +' + unidades + ' unidades a ' + (p ? p.nombre : 'producto'));
+      // Incrementar stock de cada ítem en paralelo
+      if (categoria === 'compra' && compraItems.length > 0) {
+        await Promise.all(compraItems.map(item =>
+          db.collection('productos').doc(item.productoId).update({ stock: INC(item.unidades) })
+        ));
+        const total = compraItems.reduce((s, x) => s + x.unidades, 0);
+        showToast('✅ Gasto registrado · +' + total + ' unidades actualizadas');
+        compraItems = [];
       } else {
         showToast('✅ Gasto registrado');
       }
@@ -1101,6 +1124,30 @@
     document.getElementById('modalGastoTitle').textContent = 'Registrar gasto';
     document.getElementById('modalGasto').classList.remove('open');
   });
+
+
+  function renderCompraItems() {
+    const list = document.getElementById('compraItemsList');
+    const empty = document.getElementById('compraItemsEmpty');
+    if (!list) return;
+    if (compraItems.length === 0) {
+      list.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+    list.innerHTML = compraItems.map((item, i) => `
+      <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:8px;padding:0.45rem 0.75rem;margin-bottom:0.4rem;font-size:0.85rem">
+        <span style="flex:1;font-weight:600">${item.nombre}</span>
+        <span style="margin:0 1rem;color:var(--azul);font-weight:700">+${item.unidades} u.</span>
+        <button class="btn btn-ghost btn-sm" onclick="removeCompraItem(${i})">×</button>
+      </div>`).join('');
+  }
+
+  window.removeCompraItem = function(i) {
+    compraItems.splice(i, 1);
+    renderCompraItems();
+  };
 
   // ── STOCK ──
   function renderStock() {
