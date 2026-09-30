@@ -1154,25 +1154,48 @@
 
 
   // ── FACTURA PDF ──
-  window.generarFactura = function(id) {
+  window.generarFactura = async function(id) {
     const v = ventas.find(x => x.id === id);
     if (!v) return;
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'mm', format: 'a5' });
-    const W = 148; // ancho A5
+    const W = 148;
     let y = 0;
 
-    // — Header azul —
+    // — Intentar cargar logo —
+    let logoData = null;
+    try {
+      const resp = await fetch('/img/preview.png');
+      const blob = await resp.blob();
+      logoData = await new Promise(res => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.readAsDataURL(blob);
+      });
+    } catch(e) { /* sin logo, no pasa nada */ }
+
+    // — Header oscuro —
     doc.setFillColor(15, 23, 42);
-    doc.rect(0, 0, W, 28, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
-    doc.text('Argentina en Casa', W / 2, 12, { align: 'center' });
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.text('Dubrovnik, Croacia  ·  argentina-en-casa.vercel.app', W / 2, 20, { align: 'center' });
-    y = 36;
+    doc.rect(0, 0, W, 30, 'F');
+    if (logoData) {
+      doc.addImage(logoData, 'PNG', 8, 4, 22, 22);
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.text('Argentina en Casa', W / 2 + 8, 13, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text('Dubrovnik, Croacia  ·  argentina-en-casa.vercel.app', W / 2 + 8, 21, { align: 'center' });
+    } else {
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.text('Argentina en Casa', W / 2, 13, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text('Dubrovnik, Croacia  ·  argentina-en-casa.vercel.app', W / 2, 21, { align: 'center' });
+    }
+    y = 38;
 
     // — Título comprobante —
     doc.setTextColor(15, 23, 42);
@@ -1278,11 +1301,13 @@
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
-    doc.text('¡Gracias por tu compra! 🇦🇷', W / 2, 195, { align: 'center' });
+    doc.text('Gracias por tu compra! - Argentina en Casa', W / 2, 195, { align: 'center' });
     if (waConfig) doc.text('WhatsApp: +' + waConfig, W / 2, 200, { align: 'center' });
 
     // — Exportar: Web Share API en mobile, descarga en desktop —
-    const nombre_archivo = 'factura-' + id.slice(0, 8) + '.pdf';
+    const fechaSlug = v.fecha ? v.fecha.split('-').reverse().join('-') : 'sin-fecha';
+    const clienteSlug = (v.cliente || 'cliente').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+    const nombre_archivo = 'factura-' + fechaSlug + '-' + clienteSlug + '.pdf';
     const blob = doc.output('blob');
     const file = new File([blob], nombre_archivo, { type: 'application/pdf' });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
