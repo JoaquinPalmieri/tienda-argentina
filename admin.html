@@ -282,6 +282,7 @@
     .pl-table tr { border-bottom: 1px solid var(--borde); }
     .pl-table tr:last-child { border-bottom: none; font-size: 1rem; }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -638,6 +639,7 @@
   let editingProductoId = null, editingStockId = null, editingGastoId = null, editingVentaId = null;
   let ventaItems = [];
   let compraItems = []; // carrito de compra de stock
+  let waConfig = ''; // número WA desde config/settings
 
   // ── HELPERS ──
   const fmt = n => '€' + (n || 0).toFixed(2).replace('.', ',');
@@ -712,6 +714,7 @@
 
     db.collection('config').doc('settings').onSnapshot(doc => {
       const wa = doc.exists ? (doc.data().whatsapp || '—') : '—';
+      waConfig = wa !== '—' ? wa : '';
       const el = document.getElementById('configWaActual');
       if (el) el.textContent = wa;
     });
@@ -894,7 +897,7 @@
         </td>
         <td style="font-weight:700;white-space:nowrap">${fmt(v.total)}</td>
         <td style="color:var(--verde);font-weight:700;white-space:nowrap">${fmt(v.ganancia)}</td>
-        <td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" onclick="editVenta('${v.id}')">✏️</button> <button class="btn btn-ghost btn-sm" onclick="deleteVenta('${v.id}')">🗑️</button></td>
+        <td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" title="Generar factura" onclick="generarFactura('${v.id}')">📄</button> <button class="btn btn-ghost btn-sm" onclick="editVenta('${v.id}')">✏️</button> <button class="btn btn-ghost btn-sm" onclick="deleteVenta('${v.id}')">🗑️</button></td>
       </tr>`;
     }).join('');
   }
@@ -1147,6 +1150,147 @@
   window.removeCompraItem = function(i) {
     compraItems.splice(i, 1);
     renderCompraItems();
+  };
+
+
+  // ── FACTURA PDF ──
+  window.generarFactura = function(id) {
+    const v = ventas.find(x => x.id === id);
+    if (!v) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a5' });
+    const W = 148; // ancho A5
+    let y = 0;
+
+    // — Header azul —
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, W, 28, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('Argentina en Casa', W / 2, 12, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text('Dubrovnik, Croacia  ·  argentina-en-casa.vercel.app', W / 2, 20, { align: 'center' });
+    y = 36;
+
+    // — Título comprobante —
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text('Comprobante de Venta', 10, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Ref: ' + id.slice(0, 8).toUpperCase(), W - 10, y, { align: 'right' });
+    y += 6;
+
+    // — Datos cliente/fecha —
+    doc.setFontSize(9);
+    doc.setTextColor(15, 23, 42);
+    const lineH = 5.5;
+    doc.text('Fecha:', 10, y);
+    doc.setFont('helvetica', 'bold');
+    doc.text(v.fecha ? v.fecha.split('-').reverse().join('/') : '—', 35, y);
+    doc.setFont('helvetica', 'normal');
+    y += lineH;
+    if (v.cliente) {
+      doc.text('Cliente:', 10, y);
+      doc.setFont('helvetica', 'bold');
+      doc.text(v.cliente, 35, y);
+      doc.setFont('helvetica', 'normal');
+      y += lineH;
+    }
+    y += 3;
+
+    // — Línea separadora —
+    doc.setDrawColor(220, 220, 220);
+    doc.line(10, y, W - 10, y);
+    y += 6;
+
+    // — Cabecera tabla —
+    doc.setFillColor(240, 245, 255);
+    doc.rect(10, y - 4, W - 20, 7, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(60, 60, 60);
+    doc.text('Producto', 12, y);
+    doc.text('Cant.', 95, y, { align: 'right' });
+    doc.text('P. Unit.', 115, y, { align: 'right' });
+    doc.text('Subtotal', W - 12, y, { align: 'right' });
+    y += 7;
+
+    // — Ítems —
+    const items = v.items && v.items.length > 0
+      ? v.items
+      : [{ productoNombre: v.productoNombre || '—', cantidad: v.cantidad || 1, precioUnitario: v.precioUnitario || 0, subtotal: v.total || 0 }];
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(15, 23, 42);
+    items.forEach(item => {
+      const nombre = item.productoNombre || '—';
+      const cant = item.cantidad || 1;
+      const pu = item.precioUnitario != null ? item.precioUnitario : (item.subtotal / cant);
+      const sub = item.subtotal != null ? item.subtotal : (pu * cant);
+      const nombreCorto = nombre.length > 38 ? nombre.slice(0, 36) + '…' : nombre;
+      doc.text(nombreCorto, 12, y);
+      doc.text(String(cant), 95, y, { align: 'right' });
+      doc.text('€' + Number(pu).toFixed(2).replace('.', ','), 115, y, { align: 'right' });
+      doc.text('€' + Number(sub).toFixed(2).replace('.', ','), W - 12, y, { align: 'right' });
+      y += 6.5;
+    });
+
+    // — Extra (si hay) —
+    if (v.extra && v.extra > 0) {
+      doc.setTextColor(100, 100, 100);
+      doc.setFontSize(8.5);
+      doc.text('Extra cobrado', 12, y);
+      doc.text('€' + Number(v.extra).toFixed(2).replace('.', ','), W - 12, y, { align: 'right' });
+      y += 6;
+    }
+
+    y += 2;
+    doc.setDrawColor(220, 220, 220);
+    doc.line(10, y, W - 10, y);
+    y += 6;
+
+    // — Total —
+    doc.setFillColor(15, 23, 42);
+    doc.rect(W - 65, y - 5, 55, 9, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('TOTAL', W - 60, y);
+    doc.text('€' + Number(v.total).toFixed(2).replace('.', ','), W - 12, y, { align: 'right' });
+    y += 14;
+
+    // — Notas (si hay) —
+    if (v.notas) {
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text('Nota: ' + v.notas, 10, y);
+      y += 8;
+    }
+
+    // — Footer —
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text('¡Gracias por tu compra! 🇦🇷', W / 2, 195, { align: 'center' });
+    if (waConfig) doc.text('WhatsApp: +' + waConfig, W / 2, 200, { align: 'center' });
+
+    // — Exportar: Web Share API en mobile, descarga en desktop —
+    const nombre_archivo = 'factura-' + id.slice(0, 8) + '.pdf';
+    const blob = doc.output('blob');
+    const file = new File([blob], nombre_archivo, { type: 'application/pdf' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: 'Factura Argentina en Casa' })
+        .catch(() => doc.save(nombre_archivo));
+    } else {
+      doc.save(nombre_archivo);
+    }
   };
 
   // ── STOCK ──
