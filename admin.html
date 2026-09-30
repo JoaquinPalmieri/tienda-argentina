@@ -283,7 +283,6 @@
     .pl-table tr:last-child { border-bottom: none; font-size: 1rem; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -450,23 +449,6 @@
         <div id="configMsg" style="margin-top:0.75rem;font-size:0.82rem;display:none"></div>
       </div>
 
-      <div class="card" style="margin-top:1rem">
-        <div style="font-weight:600;margin-bottom:0.75rem">💸 Link de pago Wise</div>
-        <p style="font-size:0.82rem;color:var(--suave);margin-bottom:1rem;line-height:1.5">
-          Se muestra como QR y link en el pie de cada factura.<br>
-          <span style="font-family:monospace;background:#f0f2f7;padding:0.1rem 0.4rem;border-radius:4px">Ej: https://wise.com/pay/me/tuusuario</span>
-        </p>
-        <div class="form-group">
-          <label class="form-label">Link actual</label>
-          <div id="configWiseActual" style="font-size:0.85rem;color:var(--azul);padding:0.5rem 0;font-weight:600;word-break:break-all">Cargando...</div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Nuevo link</label>
-          <input class="form-input" id="configWiseInput" type="url" placeholder="https://wise.com/pay/me/tuusuario">
-        </div>
-        <button class="btn btn-primary" id="btnSaveWise" style="width:100%">💾 Guardar link Wise</button>
-        <div id="wiseMsg" style="margin-top:0.75rem;font-size:0.82rem;display:none"></div>
-      </div>
     </div>
 
   </main>
@@ -659,8 +641,6 @@
   let ventaItems = [];
   let compraItems = []; // carrito de compra de stock
   let waConfig = ''; // número WA desde config/settings
-  let wiseConfig = 'https://wise.com/pay/me/joaquinp485'; // link Wise por defecto
-  let wiseQRCache = null; // QR pre-generado
 
   // ── HELPERS ──
   const fmt = n => '€' + (n || 0).toFixed(2).replace('.', ',');
@@ -739,13 +719,6 @@
       waConfig = wa !== '—' ? wa : '';
       const el = document.getElementById('configWaActual');
       if (el) el.textContent = wa;
-      // Wise
-      const wise = data.wise || wiseConfig;
-      wiseConfig = wise;
-      wiseQRCache = null;
-      regenerarWiseQR();
-      const elWise = document.getElementById('configWiseActual');
-      if (elWise) elWise.textContent = wise;
     });
 
     db.collection('ventas').orderBy('fecha', 'desc').onSnapshot(snap => {
@@ -1303,25 +1276,30 @@
       y += 8;
     }
 
-    // — Wise QR + link —
-    if (wiseConfig) {
-      y += 4;
-      doc.setDrawColor(220, 220, 220);
-      doc.line(10, y, W - 10, y);
-      y += 8;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.setTextColor(15, 23, 42);
-      doc.text('Paga con Wise:', 10, y);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(100, 100, 100);
-      doc.setFontSize(8);
-      doc.text(wiseConfig, 10, y + 5);
-      if (wiseQRCache) {
-        doc.addImage(wiseQRCache, 'PNG', W - 42, y - 6, 32, 32);
-      }
-      y += 18;
-    }
+    // — Datos de pago —
+    y += 4;
+    doc.setDrawColor(220, 220, 220);
+    doc.line(10, y, W - 10, y);
+    y += 7;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text('Datos de pago (transferencia bancaria)', 10, y);
+    y += 5.5;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(60, 60, 60);
+    var bankLines = [
+      'Titular:    Joaquin Palmieri',
+      'IBAN:       BE45 9055 0916 1289',
+      'BIC/SWIFT:  TRWIBEB1XXX',
+      'Banco:      Wise, Rue du Trone 100, Brussels, Belgium'
+    ];
+    bankLines.forEach(function(line) {
+      doc.text(line, 12, y);
+      y += 5;
+    });
+
 
     // — Footer —
     doc.setFont('helvetica', 'normal');
@@ -1346,13 +1324,6 @@
 
 
 
-
-  function regenerarWiseQR() {
-    if (!wiseConfig || typeof QRCode === 'undefined') return;
-    QRCode.toDataURL(wiseConfig, { width: 120, margin: 1, color: { dark: '#0f172a', light: '#ffffff' } })
-      .then(function(url) { wiseQRCache = url; })
-      .catch(function() { wiseQRCache = null; });
-  }
 
   // ── STOCK ──
   function renderStock() {
@@ -1490,26 +1461,7 @@
       msg.textContent = '❌ Error al guardar: ' + e.message;
     }
   });
-  // ── CONFIG: guardar Wise ──
-  document.getElementById('btnSaveWise').addEventListener('click', async () => {
-    const url = document.getElementById('configWiseInput').value.trim();
-    const msg = document.getElementById('wiseMsg');
-    if (!url || !url.startsWith('http')) {
-      msg.style.display = 'block'; msg.style.color = 'var(--rojo)';
-      msg.textContent = '⚠️ Ingresá un link válido (debe empezar con https://).';
-      return;
-    }
-    try {
-      await db.collection('config').doc('settings').set({ wise: url }, { merge: true });
-      document.getElementById('configWiseInput').value = '';
-      msg.style.display = 'block'; msg.style.color = 'var(--verde)';
-      msg.textContent = '✅ Link Wise actualizado.';
-      setTimeout(() => { msg.style.display = 'none'; }, 4000);
-    } catch(e) {
-      msg.style.display = 'block'; msg.style.color = 'var(--rojo)';
-      msg.textContent = '❌ Error: ' + e.message;
-    }
-  });
+
 
 </script>
 </body>
