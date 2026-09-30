@@ -282,7 +282,6 @@
     .pl-table tr { border-bottom: 1px solid var(--borde); }
     .pl-table tr:last-child { border-bottom: none; font-size: 1rem; }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -1155,162 +1154,102 @@
 
   // ── FACTURA PDF ──
   window.generarFactura = function(id) {
-    try {
     const v = ventas.find(x => x.id === id);
     if (!v) { showToast('❌ Venta no encontrada'); return; }
-    if (!window.jspdf) { showToast('❌ jsPDF no cargó. Revisá la conexión.'); return; }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: 'mm', format: 'a5' });
-    const W = 148;
-    let y = 0;
 
-    // — Usar logo precargado al iniciar —
-    const logoData = window._logoCache || null;
-
-    // — Header oscuro —
-    doc.setFillColor(15, 23, 42);
-    doc.rect(0, 0, W, 30, 'F');
-    if (logoData) {
-      doc.addImage(logoData, 'PNG', 8, 4, 22, 22);
-      doc.setTextColor(255, 255, 255);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(16);
-      doc.text('Argentina en Casa', W / 2 + 8, 13, { align: 'center' });
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8);
-      doc.text('Dubrovnik, Croacia  ·  argentina-en-casa.vercel.app', W / 2 + 8, 21, { align: 'center' });
-    } else {
-      doc.setTextColor(255, 255, 255);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(16);
-      doc.text('Argentina en Casa', W / 2, 13, { align: 'center' });
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8);
-      doc.text('Dubrovnik, Croacia  ·  argentina-en-casa.vercel.app', W / 2, 21, { align: 'center' });
-    }
-    y = 38;
-
-    // — Título comprobante —
-    doc.setTextColor(15, 23, 42);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.text('Comprobante de Venta', 10, y);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
-    doc.setTextColor(100, 100, 100);
-    doc.text('Ref: ' + id.slice(0, 8).toUpperCase(), W - 10, y, { align: 'right' });
-    y += 6;
-
-    // — Datos cliente/fecha —
-    doc.setFontSize(9);
-    doc.setTextColor(15, 23, 42);
-    const lineH = 5.5;
-    doc.text('Fecha:', 10, y);
-    doc.setFont('helvetica', 'bold');
-    doc.text(v.fecha ? v.fecha.split('-').reverse().join('/') : '—', 35, y);
-    doc.setFont('helvetica', 'normal');
-    y += lineH;
-    if (v.cliente) {
-      doc.text('Cliente:', 10, y);
-      doc.setFont('helvetica', 'bold');
-      doc.text(v.cliente, 35, y);
-      doc.setFont('helvetica', 'normal');
-      y += lineH;
-    }
-    y += 3;
-
-    // — Línea separadora —
-    doc.setDrawColor(220, 220, 220);
-    doc.line(10, y, W - 10, y);
-    y += 6;
-
-    // — Cabecera tabla —
-    doc.setFillColor(240, 245, 255);
-    doc.rect(10, y - 4, W - 20, 7, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
-    doc.setTextColor(60, 60, 60);
-    doc.text('Producto', 12, y);
-    doc.text('Cant.', 95, y, { align: 'right' });
-    doc.text('P. Unit.', 115, y, { align: 'right' });
-    doc.text('Subtotal', W - 12, y, { align: 'right' });
-    y += 7;
-
-    // — Ítems —
     const items = v.items && v.items.length > 0
       ? v.items
       : [{ productoNombre: v.productoNombre || '—', cantidad: v.cantidad || 1, precioUnitario: v.precioUnitario || 0, subtotal: v.total || 0 }];
 
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(15, 23, 42);
-    items.forEach(item => {
-      const nombre = item.productoNombre || '—';
-      const cant = item.cantidad || 1;
-      const pu = item.precioUnitario != null ? item.precioUnitario : (item.subtotal / cant);
-      const sub = item.subtotal != null ? item.subtotal : (pu * cant);
-      const nombreCorto = nombre.length > 38 ? nombre.slice(0, 36) + '…' : nombre;
-      doc.text(nombreCorto, 12, y);
-      doc.text(String(cant), 95, y, { align: 'right' });
-      doc.text('€' + Number(pu).toFixed(2).replace('.', ','), 115, y, { align: 'right' });
-      doc.text('€' + Number(sub).toFixed(2).replace('.', ','), W - 12, y, { align: 'right' });
-      y += 6.5;
-    });
-
-    // — Extra (si hay) —
-    if (v.extra && v.extra > 0) {
-      doc.setTextColor(100, 100, 100);
-      doc.setFontSize(8.5);
-      doc.text('Extra cobrado', 12, y);
-      doc.text('€' + Number(v.extra).toFixed(2).replace('.', ','), W - 12, y, { align: 'right' });
-      y += 6;
-    }
-
-    y += 2;
-    doc.setDrawColor(220, 220, 220);
-    doc.line(10, y, W - 10, y);
-    y += 6;
-
-    // — Total —
-    doc.setFillColor(15, 23, 42);
-    doc.rect(W - 65, y - 5, 55, 9, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.text('TOTAL', W - 60, y);
-    doc.text('€' + Number(v.total).toFixed(2).replace('.', ','), W - 12, y, { align: 'right' });
-    y += 14;
-
-    // — Notas (si hay) —
-    if (v.notas) {
-      doc.setFont('helvetica', 'italic');
-      doc.setFontSize(8);
-      doc.setTextColor(120, 120, 120);
-      doc.text('Nota: ' + v.notas, 10, y);
-      y += 8;
-    }
-
-    // — Footer —
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text('Gracias por tu compra! - Argentina en Casa', W / 2, 195, { align: 'center' });
-    if (waConfig) doc.text('WhatsApp: +' + waConfig, W / 2, 200, { align: 'center' });
-
-    // — Exportar: Web Share API en mobile, descarga en desktop —
     const fechaSlug = v.fecha ? v.fecha.split('-').reverse().join('-') : 'sin-fecha';
     const clienteSlug = (v.cliente || 'cliente').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
-    const nombre_archivo = 'factura-' + fechaSlug + '-' + clienteSlug + '.pdf';
-    const blob = doc.output('blob');
-    const file = new File([blob], nombre_archivo, { type: 'application/pdf' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: 'Factura Argentina en Casa' })
-        .catch(() => doc.save(nombre_archivo));
-    } else {
-      doc.save(nombre_archivo);
-    }
-    } catch(err) { showToast('❌ Error al generar factura: ' + err.message); console.error(err); }
+    const titulo = 'Factura ' + fechaSlug + ' — ' + (v.cliente || 'Cliente');
+
+    const filas = items.map(item => {
+      const cant = item.cantidad || 1;
+      const pu = item.precioUnitario != null ? item.precioUnitario : (item.subtotal / cant);
+      const sub = item.subtotal != null ? item.subtotal : pu * cant;
+      return `<tr>
+        <td>${item.productoNombre || '—'}</td>
+        <td style="text-align:center">${cant}</td>
+        <td style="text-align:right">€${Number(pu).toFixed(2).replace('.',',')}</td>
+        <td style="text-align:right;font-weight:600">€${Number(sub).toFixed(2).replace('.',',')}</td>
+      </tr>`;
+    }).join('');
+
+    const extraRow = v.extra && v.extra > 0
+      ? `<tr><td colspan="3" style="color:#666;font-size:0.85em">Extra cobrado</td><td style="text-align:right">€${Number(v.extra).toFixed(2).replace('.',',')}</td></tr>`
+      : '';
+
+    const notaRow = v.notas
+      ? `<p style="margin:1rem 0 0;font-size:0.85em;color:#666;font-style:italic">Nota: ${v.notas}</p>`
+      : '';
+
+    const factura = `<!DOCTYPE html><html lang="es"><head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>${titulo}</title>
+      <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, Arial, sans-serif; color: #1a1a2e; padding: 2rem; max-width: 600px; margin: auto; }
+        header { background: #0f172a; color: white; border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+        header img { width: 48px; height: 48px; border-radius: 50%; }
+        header h1 { font-size: 1.2rem; margin-bottom: 0.2rem; }
+        header p { font-size: 0.78rem; opacity: 0.7; }
+        .meta { display: flex; gap: 2rem; margin-bottom: 1.5rem; font-size: 0.9rem; }
+        .meta div { display: flex; flex-direction: column; }
+        .meta strong { font-size: 0.72rem; text-transform: uppercase; color: #888; margin-bottom: 0.2rem; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        thead tr { background: #f0f5ff; }
+        th { padding: 0.6rem 0.75rem; font-size: 0.78rem; text-transform: uppercase; color: #666; text-align: left; }
+        th:nth-child(2) { text-align: center; }
+        th:nth-child(3), th:nth-child(4) { text-align: right; }
+        td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        .total-row { background: #0f172a; color: white; }
+        .total-row td { padding: 0.75rem; font-weight: 700; font-size: 1rem; border: none; }
+        footer { margin-top: 2rem; text-align: center; font-size: 0.78rem; color: #aaa; border-top: 1px solid #eee; padding-top: 1rem; }
+        .ref { font-size: 0.72rem; color: #aaa; text-align: right; margin-bottom: 1rem; }
+        @media print {
+          body { padding: 0; }
+          @page { margin: 1cm; }
+        }
+      </style>
+    </head><body>
+      <header>
+        <img src="https://argentina-en-casa.vercel.app/img/preview.png" onerror="this.style.display='none'">
+        <div>
+          <h1>Argentina en Casa</h1>
+          <p>Dubrovnik, Croacia &nbsp;·&nbsp; argentina-en-casa.vercel.app</p>
+        </div>
+      </header>
+      <div class="ref">Ref: ${id.slice(0,8).toUpperCase()}</div>
+      <div class="meta">
+        <div><strong>Fecha</strong>${v.fecha ? v.fecha.split('-').reverse().join('/') : '—'}</div>
+        ${v.cliente ? `<div><strong>Cliente</strong>${v.cliente}</div>` : ''}
+      </div>
+      <table>
+        <thead><tr><th>Producto</th><th>Cant.</th><th>P. Unit.</th><th>Subtotal</th></tr></thead>
+        <tbody>
+          ${filas}
+          ${extraRow}
+          <tr class="total-row">
+            <td colspan="3">TOTAL</td>
+            <td style="text-align:right">€${Number(v.total).toFixed(2).replace('.',',')}</td>
+          </tr>
+        </tbody>
+      </table>
+      ${notaRow}
+      <footer>
+        Gracias por tu compra &mdash; Argentina en Casa${waConfig ? ' &nbsp;·&nbsp; WhatsApp: +' + waConfig : ''}
+      </footer>
+      <script>window.onload = function() { window.print(); }<\/script>
+    </body></html>`;
+
+    const blob = new Blob([factura], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
   };
+
 
   // ── STOCK ──
   function renderStock() {
@@ -1426,15 +1365,6 @@
   });
 
   // ── CONFIG: guardar WhatsApp ──
-  // — Precargar logo para facturas PDF —
-  (function() {
-    fetch('/img/preview.png')
-      .then(r => r.blob())
-      .then(blob => new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); }))
-      .then(data => { window._logoCache = data; })
-      .catch(() => { window._logoCache = null; });
-  })();
-
   document.getElementById('btnSaveConfig').addEventListener('click', async () => {
     const num = document.getElementById('configWaInput').value.trim().replace(/\D/g, '');
     const msg = document.getElementById('configMsg');
