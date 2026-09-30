@@ -1,0 +1,17 @@
+(function(){
+  function onReady(fn){ if(document.readyState!='loading'){fn();} else {document.addEventListener('DOMContentLoaded',fn);} }
+  onReady(function(){
+    var el = document.getElementById('freviews-badge');
+    if(!el) return;
+    var hidden = false;
+    var handler = function(){
+      if(hidden) return;
+      hidden = true;
+      requestAnimationFrame(function(){ el.classList.add('freviews-hidden'); });
+      window.removeEventListener('scroll', handler, {passive:true});
+      window.removeEventListener('touchmove', handler, {passive:true});
+    };
+    window.addEventListener('scroll', handler, {passive:true});
+    window.addEventListener('touchmove', handler, {passive:true});
+  });
+})();

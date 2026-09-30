@@ -1,0 +1,303 @@
+ document.addEventListener('DOMContentLoaded', function () {
+  var imgs = [].slice.call(document.querySelectorAll('img[data-src]'));
+
+  if (!('IntersectionObserver' in window)) {
+    // Fallback: carga todo
+    imgs.forEach(function (img) {
+      img.src = img.getAttribute('data-src');
+      img.removeAttribute('data-src');
+    });
+    return;
+  }
+
+  var io = new IntersectionObserver(function (entries, observer) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var img = entry.target;
+      img.src = img.getAttribute('data-src');
+      img.removeAttribute('data-src');
+      observer.unobserve(img);
+    });
+  }, { rootMargin: '200px 0px' });
+
+  imgs.forEach(function (img) { io.observe(img); });
+});
+document.addEventListener('DOMContentLoaded', function () {
+  const target = document.querySelector(
+    '#content > div.elementor > div.elementor-section.elementor-element.elementor-element-tr790ox.elementor-top-section.elementor-section-stretched.elementor-section-full_width.elementor-section-height-default.elementor-section-height-default'
+  );
+  const insta = document.querySelector('.instagram-posts');
+
+  if (target && insta) {
+    target.insertAdjacentElement('afterend', insta); // queda inmediatamente después
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Solo home
+  if (document.body && document.body.id === 'index') {
+    const el = document.querySelector(
+      '#content > div.elementor > div.elementor-section.elementor-element.elementor-element-a7q3ngb.elementor-top-section.elementor-section-boxed.elementor-section-height-default.elementor-section-height-default > div > div > div > div > div > div.elementor-widget.elementor-element.elementor-element-s1q1cob.elementor-widget-spacer'
+    );
+    if (el) el.style.display = 'none';
+  }
+});
+// Traducciones (puedes pasarlas desde Smarty si quieres)
+window.ALCALABEL_UP   = window.ALCALABEL_UP   || 'Incrementar cantidad';
+window.ALCALABEL_DOWN = window.ALCALABEL_DOWN || 'Disminuir cantidad';
+
+(function ($) {
+  function enhanceTouchSpin(ctx) {
+    $(ctx).find('.bootstrap-touchspin').each(function () {
+      var $wrap  = $(this);
+      var $input = $wrap.find('input[type="number"]');
+
+      if (!$input.length) return;
+
+      // Asegura un id para poder usar aria-controls
+      if (!$input.attr('id')) {
+        $input.attr('id', 'qty_' + Math.random().toString(36).slice(2, 9));
+      }
+
+      $wrap.find('.bootstrap-touchspin-up')
+        .attr('aria-label', window.ALCALABEL_UP)
+        .attr('aria-controls', $input.attr('id'))
+        .attr('title', window.ALCALABEL_UP); // opcional
+
+      $wrap.find('.bootstrap-touchspin-down')
+        .attr('aria-label', window.ALCALABEL_DOWN)
+        .attr('aria-controls', $input.attr('id'))
+        .attr('title', window.ALCALABEL_DOWN); // opcional
+
+      // Iconos decorativos sin voz
+      $wrap.find('.material-icons, i').attr('aria-hidden', 'true');
+    });
+  }
+
+  $(document).ready(function () {
+    enhanceTouchSpin(document);
+
+    // Cuando cambia el producto o se abre quickview, se reinyectan los botones
+    if (window.prestashop && prestashop.on) {
+      prestashop.on('updatedProduct', function () { enhanceTouchSpin(document); });
+      prestashop.on('updateProductList', function () { enhanceTouchSpin(document); });
+    }
+    $(document).on('shown.bs.modal', '.quickview, #quickview, #product-modal', function () {
+      enhanceTouchSpin(this);
+    });
+
+    // Por si se re-renderiza dinámicamente
+    new MutationObserver(function (muts) {
+      muts.forEach(function (m) {
+        if ($(m.addedNodes).find('.bootstrap-touchspin').length) {
+          enhanceTouchSpin(document);
+        }
+      });
+    }).observe(document.body, { childList: true, subtree: true });
+  });
+})(jQuery);
+
+window.ALCALABEL_WL_ADD    = window.ALCALABEL_WL_ADD    || 'Añadir a la lista de deseos%PRODUCT%';
+window.ALCALABEL_WL_REMOVE = window.ALCALABEL_WL_REMOVE || 'Quitar de la lista de deseos%PRODUCT%';
+
+(function ($) {
+  function getProductSuffix($btn) {
+    // 1) Atributo si el módulo lo expone
+    var name = $btn.data('product-name') || $btn.attr('data-product-name');
+    if (name) return ' — ' + name;
+
+    // 2) Buscar el título cercano (miniatura o página de producto)
+    var $scope = $btn.closest('.product-miniature, .product-container, #main, .product-information, [data-id-product]');
+    var $title = $scope.find('.product-title a, .product-title, [itemprop="name"], h1.product-name, h1[itemprop="name"], h1');
+    var txt = $.trim($title.first().text());
+    return txt ? ' — ' + txt : '';
+  }
+
+  function labelizeWishlist(ctx) {
+    $(ctx).find('.btn-iqitwishlist-add.js-iqitwishlist-add').each(function () {
+      var $btn = $(this);
+      var suffix   = getProductSuffix($btn);
+      var active   = $btn.hasClass('active') || $btn.attr('data-wishlisted') == '1';
+      var labelTxt = (active ? window.ALCALABEL_WL_REMOVE : window.ALCALABEL_WL_ADD).replace('%PRODUCT%', suffix);
+
+      $btn.attr({
+        'aria-label': labelTxt,
+        'title':      labelTxt,
+        'aria-pressed': active ? 'true' : 'false'
+      });
+
+      if ($btn.is('a')) $btn.attr('role', 'button'); // por accesibilidad si es 
+      $btn.find('i, svg, .material-icons').attr('aria-hidden', 'true'); // iconos decorativos
+    });
+  }
+
+  $(function () {
+    // Inicial
+    labelizeWishlist(document);
+
+    // Re-render de catálogo / producto
+    if (window.prestashop && prestashop.on) {
+      prestashop.on('updateProductList', function () { labelizeWishlist(document); });
+      prestashop.on('updatedProduct',    function () { labelizeWishlist(document); });
+    }
+
+    // Tras clic (el módulo puede togglear clases/attrs asincrónicamente)
+    $(document).on('click', '.btn-iqitwishlist-add.js-iqitwishlist-add', function () {
+      var $btn = $(this);
+      setTimeout(function () { labelizeWishlist($btn.parent()); }, 0);
+    });
+
+    // Para nodos dinámicos (quickview, scroll infinito, etc.)
+    new MutationObserver(function (muts) {
+      for (var i = 0; i < muts.length; i++) {
+        if ($(muts[i].addedNodes).find('.btn-iqitwishlist-add.js-iqitwishlist-add').length) {
+          labelizeWishlist(document);
+          break;
+        }
+      }
+    }).observe(document.body, { childList: true, subtree: true });
+  });
+})(jQuery);
+
+window.ALCASHOP = window.ALCASHOP || 'Pampa Drugstore';
+window.ALCALABEL_VISIT = window.ALCALABEL_VISIT || 'Abrir %PLATFORM% de %SHOP% (se abre en una pestaña nueva)';
+window.ALCALABEL_VISIT_NO_SHOP = window.ALCALABEL_VISIT_NO_SHOP || 'Abrir %PLATFORM% (se abre en una pestaña nueva)';
+
+(function ($) {
+  function platformFrom(el) {
+    var $li = $(el).closest('li');
+    var cls = ($li.attr('class') || '').toLowerCase();
+    if (/\bfacebook\b/.test(cls)) return 'Facebook';
+    if (/\btwitter\b/.test(cls)) return 'Twitter';
+    if (/\binstagram\b/.test(cls)) return 'Instagram';
+    if (/\byoutube\b/.test(cls)) return 'YouTube';
+    if (/\blinkedin\b/.test(cls)) return 'LinkedIn';
+    if (/\btiktok\b/.test(cls)) return 'TikTok';
+    if (/\bpinterest\b/.test(cls)) return 'Pinterest';
+    if (/\bwhatsapp\b/.test(cls)) return 'WhatsApp';
+    if (/\btelegram\b/.test(cls)) return 'Telegram';
+    // Fallback por hostname
+    try {
+      var h = new URL($(el).attr('href'), location.href).hostname.replace(/^www\./,'');
+      if (h.includes('facebook')) return 'Facebook';
+      if (h.includes('twitter') || h.includes('x.com')) return 'Twitter';
+      if (h.includes('instagram')) return 'Instagram';
+      if (h.includes('youtube') || h.includes('youtu.be')) return 'YouTube';
+      if (h.includes('linkedin')) return 'LinkedIn';
+      if (h.includes('tiktok')) return 'TikTok';
+      if (h.includes('pinterest')) return 'Pinterest';
+      if (h.includes('wa.me') || h.includes('whatsapp')) return 'WhatsApp';
+      if (h.includes('t.me') || h.includes('telegram')) return 'Telegram';
+    } catch(e){}
+    return 'red social';
+  }
+
+  function inferShop() {
+    var s = (window.ALCASHOP || '').trim();
+    if (s) return s;
+    var el = document.querySelector('[itemprop="name"], .logo img[alt], .logo a[title]');
+    if (!el) return '';
+    return (el.getAttribute('content') || el.getAttribute('alt') || el.getAttribute('title') || el.textContent || '').trim();
+  }
+
+  function labelizeSocial(ctx) {
+    var shop = inferShop();
+    $('.social-links a', ctx).each(function () {
+      var $a = $(this);
+      var plat = platformFrom(this);
+      var label = (shop ? window.ALCALABEL_VISIT : window.ALCALABEL_VISIT_NO_SHOP)
+                    .replace('%PLATFORM%', plat)
+                    .replace('%SHOP%', shop);
+      $a.attr('aria-label', label).attr('title', label);
+      $a.find('i, svg').attr('aria-hidden', 'true');
+      if ($a.attr('target') === '_blank') {
+        // Asegura seguridad/privacidad
+        $a.attr('rel', 'noopener noreferrer');
+      }
+    });
+  }
+
+  $(function () {
+    labelizeSocial(document);
+    // Por si se inyectan nodos luego (footer async, bloques CMS, etc.)
+    new MutationObserver(function (muts) {
+      for (var i = 0; i < muts.length; i++) {
+        if ($(muts[i].addedNodes).find('.social-links a').length) {
+          labelizeSocial(document);
+          break;
+        }
+      }
+    }).observe(document.body, { childList: true, subtree: true });
+  });
+})(jQuery);
+
+(function ($) {
+  function setSliderTitles(ctx) {
+    $(ctx).find('.alcasimpleslider_content a').attr('title', 'imagen');
+  }
+
+  $(function () {
+    setSliderTitles(document);
+
+    // Si el slider agrega nodos dinámicamente
+    new MutationObserver(function (muts) {
+      for (const m of muts) {
+        if ($(m.addedNodes).find('.alcasimpleslider_content a').length) {
+          setSliderTitles(document);
+          break;
+        }
+      }
+    }).observe(document.body, { childList: true, subtree: true });
+  });
+})(jQuery);
+
+$(document).ready(function () {
+  prestashop.blockcart = prestashop.blockcart || {};
+
+  var showModal = prestashop.blockcart.showModal || function (modal) {
+    var $body = $('body');
+    $body.append(modal);
+    $body.one('click', '#blockcart-modal', function (event) {
+      if (event.target.id === 'blockcart-modal') {
+        $(event.target).remove();
+      }
+    });
+  };
+
+  prestashop.on('updateCart', function (event) {
+    var $blockcart   = $('#blockcart');
+    var refreshURL   = $blockcart.data('refresh-url');
+    var requestData  = {};
+
+    // Datos mínimos que pide el controlador del carrito
+    if (event && event.reason) {
+      requestData = {
+        id_product:          event.reason.idProduct,
+        id_product_attribute: event.reason.idProductAttribute,
+        action:              event.reason.linkAction
+      };
+    }
+
+    if (!refreshURL) {
+      return; // sin URL no hay nada que refrescar
+    }
+
+    $.post(refreshURL, requestData).then(function (resp) {
+      // Importante: reemplazar el HTML del blockcart por el nuevo
+      var $newBlockcart = $(resp.preview).find('#blockcart');
+      if ($newBlockcart.length) {
+        $blockcart.replaceWith($newBlockcart);
+      }
+
+      // Modal “producto añadido”, si lo usás
+      if (resp.modal) {
+        showModal(resp.modal);
+      }
+    }).fail(function (resp) {
+      prestashop.emit('handleError', {
+        eventType: 'updateShoppingCart',
+        resp: resp
+      });
+    });
+  });
+});

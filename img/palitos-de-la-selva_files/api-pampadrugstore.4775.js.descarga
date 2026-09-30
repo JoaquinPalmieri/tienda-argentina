@@ -1,0 +1,3 @@
+﻿oct8ne.utilsApi = oct8ne.utilsApi || {};
+
+oct8ne.utilsApi.setMobileBodyRelative = true;

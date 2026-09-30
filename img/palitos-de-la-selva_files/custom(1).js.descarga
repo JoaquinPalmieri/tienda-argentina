@@ -1,0 +1,189 @@
+/*
+ * Custom code goes here.
+ * A template should always ship with an empty custom.js
+ */
+
+// Advanced Anti Spam Google reCAPTCHA module
+/*
+(function(self) {
+    if (!self) {
+        return;
+    }
+
+    self.NewsletterForm.prototype.setSubmitHandler = function() {
+        self.RecaptchaForm.prototype.setSubmitHandler.call(this);
+    };
+})(AdvancedEmailGuard);
+
+
+let addPackageToCart = (element) => {
+    let products = $('.rr-widget[data-s="645cc62bd52102af9fbe8e57"] .rr-summ-button button').closest('.rr-widget').find('.rr-container .rr-item button.add-to-cart').click();
+
+    prestashop.on(
+        'updateCart',
+        event => {
+            if (event.resp.errors.length !== 0) {
+                console.log(event.resp.errors[0]);
+            }
+        });
+};
+*/
+window.addEventListener('load', () => {
+    if ($('body#product').length && $('.rr-widget[data-s="645cc62bd52102af9fbe8e57"] .rr-summ-button button').length) {
+        $('.rr-widget[data-s="645cc62bd52102af9fbe8e57"] .rr-summ-button button').click(() => {
+            addPackageToCart(this);
+        });
+    }
+});
+
+
+$(document).ready(function() {
+    $('body#product .add-to-cart').on('click', function(e) {
+        e.preventDefault(); // Evitar que se envíe el formulario hasta verificar stock
+
+        let $button = $(this);
+        let $form = $button.parents('form').first();
+        let Qty = $form.find('.input-qty');
+        let $inputQty = parseInt(Qty.val(), 10);
+
+        let formActionUrl = $('.add-to-cart-form').attr('action');
+        console.log('Formulario Action URL:', formActionUrl); // Verifica la URL
+        let urlParams = new URLSearchParams(formActionUrl.split('?')[1]);
+
+        let token = urlParams.get('token');
+        let productId = urlParams.get('id_product');
+        console.log('Verificando stock para producto ID:', productId);
+        let ajaxUrl = prestashop.urls && prestashop.urls.base_url ?
+            prestashop.urls.base_url + 'es/carro-de-la-compra?add=1&id_product=' + productId + '&id_product_attribute=' + 0 + '&token=' + token + '&quantity=' + $inputQty :
+            'es/carro-de-la-compra?add=1&id_product=' + productId + '&id_product_attribute=' + 0 + '&token=' + token + '&quantity=' + $inputQty;
+
+        console.log('Realizando AJAX a:', ajaxUrl);
+
+        $.ajax({
+            url: formActionUrl,
+            method: 'post',
+            dataType: 'json',
+            success: function(response) {
+                console.log('Respuesta AJAX recibida:', response);
+
+                if (!response || !response.cart || !response.cart.products) {
+                    console.warn('No se encontraron productos en la respuesta AJAX');
+                    return;
+                }
+
+                let cartProducts = response.cart.products;
+                let stockAvailable = parseInt($inputQty.attr('max'), 10) || 0;
+                let quantityInCart = 0;
+
+                $.each(cartProducts, function(index, product) {
+                    if (parseInt(product.id_product) === parseInt(productId)) {
+                        quantityInCart = parseInt(product.quantity);
+                    }
+                });
+
+                let remainingStock = stockAvailable - quantityInCart;
+                if (remainingStock < 0) remainingStock = 0;
+
+                $inputQty.attr('max', remainingStock);
+
+                if (remainingStock === 0) {
+                    console.log('Producto sin stock, deshabilitando botón');
+                    $button.prop('disabled', true).text('Sin stock');
+                } else {
+                    console.log('Stock disponible:', remainingStock);
+                    $button.prop('disabled', false).text('Añadir al carrito');
+                    $button.closest('form').submit();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('Error en la petición AJAX:', status, error);
+                console.log('Respuesta del servidor (posible HTML o error):', $response);
+            }
+        });
+    });
+});
+
+$(document).ready(function() {
+    $('#_mobile_iqitmegamenu-mobile .mm-expand').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var $li = $(this).closest('li');
+        $li.toggleClass('mm-opened');
+        $li.children('ul').slideToggle();
+    });
+});
+document.addEventListener('DOMContentLoaded', function () {
+  var trigger = document.getElementById('mobile-cart-toogle');
+  var menu = document.getElementById('_mobile_blockcart-content');
+
+  if (!trigger || !menu) {
+    return;
+  }
+
+  function isMobile() {
+    return window.innerWidth < 992;
+  }
+
+  function getDropdownParent() {
+    return trigger.closest('.dropdown') || trigger.parentElement;
+  }
+
+  function openCart() {
+    var parent = getDropdownParent();
+    trigger.classList.add('show');
+    trigger.setAttribute('aria-expanded', 'true');
+    if (parent) parent.classList.add('show');
+    menu.classList.add('show');
+    menu.style.display = 'block';
+  }
+
+  function closeCart() {
+    var parent = getDropdownParent();
+    trigger.classList.remove('show');
+    trigger.setAttribute('aria-expanded', 'false');
+    if (parent) parent.classList.remove('show');
+    menu.classList.remove('show');
+    menu.style.display = '';
+  }
+
+  function toggleCart() {
+    if (menu.classList.contains('show')) {
+      closeCart();
+    } else {
+      openCart();
+    }
+  }
+
+  function handler(e) {
+    if (!isMobile()) {
+      return;
+    }
+
+    var clickOnTrigger = e.target.closest('#mobile-cart-toogle');
+    var clickInsideMenu = e.target.closest('#_mobile_blockcart-content');
+
+    if (clickOnTrigger) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof e.stopImmediatePropagation === 'function') {
+        e.stopImmediatePropagation();
+      }
+      toggleCart();
+      return;
+    }
+
+    if (clickInsideMenu) {
+      e.stopPropagation();
+      if (typeof e.stopImmediatePropagation === 'function') {
+        e.stopImmediatePropagation();
+      }
+      return;
+    }
+
+    closeCart();
+  }
+
+  document.addEventListener('pointerdown', handler, true);
+  document.addEventListener('click', handler, true);
+});

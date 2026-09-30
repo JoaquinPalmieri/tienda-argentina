@@ -1,0 +1,297 @@
+jQuery.fn.tooltip = window._BStooltip;
+
+$(document).ready(function () {
+  prestashop.blockcart = prestashop.blockcart || {};
+
+  var showModal = prestashop.blockcart.showModal || function (modal) {};
+
+  var pinInterval = null;
+  var pinActive = false;
+  var reopenMobileCartTimeout = null;
+  var reopenDesktopCartTimeout = null;
+  var repinTimeout1 = null;
+  var repinTimeout2 = null;
+
+  function injectPinCss() {
+    if ($('#alca-pin-cart-css').length) return;
+
+    var css = `
+/* Fuerza el contenedor del carrito */
+#blockcart.alca-pin-cart{
+  display:inline-block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+  transform:none !important;
+  z-index:999999 !important;
+}
+
+/* Fuerza el contenido interno */
+#blockcart.alca-pin-cart #blockcart-content{
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
+
+/* Por si el theme esconde el panel con height/overflow */
+#blockcart.alca-pin-cart,
+#blockcart.alca-pin-cart *{
+  max-height:none !important;
+  overflow:visible !important;
+}
+    `.trim();
+
+    $('<style id="alca-pin-cart-css" type="text/css"></style>').text(css).appendTo('head');
+  }
+
+  function applyPin() {
+    var $bc = $('#blockcart');
+    if (!$bc.length) return;
+
+    $bc.addClass('alca-pin-cart show');
+    $('#cart-toogle').attr('aria-expanded', 'true');
+    $('#blockcart-content').css('display', 'block');
+  }
+
+  function startPinPulse(ms) {
+    injectPinCss();
+    applyPin();
+
+    if (pinInterval) clearInterval(pinInterval);
+    pinActive = true;
+
+    var end = Date.now() + (ms || 2000);
+    pinInterval = setInterval(function () {
+      if (!pinActive) return;
+
+      applyPin();
+
+      if (Date.now() >= end) {
+        clearInterval(pinInterval);
+        pinInterval = null;
+        pinActive = false;
+      }
+    }, 80);
+  }
+
+  function stopPin() {
+    pinActive = false;
+
+    if (pinInterval) {
+      clearInterval(pinInterval);
+      pinInterval = null;
+    }
+
+    if (repinTimeout1) {
+      clearTimeout(repinTimeout1);
+      repinTimeout1 = null;
+    }
+
+    if (repinTimeout2) {
+      clearTimeout(repinTimeout2);
+      repinTimeout2 = null;
+    }
+
+    if (reopenMobileCartTimeout) {
+      clearTimeout(reopenMobileCartTimeout);
+      reopenMobileCartTimeout = null;
+    }
+
+    if (reopenDesktopCartTimeout) {
+      clearTimeout(reopenDesktopCartTimeout);
+      reopenDesktopCartTimeout = null;
+    }
+
+    $('#blockcart, #mobile-cart-wrapper').removeClass('alca-pin-cart');
+  }
+
+  function isMobileView() {
+    if (
+      window.prestashop &&
+      prestashop.responsive &&
+      typeof prestashop.responsive.mobile !== 'undefined'
+    ) {
+      return !!prestashop.responsive.mobile;
+    }
+
+    return window.innerWidth < 992;
+  }
+
+  function reopenMobileCartAfterAdd() {
+    if (!isMobileView()) {
+      return;
+    }
+
+    if (reopenMobileCartTimeout) {
+      clearTimeout(reopenMobileCartTimeout);
+    }
+
+    reopenMobileCartTimeout = setTimeout(function () {
+      $('#mobile-cart-wrapper').addClass('show');
+      $('#mobile-cart-toogle').addClass('show').attr('aria-expanded', 'true');
+      $('#_mobile_blockcart-content').addClass('show').css('display', 'block');
+    }, 300);
+  }
+
+  function reopenDesktopCartAfterAdd() {
+    if (isMobileView()) {
+      return;
+    }
+
+    if (reopenDesktopCartTimeout) {
+      clearTimeout(reopenDesktopCartTimeout);
+    }
+
+    reopenDesktopCartTimeout = setTimeout(function () {
+      $('#blockcart').addClass('show');
+      $('#cart-toogle')
+        .addClass('show')
+        .attr('aria-expanded', 'true');
+
+      $('#_desktop_blockcart-content, #blockcart-content')
+        .addClass('show')
+        .css('display', 'block');
+    }, 300);
+  }
+
+  function reopenCartAfterAdd() {
+    if (isMobileView()) {
+      reopenMobileCartAfterAdd();
+    } else {
+      reopenDesktopCartAfterAdd();
+    }
+  }
+
+  $(document).off('click touchend pointerup', '#js-cart-close, .js-cart-close');
+
+  $(document).on('click touchend pointerup', '#js-cart-close, .js-cart-close', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+
+    stopPin();
+
+    if (isMobileView()) {
+      $('#mobile-cart-wrapper, #_mobile_blockcart-content')
+        .removeClass('show')
+        .css('display', '');
+
+      $('#mobile-cart-toogle')
+        .removeClass('show')
+        .attr('aria-expanded', 'false');
+    } else {
+      $('#_desktop_blockcart-content, #blockcart-content')
+        .removeClass('show')
+        .css('display', '');
+
+      $('#blockcart').removeClass('show');
+
+      $('#cart-toogle')
+        .removeClass('show')
+        .attr('aria-expanded', 'false');
+    }
+
+    return false;
+  });
+
+  $(document).on('click', '#blockcart-content, #_desktop_blockcart-content, #_mobile_blockcart-content', function (e) {
+    e.stopPropagation();
+  });
+
+  $(document).on('click', 'button.add-to-cart', function () {
+    reopenCartAfterAdd();
+  });
+
+  prestashop.on('updateCart', function (event) {
+    var $blockcart = $('#blockcart');
+    if (!$blockcart.length) {
+      $blockcart = $('.blockcart').first();
+    }
+
+    var refreshURL = $blockcart.data('refresh-url');
+    if (!refreshURL) {
+      return;
+    }
+
+    var linkAction = (event && event.reason && event.reason.linkAction) ? event.reason.linkAction : '';
+    var isAddToCart = (linkAction === 'add-to-cart');
+
+    if (isAddToCart) {
+      reopenCartAfterAdd();
+    }
+
+    var requestData = {};
+    if (event && event.reason) {
+      requestData = {
+        id_customization: event.reason.idCustomization,
+        id_product_attribute: event.reason.idProductAttribute,
+        id_product: event.reason.idProduct,
+        action: event.reason.linkAction
+      };
+    }
+
+    $.post(refreshURL, requestData).then(function (resp) {
+      var $preview = $(resp.preview);
+
+      $('#cart-toogle').html($preview.find('#cart-toogle').html());
+      $('#blockcart-content').html($preview.find('#blockcart-content').html());
+
+      $('#mobile-cart-products-count').text(
+        $preview.find('.cart-products-count-btn').first().text()
+      );
+
+      prestashop.emit('updatedAjaxCart', {});
+
+      if (event && event.reason) {
+        if (event.reason.linkAction === 'delete-from-cart') {
+          prestashop.emit('updateProductListAddToCart', {
+            id_product: event.reason.idProduct,
+            id_product_attribute: event.reason.idProductAttribute,
+            new_html: event.reason.newAddBtn
+          });
+        } else {
+          prestashop.emit('updateProductListAddToCart', {
+            id_product: event.reason.idProduct,
+            id_product_attribute: event.reason.idProductAttribute,
+            new_html: $preview
+              .find(
+                '#updated-add-cart-btn-' +
+                  event.reason.idProduct +
+                  '-' +
+                  event.reason.idProductAttribute
+              )
+              .html()
+          });
+        }
+
+        if (event.reason.linkPlace === 'cart-preview') {
+          prestashop.emit('updateProduct', {});
+        }
+      }
+
+      if (resp.modal) {
+        showModal(resp.modal);
+      }
+
+      if (isAddToCart) {
+        reopenCartAfterAdd();
+      }
+
+    }).fail(function (resp) {
+      prestashop.emit('handleError', {
+        eventType: 'updateShoppingCart',
+        resp: resp
+      });
+    });
+
+    if (event && event.resp && event.resp.hasError) {
+      prestashop.emit('showErrorNextToAddtoCartButton', {
+        errorMessage: event.resp.errors.join('<br/>')
+      });
+      var $toast = $('#cart-error-toast');
+      $toast.html(event.resp.errors.join('<br/>'));
+      $toast.toast('show');
+    }
+  });
+});

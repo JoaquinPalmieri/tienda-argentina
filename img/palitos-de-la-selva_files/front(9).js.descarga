@@ -1,0 +1,195 @@
+(function () {
+  function onReady(fn) {
+    if (document.readyState !== 'loading') return fn();
+    document.addEventListener('DOMContentLoaded', fn);
+  }
+
+  function getDirectParagraphs(el) {
+    var out = [];
+    if (!el || !el.children) return out;
+
+    for (var i = 0; i < el.children.length; i++) {
+      var c = el.children[i];
+      if (!c || c.tagName !== 'P') continue;
+
+      var txt = (c.textContent || '').replace(/\u00A0/g, ' ').trim();
+      var hasMedia = c.querySelector && c.querySelector('img,iframe,video,svg');
+      if (txt.length > 0 || hasMedia) out.push(c);
+    }
+    return out;
+  }
+
+  function setState(p, state) {
+    p.style.transition = 'opacity .40s ease, transform .40s ease';
+    p.style.willChange = 'opacity, transform';
+
+    if (state === 'active') {
+      p.style.opacity = '1';
+      p.style.transform = 'translateY(0)';
+      p.style.zIndex = '2';
+      return;
+    }
+    if (state === 'leaving') {
+      p.style.opacity = '0';
+      p.style.transform = 'translateY(10px)';
+      p.style.zIndex = '1';
+      return;
+    }
+    // hidden (arriba)
+    p.style.opacity = '0';
+    p.style.transform = 'translateY(-10px)';
+    p.style.zIndex = '1';
+  }
+
+  function measureMaxHeight(desc, ps) {
+    // Medir sin absolute
+    var oldVis = desc.style.visibility;
+    desc.style.visibility = 'hidden';
+    desc.style.height = '';
+
+    for (var i = 0; i < ps.length; i++) {
+      var p = ps[i];
+      p.style.transition = 'none';
+     // p.style.position = 'static';
+      p.style.left = '';
+      p.style.right = '';
+      p.style.top = '';
+      p.style.opacity = '';
+      p.style.transform = 'none';
+      p.style.zIndex = '';
+      p.style.margin = '0';
+      p.style.display = 'block';
+    }
+
+    var maxH = 0;
+    for (var j = 0; j < ps.length; j++) {
+      var h = ps[j].offsetHeight || 0;
+      if (h > maxH) maxH = h;
+    }
+
+    if (maxH > 0) desc.style.height = (maxH + 2) + 'px';
+    desc.style.visibility = oldVis || '';
+
+    return maxH;
+  }
+
+  function initRotateByP(desc, rotateMs) {
+    if (!desc || desc.dataset.rsiRotateInit === '1') return;
+
+    var ps = getDirectParagraphs(desc);
+    if (ps.length <= 1) return;
+
+    desc.dataset.rsiRotateInit = '1';
+
+    // contenedor
+    desc.style.position = 'relative';
+    desc.style.overflow = 'hidden';
+
+    // medir altura y fijarla
+    var maxH = measureMaxHeight(desc, ps);
+    if (!maxH || maxH <= 0) {
+      desc.dataset.rsiRotateInit = '0';
+      setTimeout(function () { initRotateByP(desc, rotateMs); }, 250);
+      return;
+    }
+
+    // apilar <p>
+    for (var k = 0; k < ps.length; k++) {
+      var p = ps[k];
+      p.style.position = 'absolute';
+      p.style.left = '0';
+      p.style.right = '0';
+      p.style.top = '0';
+      p.style.margin = '0';
+    }
+
+    // estado inicial
+    for (var a = 0; a < ps.length; a++) {
+      setState(ps[a], a === 0 ? 'active' : 'hidden');
+    }
+
+    var idx = 0;
+    function tick() {
+      var current = ps[idx];
+      var nextIdx = (idx + 1) % ps.length;
+      var next = ps[nextIdx];
+
+      setState(current, 'leaving');
+
+      // fuerza reflow para transición consistente
+      setState(next, 'hidden');
+      void next.offsetHeight;
+      setState(next, 'active');
+
+      setTimeout(function () {
+        setState(current, 'hidden');
+      }, 450);
+
+      idx = nextIdx;
+    }
+
+    setTimeout(tick, 800);
+    setInterval(tick, rotateMs);
+
+    window.addEventListener('resize', function () {
+      measureMaxHeight(desc, ps);
+    });
+    window.addEventListener('load', function () {
+      measureMaxHeight(desc, ps);
+    }, { once: true });
+  }
+
+  function initAutoScroll(desc, scrollMs) {
+    if (!desc || desc.dataset.rsiScrollInit === '1') return;
+    desc.dataset.rsiScrollInit = '1';
+
+    // si está rotando por <p>, no scrollear (tiene más sentido así)
+    if (desc.dataset.rsiRotateInit === '1') return;
+
+    desc.style.overflow = 'hidden';
+    // altura visible (ajustala si querés)
+    var visible = 56;
+    desc.style.maxHeight = visible + 'px';
+
+    // si no desborda, nada
+    if (desc.scrollHeight <= desc.clientHeight + 2) return;
+
+    var step = visible;
+    var pos = 0;
+
+    setInterval(function () {
+      var max = desc.scrollHeight - desc.clientHeight;
+      if (max <= 0) return;
+
+      pos += step;
+      if (pos > max) pos = 0;
+
+      desc.scrollTo({ top: pos, behavior: 'smooth' });
+    }, scrollMs);
+  }
+
+  function initAll(root) {
+    var cfg = window.rsimessagesCfg || {};
+
+    var rotateEnabled = (typeof cfg.rotateEnabled === 'undefined') ? true : !!cfg.rotateEnabled;
+    var rotateSeconds = parseInt(cfg.rotateSeconds, 10);
+    if (!rotateSeconds || rotateSeconds < 1) rotateSeconds = 5;
+    var rotateMs = rotateSeconds * 1000;
+
+    var scrollEnabled = !!cfg.scrollEnabled;
+    var scrollSeconds = parseInt(cfg.scrollSeconds, 10);
+    if (!scrollSeconds || scrollSeconds < 1) scrollSeconds = 3;
+    var scrollMs = scrollSeconds * 1000;
+
+    var nodes = (root && root.querySelectorAll) ? root.querySelectorAll('.rsimessages-desc') : [];
+    for (var i = 0; i < nodes.length; i++) {
+      if (rotateEnabled) initRotateByP(nodes[i], rotateMs);
+      else if (scrollEnabled) initAutoScroll(nodes[i], scrollMs);
+    }
+  }
+
+  onReady(function () {
+    window.rsimessagesFrontLoaded = true;
+    initAll(document);
+  });
+})();

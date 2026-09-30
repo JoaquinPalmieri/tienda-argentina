@@ -1,0 +1,67 @@
+/**
+* 2025 ALCALINK E-COMMERCE & SEO, S.L.L.
+*
+* NOTICE OF LICENSE
+*
+* This source file is subject to the Open Software License (OSL 3.0)
+* that is bundled with this package in the file LICENSE.txt.
+* It is also available through the world-wide-web at this URL:
+* http://opensource.org/licenses/osl-3.0.php
+* If you did not receive a copy of the license and are unable to
+* obtain it through the world-wide-web, please send an email
+* to license@prestashop.com so we can send you a copy immediately.
+*
+* DISCLAIMER
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+* THE SOFTWARE.
+*
+* @author ALCALINK E-COMMERCE & SEO, S.L.L. <info@alcalink.com>
+* @copyright  2025 ALCALINK E-COMMERCE & SEO, S.L.L.
+* @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+*
+* Registered Trademark & Property of ALCALINK E-COMMERCE & SEO, S.L.L.
+ */ 
+// Para cada temporizador
+document.querySelectorAll(".alcatimer").forEach(timer => {
+    const daysSpan = timer.querySelector("[data-days]");
+    const hoursSpan = timer.querySelector("[data-hours]");
+    const minutesSpan = timer.querySelector("[data-minutes]");
+    const secondsSpan = timer.querySelector("[data-seconds]");
+  
+    let totalSeconds =
+      parseInt(daysSpan.getAttribute("data-days")) * 86400 +
+      parseInt(hoursSpan.getAttribute("data-hours")) * 3600 +
+      parseInt(minutesSpan.getAttribute("data-minutes")) * 60 +
+      parseInt(secondsSpan.getAttribute("data-seconds"));
+  
+    function updateCountdown() {
+      if (totalSeconds <= 0) {
+        daysSpan.textContent = "00";
+        hoursSpan.textContent = "00";
+        minutesSpan.textContent = "00";
+        secondsSpan.textContent = "00";
+        clearInterval(interval);
+        return;
+      }
+  
+      totalSeconds--;
+  
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+  
+      daysSpan.textContent = String(days).padStart(2, "0");
+      hoursSpan.textContent = String(hours).padStart(2, "0");
+      minutesSpan.textContent = String(minutes).padStart(2, "0");
+      secondsSpan.textContent = String(seconds).padStart(2, "0");
+    }
+  
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+  });

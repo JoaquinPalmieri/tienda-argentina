@@ -1,0 +1,73 @@
+/**
+* History:
+*
+* 1.0.0 - First version
+*
+*  @author    Vincent MASSON <contact@coeos.pro>
+*  @copyright Vincent MASSON <www.coeos.pro>
+*  @license   http://www.coeos.pro/fr/content/3-conditions-generales-de-ventes
+*/
+$().ready(function() {  
+    var vat_number = $( "input[name$=vat_number]" ).val();
+    var id_country = $( "[name$=id_country]" ).val();
+    verification_vat_number(vat_number, id_country);
+
+    $( "input[name$=vat_number]" ).focusout(function() {
+        var vat_number = $( "input[name$=vat_number]" ).val();
+        var id_country = $( "[name$=id_country]" ).val();
+        verification_vat_number(vat_number, id_country);
+      });
+      $( "[name$=id_country]" ).focusout( function() {
+        var vat_number = $( "input[name$=vat_number]" ).val();
+        var id_country = $( "[name$=id_country]" ).val();
+        verification_vat_number(vat_number, id_country);
+      });
+});
+
+function verification_vat_number(vat_number, id_country)
+{
+    $( "input[name$=vat_number]" ).parent().removeClass('error_vat_number');
+    if (vat_number != "") 
+    {
+        if (document.getElementById("submitAccount"))
+            document.getElementById("submitAccount").style.display="none";
+        $("#msg_vat_number").remove();
+        $.ajax({
+        type: "POST",
+        headers: { "cache-control": "no-cache" },
+        url: vncfc_fc_url,
+        data: 	{
+                "action" : "verifFO",
+                "vat_number" : vat_number,
+                "id_country" : id_country
+                },
+        success: function(result)
+        { 
+            var r = result.split('|'); 
+            if (r[0] != 'structure' && r[0] != 'vies_2'){ 
+               $( "input[name$=vat_number]" ).parent().removeClass('error_vat_number');
+                if (document.getElementById("submitAccount"))
+                       document.getElementById("submitAccount").style.display="inline-block";
+            } else {
+                $( "input[name$=vat_number]" ).after( "<div id=\"msg_vat_number\">" + r[1] + "</div>" );
+                $( "input[name$=vat_number]" ).parent().addClass('error_vat_number');
+                if (document.getElementById("submitAccount"))
+                       document.getElementById("submitAccount").style.display="none";
+                
+            }
+        },
+        error: function(result)
+        {
+            $( "input[name$=vat_number]" ).parent().removeClass('error_vat_number');
+            if (document.getElementById("submitAccount"))
+                   document.getElementById("submitAccount").style.display="inline-block";
+        }
+        });    
+    } else {
+        $("#msg_vat_number").remove();
+        if (document.getElementById("submitAccount"))
+            document.getElementById("submitAccount").style.display="inline-block";
+    }
+    
+
+}

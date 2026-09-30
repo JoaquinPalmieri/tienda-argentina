@@ -1,0 +1,295 @@
+/**
+ * 2007-2026 PrestaShop SA and Contributors
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License 3.0 (AFL-3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/AFL-3.0
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to https://www.prestashop.com for more information.
+ *
+ * @author    PrestaShop SA <contact@prestashop.com>
+ * @copyright 2007-2026 PrestaShop SA and Contributors
+ * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
+ * International Registered Trademark & Property of PrestaShop SA
+ */
+/* ==== RSI Forecast – Payment fees (restore selection after reload) ==== */
+var RSF_UPDATING = false;
+var RSF_BADGE_CACHE = Object.create(null);
+var RSF_INFLIGHT = false; // evita doble apply/remove antes del reload
+
+/* --- utils --- */
+function t(key, fb) { var o = (window.RSF_T || {}); return o[key] || fb || ''; }
+
+function getFeehUrl() {
+    if (window.RSF_URLS) return RSF_URLS.feeh || RSF_URLS.feeh_legacy;
+    var base = (window.prestashop && prestashop.urls && prestashop.urls.base_url) || '/';
+    return base.replace(/\/+$/, '') + '/index.php?fc=module&module=rsiforecast&controller=feeh';
+}
+
+function rsfDo(fn) { RSF_UPDATING = true; try { fn(); } finally { setTimeout(function() { RSF_UPDATING = false; }, 0); } }
+
+function rsfHash(res) {
+    if (!res || !res.ok || !(+res.delta_pct > 0)) return 'none';
+    var pct = Math.round((+res.delta_pct) * 100) / 100;
+    var amt = res.formatted_discount || '';
+    return 'appliable|' + pct + '|' + amt;
+}
+
+function rsfReloadOnce(tag) {
+    try {
+        var key = 'RSF_RELOAD_' + (tag || 'x');
+        var last = parseInt(sessionStorage.getItem(key) || '0', 10),
+            now = Date.now();
+        if (now - last < 4000) return; // evitar recargas encadenadas
+        sessionStorage.setItem(key, String(now));
+    } catch (e) {}
+    location.reload();
+}
+
+/* --- persistencia de selección --- */
+function rsfSetRestoreModule(mod) {
+    try { sessionStorage.setItem('RSF_RESTORE_MODULE', (mod || '').toLowerCase()); } catch (e) {}
+}
+
+function rsfGetRestoreModule() {
+    try { return (sessionStorage.getItem('RSF_RESTORE_MODULE') || '').toLowerCase(); } catch (e) { return ''; }
+}
+
+function rsfClearRestoreModule() {
+    try { sessionStorage.removeItem('RSF_RESTORE_MODULE'); } catch (e) {}
+}
+/** Re-selecciona el radio del módulo guardado (si existe). Devuelve true si lo restauró. */
+function rsfTryRestoreSelection() {
+    var mod = rsfGetRestoreModule();
+    if (!mod) return false;
+    var rows = getAllPaymentRows();
+    for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        var radio = row.querySelector('input[type="radio"][name="payment-option"]');
+        var m = detectModuleName(row, radio);
+        if ((m || '').toLowerCase() === mod) {
+            if (radio) { radio.checked = true; }
+            rsfClearRestoreModule();
+            return true;
+        }
+    }
+    // si no lo encontró aún (tema tarda en pintar), no lo borres: lo intentaremos de nuevo
+    return false;
+}
+
+/* --- API --- */
+function feehApplyForModule(mod, cb, opts) {
+    opts = opts || {};
+    var apply = !!opts.apply; // true: aplicar; false: preview
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', getFeehUrl(), true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            var res = {};
+            try { res = JSON.parse(xhr.responseText || '{}'); } catch (e) { res = { ok: false }; }
+            cb(res);
+        }
+    };
+    xhr.send('rsf_pay_module=' + encodeURIComponent(mod || '') + '&rsf_apply=' + (apply ? '1' : '0'));
+}
+/** Llama al controller para eliminar RSIFEE-*; callback recibe (removed:boolean) */
+function apiRemoveRsiVoucher(cb) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', getFeehUrl(), true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            var res = {};
+            try { res = JSON.parse(xhr.responseText || '{}'); } catch (e) { res = { ok: false }; }
+            if (res && res.formatted) updateSummaryDOM(res.formatted);
+            var removed = !!(res && (res.removed || res.status === 'removed'));
+            if (typeof cb === 'function') cb(removed);
+        }
+    };
+    xhr.send('rsf_action=remove_rsi_voucher');
+}
+
+/* --- DOM helpers --- */
+function updateSummaryDOM(formatted) {
+    if (!formatted) return;
+    [
+        ['#cart-subtotal-products .value', formatted.products],
+        ['#cart-subtotal-shipping .value', formatted.shipping],
+        ['#cart-subtotal-discounts .value, .cart-summary-line.cart-summary-subtotals .discounts .value', formatted.discounts],
+        ['#cart-summary-total .value, .cart-total .value', formatted.total_incl]
+    ].forEach(function(p) {
+        var el = document.querySelector(p[0]);
+        if (el) el.textContent = p[1];
+    });
+}
+
+function detectModuleName(row, radio) {
+    var mod = (radio && (radio.getAttribute('data-module-name') || (radio.dataset && radio.dataset.moduleName))) || '';
+    if (!mod && row) {
+        mod = row.getAttribute('data-module-name') || row.getAttribute('data-rsf-module') || row.getAttribute('data-module') || '';
+        if (!mod) {
+            var el = row.querySelector('form[action*="/module/"], a[href*="/module/"]');
+            if (el) {
+                var url = el.getAttribute('action') || el.getAttribute('href') || '';
+                var m = url.match(/\/module\/([^\/?#]+)/i);
+                if (m && m[1]) mod = m[1];
+            }
+        }
+    }
+    return (mod || '').toLowerCase().trim();
+}
+
+function renderFeeBadge(row, res, mod) {
+    var container = (row.querySelector('label, .payment-option-title, .payment-option') || row);
+    if (!container) return;
+    var hash = rsfHash(res),
+        prev = RSF_BADGE_CACHE[mod || ''] || 'init';
+    if (hash === prev) return;
+    RSF_BADGE_CACHE[mod || ''] = hash;
+
+    rsfDo(function() {
+        var old = row.querySelector('.rsf-badge-fee');
+        if (old) old.remove();
+        if (hash === 'none') return;
+        var pctTxt = (Math.round((+res.delta_pct || 0) * 100) / 100).toString().replace('.', ',');
+        var label = (t('fee_discount_badge', '−%pct%% discount (%amount%)').replace('%pct%', pctTxt).replace('%amount%', res.formatted_discount || ''));
+        var badge = document.createElement('span');
+        badge.className = 'label rsf-badge-fee';
+        badge.textContent = label;
+        container.appendChild(badge);
+    });
+}
+
+function getSelectedPaymentCtx() {
+    var radio = document.querySelector('input[type="radio"][name="payment-option"]:checked');
+    if (!radio) return null;
+    var row = radio.closest('.payment-option, .payment-option-item, .row');
+    var mod = detectModuleName(row, radio);
+    return { radio: radio, row: row, module: mod };
+}
+
+function getAllPaymentRows() {
+    return Array.prototype.slice.call(document.querySelectorAll('.payment-option, .payment-option-item, .row[id^="payment-option-"]'));
+}
+
+/* --- Core flows --- */
+// Preview de todas (badges). Totales: solo la seleccionada.
+function applyForAllOptions() {
+    var rows = getAllPaymentRows();
+    if (!rows.length) return;
+    var selected = getSelectedPaymentCtx();
+
+    rows.forEach(function(row) {
+        var radio = row.querySelector('input[type="radio"][name="payment-option"]');
+        var mod = detectModuleName(row, radio);
+        if (!mod) return;
+        feehApplyForModule(mod, function(res) {
+            renderFeeBadge(row, res, mod);
+            if (selected && selected.row === row && res && res.formatted) updateSummaryDOM(res.formatted);
+        }, { apply: false });
+    });
+}
+
+// Selección: una sola acción en vuelo; solo recarga si hubo cambio real.
+// Si se aplica cupón, guardamos el módulo y luego recargamos.
+function applySelectionOrRemove() {
+    if (RSF_INFLIGHT) return;
+    RSF_INFLIGHT = true;
+    setTimeout(function() { RSF_INFLIGHT = false; }, 5000); // failsafe
+
+    var ctx = getSelectedPaymentCtx();
+    if (!ctx || !ctx.module) {
+        apiRemoveRsiVoucher(function(removed) {
+            RSF_INFLIGHT = false;
+            if (removed) rsfReloadOnce('remove-none');
+            else applyForAllOptions();
+        });
+        return;
+    }
+
+    feehApplyForModule(ctx.module, function(res) {
+        if (res && res.status === 'applied') {
+            // Guardamos qué módulo restaurar tras el reload
+            rsfSetRestoreModule(ctx.module);
+            rsfReloadOnce('applied');
+            return;
+        }
+        apiRemoveRsiVoucher(function(removed) {
+            RSF_INFLIGHT = false;
+            if (removed) rsfReloadOnce('remove-sel');
+            else applyForAllOptions();
+        });
+    }, { apply: true });
+}
+
+/* --- Eventos --- */
+// 1) Carga: primero intentamos restaurar selección (si venimos de un apply), luego pintamos badges.
+//    Solo quitamos RSIFEE si NO había módulo a restaurar y sigue sin haber selección.
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        var restored = rsfTryRestoreSelection(); // intenta re-seleccionar sin disparar change
+        applyForAllOptions();
+
+        var ctx = getSelectedPaymentCtx();
+        if (!ctx && !restored) {
+            apiRemoveRsiVoucher(function(removed) {
+                if (removed) rsfReloadOnce('remove-onload');
+            });
+        }
+    }, 150);
+
+    // Si el DOM tarda en pintar métodos, intentamos restaurar una vez más
+    setTimeout(function() {
+        if (!getSelectedPaymentCtx() && rsfGetRestoreModule()) {
+            if (rsfTryRestoreSelection()) applyForAllOptions();
+        }
+    }, 600);
+});
+
+// 2) Un solo listener: CHANGE en radios de pago
+document.addEventListener('change', function(ev) {
+    var t = ev.target;
+    if (!t || !t.matches) return;
+    if (!t.matches('input[type="radio"][name="payment-option"]')) return;
+    setTimeout(applySelectionOrRemove, 30); // deja al tema marcar checked
+}, true);
+
+// 3) Re-render del bloque: solo re-pintar badges (preview)
+(function() {
+    if (!window.MutationObserver) return;
+    var tgt = document.querySelector('.payment-options') || document.body;
+    if (!tgt) return;
+    var debounce, lastCount = 0;
+
+    function countOptions() { return document.querySelectorAll('.payment-option, .payment-option-item, .row[id^="payment-option-"]').length; }
+    lastCount = countOptions();
+
+    var mo = new MutationObserver(function(muts) {
+        if (RSF_UPDATING) return;
+        var onlyBadges = muts.every(function(m) {
+            var t = m.target;
+            return (t && t.closest && t.closest('.rsf-badge-fee')) ||
+                Array.prototype.some.call(m.addedNodes || [], function(n) { return n.nodeType === 1 && n.classList && n.classList.contains('rsf-badge-fee'); }) ||
+                Array.prototype.some.call(m.removedNodes || [], function(n) { return n.nodeType === 1 && n.classList && n.classList.contains('rsf-badge-fee'); });
+        });
+        if (onlyBadges) return;
+
+        var now = countOptions();
+        if (now === lastCount) return;
+        lastCount = now;
+        clearTimeout(debounce);
+        debounce = setTimeout(applyForAllOptions, 120);
+    });
+    mo.observe(tgt, { childList: true, subtree: true });
+})();

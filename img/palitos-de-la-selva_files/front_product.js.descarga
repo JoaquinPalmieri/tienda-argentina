@@ -1,0 +1,67 @@
+/**
+* 2024 ALCALINK E-COMMERCE & SEO, S.L.L.
+*
+* NOTICE OF LICENSE
+*
+* This source file is subject to the Open Software License (OSL 3.0)
+* that is bundled with this package in the file LICENSE.txt.
+* It is also available through the world-wide-web at this URL:
+* http://opensource.org/licenses/osl-3.0.php
+* If you did not receive a copy of the license and are unable to
+* obtain it through the world-wide-web, please send an email
+* to license@prestashop.com so we can send you a copy immediately.
+*
+* DISCLAIMER
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+* THE SOFTWARE.
+*
+* @author ALCALINK E-COMMERCE & SEO, S.L.L. <info@alcalink.com>
+* @copyright  2024 ALCALINK E-COMMERCE & SEO, S.L.L.
+* @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+*
+* Registered Trademark & Property of ALCALINK E-COMMERCE & SEO, S.L.L.
+ */
+
+$('[alt="apmyoutubevideo"]').on("click", function (t) {
+    // const isNormalThumb = $(this).closest('div').hasClass('js-qv-mask');
+    html = '<div style="display:none" id="apmyoutubevideo"><iframe title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
+    if ($('#apmyoutubevideo').length == 0) {
+        $('body').append($(html));
+    }
+    h = $('#apmyoutubevideo').first().html();
+    o = $(h);
+    $(o).attr('src', 'https://www.youtube.com/embed' + $(this).attr('src').replace('https://img.youtube.com/vi', '').replace('/0.jpg', '') + '?autoplay=1');
+    $(o).attr('id', 'apmyoutubevideoiframe');
+    $('#apmyoutubevideoiframe').remove();
+    var target = $('.js-images-container .js-qv-product-cover');
+    if ($(target).length == 0) {
+        target = $('img.pro_gallery_item').last();
+    }
+    setTimeout(function(target) {
+        $(o).width($(target).width());
+        $(o).height($(target).height());
+        $(target).after(o).hide();
+        setTimeout(function() {
+            $('[data-target="#product-modal"]').hide();
+            $('#product-modal').modal('hide');
+            $('.js-thumb').removeClass('selected');
+            $('[alt="apmyoutubevideo"]').addClass('selected');
+    
+            $('.pro_popup_trigger_box').hide();
+        });
+    }, 100, target);
+});
+$(document).on('click', '.js-qv-product-images .thumb-container, .pro_gallery_thumbs_container .curr_combination_thumb', function () {
+    if ($(this).attr('alt') != 'apmyoutubevideo') {
+        if ($(this).find('[alt="apmyoutubevideo"]').length == 0) {
+            $('.js-images-container .js-qv-product-cover').after(o).show();
+            $('#apmyoutubevideoiframe').remove();
+        }
+        $('[data-target="#product-modal"]').show();
+    }
+});
