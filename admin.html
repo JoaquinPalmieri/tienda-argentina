@@ -1155,8 +1155,10 @@
 
   // ── FACTURA PDF ──
   window.generarFactura = function(id) {
+    try {
     const v = ventas.find(x => x.id === id);
-    if (!v) return;
+    if (!v) { showToast('❌ Venta no encontrada'); return; }
+    if (!window.jspdf) { showToast('❌ jsPDF no cargó. Revisá la conexión.'); return; }
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'mm', format: 'a5' });
     const W = 148;
@@ -1307,6 +1309,7 @@
     } else {
       doc.save(nombre_archivo);
     }
+    } catch(err) { showToast('❌ Error al generar factura: ' + err.message); console.error(err); }
   };
 
   // ── STOCK ──
