@@ -1154,7 +1154,7 @@
 
 
   // ── FACTURA PDF ──
-  window.generarFactura = async function(id) {
+  window.generarFactura = function(id) {
     const v = ventas.find(x => x.id === id);
     if (!v) return;
     const { jsPDF } = window.jspdf;
@@ -1162,17 +1162,8 @@
     const W = 148;
     let y = 0;
 
-    // — Intentar cargar logo —
-    let logoData = null;
-    try {
-      const resp = await fetch('/img/preview.png');
-      const blob = await resp.blob();
-      logoData = await new Promise(res => {
-        const r = new FileReader();
-        r.onload = () => res(r.result);
-        r.readAsDataURL(blob);
-      });
-    } catch(e) { /* sin logo, no pasa nada */ }
+    // — Usar logo precargado al iniciar —
+    const logoData = window._logoCache || null;
 
     // — Header oscuro —
     doc.setFillColor(15, 23, 42);
@@ -1432,6 +1423,15 @@
   });
 
   // ── CONFIG: guardar WhatsApp ──
+  // — Precargar logo para facturas PDF —
+  (function() {
+    fetch('/img/preview.png')
+      .then(r => r.blob())
+      .then(blob => new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); }))
+      .then(data => { window._logoCache = data; })
+      .catch(() => { window._logoCache = null; });
+  })();
+
   document.getElementById('btnSaveConfig').addEventListener('click', async () => {
     const num = document.getElementById('configWaInput').value.trim().replace(/\D/g, '');
     const msg = document.getElementById('configMsg');
