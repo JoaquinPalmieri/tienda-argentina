@@ -1163,7 +1163,7 @@
 
     const fechaSlug = v.fecha ? v.fecha.split('-').reverse().join('-') : 'sin-fecha';
     const clienteSlug = (v.cliente || 'cliente').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
-    const titulo = 'Factura ' + fechaSlug + ' — ' + (v.cliente || 'Cliente');
+    const titulo = 'factura-' + fechaSlug + '-' + clienteSlug;
 
     const filas = items.map(item => {
       const cant = item.cantidad || 1;
@@ -1218,7 +1218,7 @@
       <header>
         <img src="https://argentina-en-casa.vercel.app/img/preview.png" onerror="this.style.display='none'">
         <div>
-          <h1>Argentina en Casa</h1>
+          <h1>Argentina en Casa&#174;</h1>
           <p>Dubrovnik, Croacia &nbsp;·&nbsp; argentina-en-casa.vercel.app</p>
         </div>
       </header>
